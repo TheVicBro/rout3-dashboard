@@ -9,7 +9,6 @@
   import Settings from './components/Settings.svelte';
   import Account from './components/Account.svelte';
   import Login from './components/Login.svelte';
-  import Test from './components/Test.svelte';
 
   const isAuthenticated = writable(false);
 
@@ -32,7 +31,6 @@
           <Route path="/account" component={Account} />
           <Route path="/settings" component={Settings} />
           <Route path="/" component={Secrets} />
-          <Route path="/test" component={Test} />
         </div>
       </div>
     </Router>
