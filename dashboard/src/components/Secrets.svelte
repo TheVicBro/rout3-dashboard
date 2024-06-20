@@ -1,21 +1,58 @@
-<script>
-  let data = [
-    { name: 'Staging - User Analytics', key: 'babalane--...--1106', lastUsed: '10 days ago' },
-    { name: 'Staging - User Analytics', key: 'babalane--...--1106', lastUsed: '10 days ago' },
-    { name: 'Staging - User Analytics', key: 'babalane--...--1106', lastUsed: '10 days ago' },
-    { name: 'Staging - User Analytics', key: 'babalane--...--1106', lastUsed: '10 days ago' },
-  ];
+<script lang="ts">
+  import { createQuery, useQueryClient } from '@tanstack/svelte-query';
+
+  const token = localStorage.getItem("authToken");
+  const queryClient = useQueryClient();
+
+  type Repo = {
+    name: string;
+    last_used: string | null;
+    user_id: number;
+    id: number;
+    key: string;
+  };
+
+  const addNewKey = async () => {
+    const response = await fetch('http://127.0.0.1:8000/secrets/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${token}`,
+      },
+      body: JSON.stringify({
+        name: newName,
+        key: newKey,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.statusText}`);
+    }
+    queryClient.invalidateQueries({ queryKey: ['repoData'] });
+    addKeyPopup = false;
+  }
+
+  const fetchRepos = async (): Promise<Repo[]> => {
+    const response = await fetch('http://127.0.0.1:8000/secrets/list?user_id=1', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${token}`,
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.statusText}`);
+    }
+    return response.json();
+  };
+
+  const query = createQuery<Repo[]>({
+    queryKey: ['repoData'],
+    queryFn: fetchRepos,
+  });
 
   let addKeyPopup = false;
   let newName = '';
   let newKey = '';
-
-  function addNewKey() {
-    data = [...data, { name: newName, key: newKey, lastUsed: 'Just now' }];
-    newName = '';
-    newKey = '';
-    addKeyPopup = false;
-  }
 </script>
 
 <div>
@@ -23,24 +60,32 @@
   <div class="m-10 border rounded-lg bg-white shadow">
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
     <div class="p-10">
-      <table class="w-full">
-        <thead>
-          <tr>
-            <th class="text-left p-2">Name</th>
-            <th class="text-left p-2">Key</th>
-            <th class="text-left p-2">Last Used</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each data as item}
+      {#if $query.isPending}
+        Loading...
+      {/if}
+      {#if $query.error}
+        An error has occurred: {$query.error.message}
+      {/if}
+      {#if $query.isSuccess}
+        <table class="w-full">
+          <thead>
             <tr>
-              <td class="p-2">{item.name}</td>
-              <td class="p-2">{item.key}</td>
-              <td class="p-2">{item.lastUsed}</td>
+              <th class="text-left p-2">Name</th>
+              <th class="text-left p-2">Key</th>
+              <th class="text-left p-2">Last Used</th>
             </tr>
-          {/each}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {#each $query.data as repo}
+              <tr>
+                <td class="p-2">{repo.name}</td>
+                <td class="p-2">{repo.key}</td>
+                <td class="p-2">{repo.last_used}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      {/if}
     </div>
   </div>
   <button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg" on:click={() => addKeyPopup = true}>+ Add a new key</button>

@@ -36,7 +36,7 @@ def read_current_user_secrets(
     )
 
 
-@router.get("/secrets/list?user_id={user_id}")
+@router.get("/list?user_id={user_id}")
 def read_secrets_by_user_id(
     user_id: int,
     skip: int = 0,

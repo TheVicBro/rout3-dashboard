@@ -20,8 +20,7 @@
     });
 
     if (response.ok) {
-      const { token } = await response.json();
-      localStorage.setItem("authToken", token);
+      localStorage.setItem("authToken", credentials);
       dispatch("loginSuccess");
     } else {
       alert("Login failed");

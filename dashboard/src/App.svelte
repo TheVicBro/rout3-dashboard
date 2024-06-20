@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
   import { writable } from 'svelte/store';
   import { Router, Route } from 'svelte-routing';
   import Sidebar from './components/Sidebar.svelte';
@@ -8,30 +9,36 @@
   import Settings from './components/Settings.svelte';
   import Account from './components/Account.svelte';
   import Login from './components/Login.svelte';
+  import Test from './components/Test.svelte';
 
   const isAuthenticated = writable(false);
 
   function handleLoginSuccess() {
     isAuthenticated.set(true);
   }
+
+  const queryClient = new QueryClient()
 </script>
 
-{#if $isAuthenticated}
-  <Router>
-    <div class="flex h-screen bg-slate-100">
-      <Sidebar />
-      <div class="flex-1 flex flex-col overflow-hidden">
-        <Route path="/secrets" component={Secrets} />
-        <Route path="/analytics" component={Analytics} />
-        <Route path="/billing" component={Billing} />
-        <Route path="/account" component={Account} />
-        <Route path="/settings" component={Settings} />
-        <Route path="/" component={Secrets} />
+<QueryClientProvider client={queryClient}>
+  {#if $isAuthenticated}
+    <Router>
+      <div class="flex h-screen bg-slate-100">
+        <Sidebar />
+        <div class="flex-1 flex flex-col overflow-hidden">
+          <Route path="/secrets" component={Secrets} />
+          <Route path="/analytics" component={Analytics} />
+          <Route path="/billing" component={Billing} />
+          <Route path="/account" component={Account} />
+          <Route path="/settings" component={Settings} />
+          <Route path="/" component={Secrets} />
+          <Route path="/test" component={Test} />
+        </div>
       </div>
+    </Router>
+  {:else}
+    <div class="min-h-screen flex items-center justify-center bg-slate-100">
+      <Login on:loginSuccess={handleLoginSuccess} />
     </div>
-  </Router>
-{:else}
-  <div class="min-h-screen flex items-center justify-center bg-slate-100">
-    <Login on:loginSuccess={handleLoginSuccess} />
-  </div>
-{/if}
+  {/if}
+</QueryClientProvider>
