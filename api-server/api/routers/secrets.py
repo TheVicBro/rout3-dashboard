@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
-from db import crud, schemas
+from models.schemas import schemas
 from db.database import get_db
+from db.repositories import secrets_repository as secrets_repo
+from db.repositories import user_repository as user_repo
 
 
 router = APIRouter(prefix="/secrets")
@@ -19,8 +21,8 @@ def create_key(
     db: Session = Depends(get_db),
     current_user: Session = Depends(get_current_user),
 ):
-    current_user_id = crud.get_user_by_username(db, current_user).id
-    return crud.create_secret(db=db, secret=secret, user_id=current_user_id)
+    current_user_id = user_repo.get_user_by_username(db, current_user).id
+    return secrets_repo.create_secret(db=db, secret=secret, user_id=current_user_id)
 
 
 @router.get("/list")
@@ -30,8 +32,8 @@ def read_current_user_secrets(
     limit: int = 10,
     db: Session = Depends(get_db),
 ):
-    current_user_id = crud.get_user_by_username(db, current_user).id
-    return crud.get_secrets_by_user_id(
+    current_user_id = user_repo.get_user_by_username(db, current_user).id
+    return secrets_repo.get_secrets_by_user_id(
         db, user_id=current_user_id, skip=skip, limit=limit
     )
 
@@ -43,9 +45,11 @@ def read_secrets_by_user_id(
     limit: int = 10,
     db: Session = Depends(get_db),
 ):
-    return crud.get_secrets_by_user_id(db, user_id=user_id, skip=skip, limit=limit)
+    return secrets_repo.get_secrets_by_user_id(
+        db, user_id=user_id, skip=skip, limit=limit
+    )
 
 
-@router.delete("/secrets/delete?secret_id={secret_id}")
+@router.delete("/delete?secret_id={secret_id}")
 def delete_secret_by_id(secret_id: int, db: Session = Depends(get_db)):
-    return crud.delete_secrets_by_id(db, secret_id)
+    return secrets_repo.delete_secrets_by_id(db, secret_id)

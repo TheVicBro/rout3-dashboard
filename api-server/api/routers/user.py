@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
-from db import crud, schemas
+from models.schemas import schemas
 from db.database import get_db
+from db.repositories import user_repository as user_repo
+
 
 router = APIRouter(prefix="/user")
 security = HTTPBasic()
@@ -17,29 +19,29 @@ def verification(
     username = creds.username  # inputted username
     password = creds.password  # inputted password
 
-    user = crud.get_user_by_username(db, username=username)
+    user = user_repo.get_user_by_username(db, username=username)
     if user == None:
         return False  # user does not exist
-    return crud.authenticate_user(password, user.hashed_password)
+    return user_repo.authenticate_user(password, user.hashed_password)
 
 
 @router.post("/create", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_username(db, username=user.username)
+    db_user = user_repo.get_user_by_username(db, username=user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
-    return crud.create_user(db=db, user=user)
+    return user_repo.create_user(db=db, user=user)
 
 
 @router.get("/test", response_model=List[schemas.User])
 def read_all_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_users(db, skip=skip, limit=limit)
+    users = user_repo.get_users(db, skip=skip, limit=limit)
     return users
 
 
 @router.get("/test?user_id={user_id}", response_model=schemas.User)
 def read_by_user_id(user_id: int, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_id(db, user_id=user_id)
+    db_user = user_repo.get_user_by_id(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user

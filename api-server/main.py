@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.security import HTTPBasic
 from fastapi.middleware.cors import CORSMiddleware
-from routers.secrets import router as secrets_router
-from routers.user import router as user_router
+from api.routers.secrets import router as secrets_router
+from api.routers.user import router as user_router
 
 
 app = FastAPI()
