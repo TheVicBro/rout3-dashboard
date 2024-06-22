@@ -1,18 +1,13 @@
 from fastapi import APIRouter, Depends
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 from models.schemas import schemas
 from db.database import get_db
 from db.repositories import secrets_repository as secrets_repo
 from db.repositories import user_repository as user_repo
+from services.authentication import get_current_user
 
 
 router = APIRouter(prefix="/secrets")
-security = HTTPBasic()
-
-
-def get_current_user(creds: HTTPBasicCredentials = Depends(security)):
-    return creds.username
 
 
 @router.post("/create")

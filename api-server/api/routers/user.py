@@ -1,28 +1,17 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.security import HTTPBasic
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from models.schemas import schemas
 from db.database import get_db
 from db.repositories import user_repository as user_repo
+from services.authentication import verification
 
 
 router = APIRouter(prefix="/user")
 security = HTTPBasic()
-
-
-def verification(
-    creds: HTTPBasicCredentials = Depends(security), db: Session = Depends(get_db)
-):
-    username = creds.username  # inputted username
-    password = creds.password  # inputted password
-
-    user = user_repo.get_user_by_username(db, username=username)
-    if user == None:
-        return False  # user does not exist
-    return user_repo.authenticate_user(password, user.hashed_password)
 
 
 @router.post("/create", response_model=schemas.User)
