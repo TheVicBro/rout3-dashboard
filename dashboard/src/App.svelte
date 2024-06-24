@@ -8,6 +8,7 @@
   import Settings from './components/Settings.svelte';
   import Account from './components/Account.svelte';
   import Login from './components/Login.svelte';
+  import MyAI from './components/MyAI.svelte';
   import { isAuthenticated } from './stores/auth';
   import { onMount } from 'svelte';
 
@@ -32,6 +33,7 @@
       <div class="flex h-screen bg-slate-100">
         <Sidebar />
         <div class="flex-1 flex flex-col overflow-hidden">
+          <Route path="/myai" component={MyAI} />
           <Route path="/secrets" component={Secrets} />
           <Route path="/analytics" component={Analytics} />
           <Route path="/billing" component={Billing} />
