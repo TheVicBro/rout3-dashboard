@@ -46,7 +46,11 @@
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
+<<<<<<< HEAD
     removeKeyPopup = false;
+=======
+    addKeyPopup = false;
+>>>>>>> 3917470 (Begun work on removing key functionality and added icons)
   }
 
   const fetchRepos = async (): Promise<Repo[]> => {
@@ -74,10 +78,13 @@
 
   let removeKeyPopup = false;
   let selectedSecretId: number | null = null;
+<<<<<<< HEAD
 
   const maskKey = (key: string) => {
     return key.replace(/./g, '*');
   }
+=======
+>>>>>>> 3917470 (Begun work on removing key functionality and added icons)
 </script>
 
 <div>
