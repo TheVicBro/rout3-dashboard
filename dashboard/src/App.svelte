@@ -1,7 +1,6 @@
 <script lang="ts">
   import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
-  import { writable } from 'svelte/store';
-  import { Router, Route } from 'svelte-routing';
+  import { Router, Route, navigate } from 'svelte-routing';
   import Sidebar from './components/Sidebar.svelte';
   import Secrets from './components/Secrets.svelte';
   import Analytics from './components/Analytics.svelte';
@@ -9,11 +8,19 @@
   import Settings from './components/Settings.svelte';
   import Account from './components/Account.svelte';
   import Login from './components/Login.svelte';
+  import { isAuthenticated } from './stores/auth';
+  import { onMount } from 'svelte';
 
-  const isAuthenticated = writable(false);
+  onMount(() => {
+    // Check if the user is already authenticated on load
+    if (localStorage.getItem("authToken")) {
+      isAuthenticated.set(true);
+    }
+  });
 
   function handleLoginSuccess() {
     isAuthenticated.set(true);
+    navigate('/secrets');
   }
 
   const queryClient = new QueryClient()
