@@ -2,6 +2,14 @@
   import { Link, useLocation } from 'svelte-routing';
   import logo from '/llmproxyTransparent.png';
   import { isAuthenticated } from '../stores/auth';
+  import LogOutLogo from '../../public/log-out.svelte';
+  import SettingsLogo from '../../public/settings.svelte';
+  import AccountLogo from '../../public/account.svelte';
+  import SecretsLogo from '../../public/secrets.svelte';
+  import AnalyticsLogo from '../../public/analytics.svelte';
+  import BillingLogo from '../../public/billing.svelte';
+  import MyAILogo from '../../public/myai.svelte';
+
   
   // Get the current location
   const location = useLocation();
@@ -29,7 +37,7 @@
           }`}
           type="button"
         >
-          <i class="icon-key"></i>
+          <MyAILogo />
           <span class="font-semibold">MyAI</span>
         </button>
       </Link>
@@ -40,7 +48,7 @@
           }`}
           type="button"
         >
-          <i class="icon-key"></i>
+          <SecretsLogo />
           <span class="font-semibold">Secrets</span>
         </button>
       </Link>
@@ -51,7 +59,7 @@
           }`}
           type="button"
         >
-          <i class="icon-analytics"></i>
+          <AnalyticsLogo />
           <span class="font-semibold">Analytics</span>
         </button>
       </Link>
@@ -62,7 +70,7 @@
           }`}
           type="button"
         >
-          <i class="icon-billing"></i>
+          <BillingLogo />
           <span class="font-semibold">Billing</span>
         </button>
       </Link>
@@ -75,7 +83,7 @@
           }`}
           type="button"
         >
-          <i class="icon-account"></i>
+          <AccountLogo />
           <span class="font-semibold">Account</span>
         </button>
       </Link>
@@ -86,7 +94,7 @@
           }`}
           type="button"
         >
-          <i class="icon-settings"></i>
+          <SettingsLogo />
           <span class="font-semibold">Settings</span>
         </button>
       </Link>
@@ -96,7 +104,7 @@
           type="button"
           on:click={logout}
         >
-          <i class="icon-settings"></i>
+          <LogOutLogo />
           <span class="font-semibold">Logout</span>
         </button>
       </Link>
