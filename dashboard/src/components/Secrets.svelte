@@ -31,6 +31,24 @@
     addKeyPopup = false;
   }
 
+  const removeKey = async () => {
+    const response = await fetch('http://127.0.0.1:8000/secrets/delete', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${token}`,
+      },
+      body: JSON.stringify({
+        secret_id: selectedSecretId,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.statusText}`);
+    }
+    queryClient.invalidateQueries({ queryKey: ['repoData'] });
+    addKeyPopup = false;
+  }
+
   const fetchRepos = async (): Promise<Repo[]> => {
     const response = await fetch('http://127.0.0.1:8000/secrets/list?user_id=1', {
       method: 'GET',
@@ -53,6 +71,9 @@
   let addKeyPopup = false;
   let newName = '';
   let newKey = '';
+
+  let removeKeyPopup = false;
+  let selectedSecretId: number | null = null;
 </script>
 
 <div>
@@ -89,6 +110,7 @@
     </div>
   </div>
   <button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg" on:click={() => addKeyPopup = true}>+ Add a new key</button>
+  <button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg" on:click={() => removeKeyPopup = true}>+ Remove a key</button>
 
   {#if addKeyPopup}
     <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -108,6 +130,33 @@
           </div>
           <div class="pt-6">
             <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  {#if removeKeyPopup}
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div class="bg-white rounded-lg shadow-lg p-8 w-96 relative">
+        <button class="absolute pb-1 top-4 right-4 text-gray-500 hover:text-gray-700 text-4xl rounded-full h-12 w-12 flex items-center justify-center hover:bg-gray-200 transition duration-200 ease-in-out" on:click={() => removeKeyPopup = false}>
+          &times;
+        </button>
+        <h2 class="text-2xl font-semibold mb-4">Remove Key</h2>
+        <div class="space-y-4">
+          {#if $query.isSuccess}
+            <div>
+              <div class="block text-gray-700">Select Secret to Remove</div>
+              <select bind:value={selectedSecretId} class="form-select mt-1 block w-full border rounded p-2">
+                <option value="" disabled selected>Select a key</option>
+                {#each $query.data as repo}
+                  <option value={repo.id}>{repo.name}</option>
+                {/each}
+              </select>
+            </div>
+          {/if}
+          <div class="pt-6">
+            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={removeKey}>Remove Key</button>
           </div>
         </div>
       </div>
