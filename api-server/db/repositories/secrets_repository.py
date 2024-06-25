@@ -24,10 +24,12 @@ def get_secrets_by_user_id(db: Session, user_id: int, skip: int = 0, limit: int 
 
 
 def get_secret_by_id(db: Session, secret_id: int):
+    print("get secret")
     return db.query(models.Secret).filter(models.Secret.id == secret_id).first()
 
 
 def delete_secrets_by_id(db: Session, id: int):
+    print("delete secret")
     to_be_deleted = get_secret_by_id(db, id)
     db.delete(to_be_deleted)
     db.commit()

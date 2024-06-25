@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class SecretBase(BaseModel):
@@ -17,7 +17,7 @@ class SecretCreate(SecretBase):
 
 class Secret(SecretBase):
     id: int
-    last_used: str
+    last_used: Optional[str] = None
     user_id: int
 
     class Config:

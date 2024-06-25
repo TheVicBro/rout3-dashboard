@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from models.schemas import schemas
 from db.database import get_db
@@ -45,6 +45,9 @@ def read_secrets_by_user_id(
     )
 
 
-@router.delete("/delete?secret_id={secret_id}")
+@router.delete("/delete")
 def delete_secret_by_id(secret_id: int, db: Session = Depends(get_db)):
-    return secrets_repo.delete_secrets_by_id(db, secret_id)
+    deleted = secrets_repo.delete_secrets_by_id(db, secret_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Secret not found")
+    return {"message": "Secret deleted successfully"}
