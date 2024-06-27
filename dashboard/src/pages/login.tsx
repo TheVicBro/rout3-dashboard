@@ -1,11 +1,14 @@
-import React from "react";
 import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useAuth } from '../context/authContext';
 
-export default function Login({ onLoginSuccess }: { onLoginSuccess: () => void }) {
+export default function Login() {
+  const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
 
-  const login = async () => {
+  const handleLogin = async () => {
     const credentials = btoa(`${username}:${password}`);
 
     const response = await fetch(`http://127.0.0.1:8000/user/login`, {
@@ -18,7 +21,8 @@ export default function Login({ onLoginSuccess }: { onLoginSuccess: () => void }
 
     if (response.ok) {
       localStorage.setItem('authToken', credentials);
-      onLoginSuccess();
+      login();
+      router.push('/');
     } else {
       alert('Login failed');
     }
@@ -26,7 +30,7 @@ export default function Login({ onLoginSuccess }: { onLoginSuccess: () => void }
 
   const handleKeydown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
-      login();
+      handleLogin();
     }
   };
 
@@ -51,9 +55,11 @@ export default function Login({ onLoginSuccess }: { onLoginSuccess: () => void }
           className="border rounded-lg p-2 mb-4 w-full"
         />
         <button
-          onClick={login}
+          onClick={handleLogin}
           className="px-4 py-2 bg-blue-500 text-white rounded-lg w-full hover:bg-blue-600 transition"
-        >Login</button>
+        >
+          Login
+        </button>
       </div>
     </div>
   );
