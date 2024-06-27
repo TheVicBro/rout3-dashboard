@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Sidebar from '../components/Sidebar';
-// import Secrets from '../components/Secrets';
+import Secrets from '../components/Secrets';
 // import Analytics from '../components/Analytics';
 // import Billing from '../components/Billing';
 // import Settings from '../components/Settings';
@@ -32,13 +32,13 @@ export default function Home() {
         <div className="flex h-screen bg-slate-100">
           <Sidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* {router.pathname === '/myai' && <MyAI />}
+            {/* {router.pathname === '/myai' && <MyAI />} */}
             {router.pathname === '/secrets' && <Secrets />}
-            {router.pathname === '/analytics' && <Analytics />}
+            {/* {router.pathname === '/analytics' && <Analytics />}
             {router.pathname === '/billing' && <Billing />}
             {router.pathname === '/account' && <Account />}
             {router.pathname === '/settings' && <Settings />} */}
-            {/* {router.pathname === '/' && <Secrets />} */}
+            {router.pathname === '/' && <Secrets />}
           </div>
         </div>
       ) : (
