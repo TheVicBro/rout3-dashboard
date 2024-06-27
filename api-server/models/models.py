@@ -1,6 +1,17 @@
+from typing import Union
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from db.database import Base
+from pydantic import BaseModel
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: Union[str, None] = None
 
 
 class User(Base):
