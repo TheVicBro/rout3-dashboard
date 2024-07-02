@@ -46,7 +46,7 @@
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
-    addKeyPopup = false;
+    removeKeyPopup = false;
   }
 
   const fetchRepos = async (): Promise<Repo[]> => {
@@ -74,6 +74,10 @@
 
   let removeKeyPopup = false;
   let selectedSecretId: number | null = null;
+
+  const maskKey = (key: string) => {
+    return key.replace(/./g, '*');
+  }
 </script>
 
 <div>
@@ -100,7 +104,7 @@
             {#each $query.data as repo}
               <tr>
                 <td class="p-2">{repo.name}</td>
-                <td class="p-2">{repo.key}</td>
+                <td class="p-2">{maskKey(repo.key)}</td>
                 <td class="p-2">{repo.last_used}</td>
               </tr>
             {/each}
