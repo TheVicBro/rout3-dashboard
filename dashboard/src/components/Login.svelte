@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { isAuthenticated } from '../stores/auth';
 
   let username = "";
   let password = "";
@@ -11,18 +10,17 @@
     formData.append("username", username);
     formData.append("password", password);
 
-    const credentials = btoa(`${username}:${password}`);
-
-    const response = await fetch(`http://127.0.0.1:8000/user/login`, {
-      method: "GET",
+    const response = await fetch(`http://127.0.0.1:8000/token`, {
+      method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${credentials}`,
+        "Content-Type": "application/x-www-form-urlencoded",
       },
+      body: new URLSearchParams({ username, password }),
     });
 
     if (response.ok) {
-      localStorage.setItem("authToken", credentials);
+      const data = await response.json();
+      localStorage.setItem("authToken", data.access_token);
       dispatch("loginSuccess");
     } else {
       alert("Login failed");
