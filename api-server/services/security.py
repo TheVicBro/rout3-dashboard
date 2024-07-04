@@ -9,7 +9,3 @@ def get_password_hash(plaintext_password: str):
 
 def verify_password(plaintext_password, hashed_password):
     return pwd_context.verify(plaintext_password, hashed_password)
-
-
-def authenticate_user(password, hashed_password):
-    return pwd_context.verify(password, hashed_password)
