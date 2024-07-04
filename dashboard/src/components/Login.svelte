@@ -1,5 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { isAuthenticated } from '../stores/auth';
+
   let username = "";
   let password = "";
   const dispatch = createEventDispatcher();
@@ -26,6 +28,12 @@
       alert("Login failed");
     }
   }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === "Enter") {
+      login();
+    }
+  }
 </script>
 
 <div class="min-h-screen flex items-center justify-center bg-gray-100">
@@ -35,12 +43,14 @@
       type="text"
       placeholder="Username"
       bind:value={username}
+      on:keydown={handleKeydown}
       class="border rounded-lg p-2 mb-4 w-full"
     />
     <input
       type="password"
       placeholder="Password"
       bind:value={password}
+      on:keydown={handleKeydown}
       class="border rounded-lg p-2 mb-4 w-full"
     />
     <button
