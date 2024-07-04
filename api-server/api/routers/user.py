@@ -1,17 +1,19 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBasic
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
+from fastapi.security import OAuth2PasswordRequestForm
 from models.schemas import schemas
+from models.models import Token
 from db.database import get_db
 from db.repositories import user_repository as user_repo
-from services.authentication import verification
+from services import authentication as auth
+from services import jwt
+from typing_extensions import Annotated
 
 
 router = APIRouter(prefix="/user")
-security = HTTPBasic()
 
 
 @router.post("/create", response_model=schemas.User)
@@ -28,7 +30,7 @@ def read_all_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
     return users
 
 
-@router.get("/test?user_id={user_id}", response_model=schemas.User)
+@router.get("/test/list?user_id={user_id}", response_model=schemas.User)
 def read_by_user_id(user_id: int, db: Session = Depends(get_db)):
     db_user = user_repo.get_user_by_id(db, user_id=user_id)
     if db_user is None:
@@ -36,14 +38,24 @@ def read_by_user_id(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 
+"""
 @router.get("/login")
-def login(Verification=Depends(verification)):
+def login(Verification=Depends(auth.verification)):
     if Verification:
-        return {"message": "login succesful"}
+        return {"message": "success"}
     else:
         return HTMLResponse(status_code=status.HTTP_401_UNAUTHORIZED)
+"""
 
 
 @router.post("/unauthorize")
 def unauthorize():
     return HTMLResponse(status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+@router.get("/me")
+async def read_users_me(
+    current_user: Annotated[str, Depends(jwt.get_current_user)],
+    db: Session = Depends(get_db),
+):
+    return user_repo.get_user_by_username(db, current_user)
