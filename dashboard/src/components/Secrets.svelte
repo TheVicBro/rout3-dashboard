@@ -17,7 +17,7 @@
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Basic ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         name: newName,
@@ -32,15 +32,15 @@
   }
 
   const removeKey = async () => {
-    const response = await fetch('http://127.0.0.1:8000/secrets/delete', {
+    if (selectedSecretId === null) {
+      throw new Error('No secret selected for removal');
+    }
+    const response = await fetch(`http://127.0.0.1:8000/secrets/delete?secret_id=${selectedSecretId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Basic ${token}`,
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        secret_id: selectedSecretId,
-      }),
     });
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -74,10 +74,6 @@
 
   let removeKeyPopup = false;
   let selectedSecretId: number | null = null;
-
-  const maskKey = (key: string) => {
-    return key.replace(/./g, '*');
-  }
 </script>
 
 <div>
@@ -92,6 +88,9 @@
         An error has occurred: {$query.error.message}
       {/if}
       {#if $query.isSuccess}
+        {#if $query.data.length === 0}
+          <div class="mb-4 text-red-600">No secrets found. Click "Add key" to add a new key.</div>
+        {/if}
         <table class="w-full">
           <thead>
             <tr>
@@ -104,7 +103,7 @@
             {#each $query.data as repo}
               <tr>
                 <td class="p-2">{repo.name}</td>
-                <td class="p-2">{maskKey(repo.key)}</td>
+                <td class="p-2">**********</td>
                 <td class="p-2">{repo.last_used}</td>
               </tr>
             {/each}

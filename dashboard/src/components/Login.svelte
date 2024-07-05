@@ -23,6 +23,7 @@
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem("authToken", data.access_token);
+      localStorage.setItem("username", username);
       dispatch("loginSuccess");
     } else {
       alert("Login failed");
@@ -65,14 +66,6 @@
   }
 </script>
 
-<style>
-  .toggle-button {
-    cursor: pointer;
-    color: blue;
-    text-decoration: underline;
-  }
-</style>
-
 <div class="min-h-screen flex items-center justify-center bg-gray-100">
   <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
     {#if showRegister}
@@ -103,9 +96,8 @@
         class="px-4 py-2 bg-green-500 text-white rounded-lg w-full hover:bg-green-600 transition"
         >Register</button
       >
-
       <div class="text-center mt-4">
-        <span class="toggle-button" on:click={() => showRegister = false}>Already have an account? Login here</span>
+        <button type="button" class="cursor-pointer text-blue-500 underline" on:click={() => showRegister = false}>Already have an account? Login here</button>
       </div>
     {:else}
       <h1 class="text-3xl font-bold mb-4 text-center">Login</h1>
@@ -126,11 +118,10 @@
       <button
         on:click={login}
         class="px-4 py-2 bg-blue-500 text-white rounded-lg w-full hover:bg-blue-600 transition"
-        >Login</button
-      >
-
+        >Login
+      </button>
       <div class="text-center mt-4">
-        <span class="toggle-button" on:click={() => showRegister = true}>Don't have an account? Register here</span>
+        <button type="button" class="cursor-pointer text-blue-500 underline" on:click={() => showRegister = true}>Don't have an account? Register here</button>
       </div>
     {/if}
   </div>
