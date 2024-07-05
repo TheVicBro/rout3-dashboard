@@ -2,18 +2,16 @@
   let firstName = '';
   let lastName = '';
   let email = '';
-  let username = '';
+  let username = localStorage.getItem('username') || '';
   let currentPassword = '';
   let newPassword = '';
   let confirmNewPassword = '';
 
   function saveAccountSettings() {
-    // Add logic to save account settings
     console.log('Account settings saved');
   }
 
   function changePassword() {
-    // Add logic to change password
     console.log('Password changed');
   }
 </script>
@@ -23,8 +21,6 @@
   <div class="m-10 border rounded-lg bg-white shadow flex-1 overflow-auto">
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
     <div class="p-10 px-20 space-y-8">
-      
-      <!-- Account Information Section -->
       <div>
         <h3 class="text-xl font-semibold mb-4">Account Information</h3>
         <form on:submit|preventDefault={saveAccountSettings} class="space-y-4">
@@ -40,7 +36,7 @@
           </div>
           <div>
             <div class="block text-gray-700">Username</div>
-            <input type="text" bind:value={username} class="form-input mt-1 block w-full border rounded p-2" />
+            <input type="text" bind:value={username} class="form-input mt-1 block w-full border rounded p-2 bg-gray-200" readonly />
           </div>
           <div>
             <div class="block text-gray-700">Email Address</div>
@@ -51,8 +47,7 @@
           </div>
         </form>
       </div>
-      
-      <!-- Password Change Section -->
+
       <div class="pt-2">
         <h3 class="text-xl font-semibold mb-4">Change Password</h3>
         <form on:submit|preventDefault={changePassword} class="space-y-4">
@@ -72,8 +67,7 @@
             <button type="submit" class="px-4 py-2 bg-blue-800 transition text-white rounded-lg hover:bg-blue-700 hover:transition focus:outline-none">Change Password</button>
           </div>
         </form>
-      </div>
-      
+      </div>  
     </div>
   </div>
 </div>
