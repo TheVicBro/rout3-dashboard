@@ -34,12 +34,12 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     return encoded_jwt
 
 
-def login_for_access_token(username: str) -> Token:
+def login_for_access_token(userid: int, username: str) -> Token:
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": username}, expires_delta=access_token_expires
     )
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(access_token=access_token, token_type="bearer", userid=userid)
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):

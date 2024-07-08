@@ -2,6 +2,7 @@
   import { createQuery, useQueryClient } from "@tanstack/svelte-query";
 
   const token = localStorage.getItem("authToken");
+  const userid = localStorage.getItem("userid");
   const queryClient = useQueryClient();
 
   type Repo = {
@@ -16,13 +17,8 @@
     const response = await fetch("http://127.0.0.1:8000/secrets/create", {
       method: "POST",
       headers: {
-<<<<<<< HEAD
         "Content-Type": "application/json",
-        Authorization: `Basic ${token}`,
-=======
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
->>>>>>> bdaeeec (Fixed secret adding and removing)
       },
       body: JSON.stringify({
         name: newName,
@@ -37,24 +33,19 @@
   };
 
   const removeKey = async () => {
-<<<<<<< HEAD
-    const response = await fetch("http://127.0.0.1:8000/secrets/delete", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${token}`,
-=======
     if (selectedSecretId === null) {
-      throw new Error('No secret selected for removal');
+      throw new Error("No secret selected for removal");
     }
-    const response = await fetch(`http://127.0.0.1:8000/secrets/delete?secret_id=${selectedSecretId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
->>>>>>> bdaeeec (Fixed secret adding and removing)
+    const response = await fetch(
+      `http://127.0.0.1:8000/secrets/delete?secret_id=${selectedSecretId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
@@ -65,7 +56,7 @@
 
   const fetchRepos = async (): Promise<Repo[]> => {
     const response = await fetch(
-      "http://127.0.0.1:8000/secrets/list?user_id=1",
+      `http://127.0.0.1:8000/secrets/list?user_id=${userid}`,
       {
         method: "GET",
         headers: {
@@ -91,13 +82,6 @@
 
   let removeKeyPopup = false;
   let selectedSecretId: number | null = null;
-<<<<<<< HEAD
-
-  const maskKey = (key: string) => {
-    return key.replace(/./g, "*");
-  };
-=======
->>>>>>> bdaeeec (Fixed secret adding and removing)
 </script>
 
 <div>
@@ -115,7 +99,9 @@
       {/if}
       {#if $query.isSuccess}
         {#if $query.data.length === 0}
-          <div class="mb-4 text-red-600">No secrets found. Click "Add key" to add a new key.</div>
+          <div class="mb-4 text-red-600">
+            No secrets found. Click "Add key" to add a new key.
+          </div>
         {/if}
         <table class="w-full">
           <thead>
