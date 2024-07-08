@@ -2,6 +2,7 @@
   import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 
   const token = localStorage.getItem("authToken");
+  const userid = localStorage.getItem("userid");
   const queryClient = useQueryClient();
 
   type Repo = {
@@ -50,7 +51,7 @@
   }
 
   const fetchRepos = async (): Promise<Repo[]> => {
-    const response = await fetch('http://127.0.0.1:8000/secrets/list?user_id=1', {
+    const response = await fetch(`http://127.0.0.1:8000/secrets/list?user_id=${userid}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

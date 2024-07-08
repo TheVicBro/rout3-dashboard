@@ -24,6 +24,7 @@
       const data = await response.json();
       localStorage.setItem("authToken", data.access_token);
       localStorage.setItem("username", username);
+      localStorage.setItem("userid", data.userid)
       dispatch("loginSuccess");
     } else {
       alert("Login failed");

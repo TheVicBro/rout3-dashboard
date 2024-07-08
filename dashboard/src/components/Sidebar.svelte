@@ -18,7 +18,7 @@
   $: currentPath = $location.pathname;
 
   function logout() {
-    localStorage.removeItem('authToken');
+    localStorage.clear();
     isAuthenticated.set(false);
   }
 </script>
