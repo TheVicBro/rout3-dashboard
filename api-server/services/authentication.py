@@ -39,7 +39,7 @@ def verification(username: str, plaintext_password: str, db: Session):
     )
 
     if verification:
-        return jwt.login_for_access_token(username=username)
+        return jwt.login_for_access_token(userid=user.id, username=username)
     else:
         raise unauthorized_exception
 
