@@ -1,5 +1,10 @@
 <script lang="ts">
+<<<<<<< HEAD
   import { createQuery, useQueryClient } from "@tanstack/svelte-query";
+=======
+  import { createQuery, useQueryClient } from '@tanstack/svelte-query';
+  import Select from 'svelte-select';
+>>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -21,14 +26,20 @@
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        name: newName,
+        name: newName.label,
         key: newKey,
       }),
     });
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
+<<<<<<< HEAD
     queryClient.invalidateQueries({ queryKey: ["repoData"] });
+=======
+    queryClient.invalidateQueries({ queryKey: ['repoData'] });
+    newName = { label: '', value: '' };
+    newKey = '';
+>>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
     addKeyPopup = false;
   };
 
@@ -76,9 +87,17 @@
     queryFn: fetchRepos,
   });
 
+  const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
+  $: filteredItems = items.filter(item => !($query.data ?? []).some(repo => repo.name === item));
+
   let addKeyPopup = false;
+<<<<<<< HEAD
   let newName = "";
   let newKey = "";
+=======
+  let newName = { label: '', value: '' };
+  let newKey = '';
+>>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
 
   let removeKeyPopup = false;
   let selectedSecretId: number | null = null;
@@ -106,7 +125,7 @@
         <table class="w-full">
           <thead>
             <tr>
-              <th class="text-left p-2">Name</th>
+              <th class="text-left p-2">Provider</th>
               <th class="text-left p-2">Key</th>
               <th class="text-left p-2">Last Used</th>
             </tr>
@@ -124,6 +143,7 @@
       {/if}
     </div>
   </div>
+<<<<<<< HEAD
   <button
     class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg"
     on:click={() => (addKeyPopup = true)}>+ Add a new key</button
@@ -132,6 +152,10 @@
     class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg"
     on:click={() => (removeKeyPopup = true)}>+ Remove a key</button
   >
+=======
+  <button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg" on:click={() => addKeyPopup = true}>+ Add a new key</button>
+  <button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg" on:click={() => removeKeyPopup = true}>- Remove a key</button>
+>>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
 
   {#if addKeyPopup}
     <div
@@ -147,12 +171,17 @@
         <h2 class="text-2xl font-semibold mb-4">Add New Key</h2>
         <div class="space-y-4">
           <div>
+<<<<<<< HEAD
             <div class="block text-gray-700">Name</div>
             <input
               type="text"
               bind:value={newName}
               class="form-input mt-1 block w-full border rounded p-2"
             />
+=======
+            <div class="block text-gray-700">Provider</div>
+            <Select items={filteredItems} bind:value={newName} />
+>>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
           </div>
           <div>
             <div class="block text-gray-700">Key</div>
@@ -201,10 +230,14 @@
             </div>
           {/if}
           <div class="pt-6">
+<<<<<<< HEAD
             <button
               class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none"
               on:click={removeKey}>Remove Key</button
             >
+=======
+            <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</button>
+>>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
           </div>
         </div>
       </div>
