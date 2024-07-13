@@ -66,6 +66,7 @@
   };
 
   const fetchRepos = async (): Promise<Repo[]> => {
+<<<<<<< HEAD
     const response = await fetch(
       `http://127.0.0.1:8000/secrets/list?user_id=${userid}`,
       {
@@ -76,6 +77,15 @@
         },
       },
     );
+=======
+    const response = await fetch(`http://127.0.0.1:8000/secrets/list?user_id=${userid}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    });
+>>>>>>> cb3371b (switched to bearer auth)
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
