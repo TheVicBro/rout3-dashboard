@@ -55,7 +55,7 @@
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Basic ${token}`,
+        Authorization: `Bearer ${token}`,
       }
     });
     if (!response.ok) {
