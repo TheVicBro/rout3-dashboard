@@ -4,12 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
-from models.schemas import schemas
+from schemas import schemas
 from models.models import Token
 from db.database import get_db
 from db.repositories import user_repository as user_repo
-from services import authentication as auth
-from services import jwt
+from services.auth import authentication as auth
+from services.auth import jwt
 from typing_extensions import Annotated
 
 
