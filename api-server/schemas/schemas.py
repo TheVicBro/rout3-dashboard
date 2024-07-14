@@ -4,6 +4,7 @@ from typing import List, Optional
 
 class SecretBase(BaseModel):
     name: str
+    last_used: str
 
 
 class SecretCreate(SecretBase):
@@ -11,13 +12,11 @@ class SecretCreate(SecretBase):
     Seperate key from base model
     so it won't be sent from API when reading a secrets
     """
-
     key: str
 
 
 class Secret(SecretBase):
     id: int
-    last_used: Optional[str] = None
     user_id: int
 
     class Config:
