@@ -1,10 +1,8 @@
 <script lang="ts">
-<<<<<<< HEAD
   import { createQuery, useQueryClient } from "@tanstack/svelte-query";
-=======
-  import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-  import Select from 'svelte-select';
->>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
+  import Select from "svelte-select";
+
+  import { DateTime } from "luxon";
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -19,8 +17,10 @@
   };
 
   const addNewKey = async () => {
+    const current_date = DateTime.now().toISO();
     const response = await fetch("http://127.0.0.1:8000/secrets/create", {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -28,18 +28,18 @@
       body: JSON.stringify({
         name: newName.label,
         key: newKey,
+        last_used: current_date,
       }),
     });
+
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
-<<<<<<< HEAD
+
     queryClient.invalidateQueries({ queryKey: ["repoData"] });
-=======
-    queryClient.invalidateQueries({ queryKey: ['repoData'] });
-    newName = { label: '', value: '' };
-    newKey = '';
->>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
+    newName = { label: "", value: "" };
+    newKey = "";
+
     addKeyPopup = false;
   };
 
@@ -66,26 +66,17 @@
   };
 
   const fetchRepos = async (): Promise<Repo[]> => {
-<<<<<<< HEAD
     const response = await fetch(
       `http://127.0.0.1:8000/secrets/list?user_id=${userid}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Basic ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       },
     );
-=======
-    const response = await fetch(`http://127.0.0.1:8000/secrets/list?user_id=${userid}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      }
-    });
->>>>>>> cb3371b (switched to bearer auth)
+
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
@@ -97,16 +88,21 @@
     queryFn: fetchRepos,
   });
 
-  const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
+  const items = [
+    "OpenAI",
+    "Hugging Face",
+    "Google",
+    "Azure",
+    "Cohere",
+    "Mistral",
+  ];
 
   let addKeyPopup = false;
-<<<<<<< HEAD
-  let newName = "";
+
+  let newName = { label: "", value: "" };
   let newKey = "";
-=======
-  let newName = { label: '', value: '' };
-  let newKey = '';
->>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
+
+  let current_date: string = "";
 
   let removeKeyPopup = false;
   let selectedSecretId: number | null = null;
@@ -144,7 +140,9 @@
               <tr>
                 <td class="p-2">{repo.name}</td>
                 <td class="p-2">**********</td>
-                <td class="p-2">{repo.last_used}</td>
+                <td class="p-2"
+                  >{DateTime.fromISO(repo.last_used).toRelative()}</td
+                >
               </tr>
             {/each}
           </tbody>
@@ -152,19 +150,15 @@
       {/if}
     </div>
   </div>
-<<<<<<< HEAD
+
   <button
     class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg"
     on:click={() => (addKeyPopup = true)}>+ Add a new key</button
   >
   <button
-    class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg"
-    on:click={() => (removeKeyPopup = true)}>+ Remove a key</button
+    class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg"
+    on:click={() => (removeKeyPopup = true)}>- Remove a key</button
   >
-=======
-  <button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg" on:click={() => addKeyPopup = true}>+ Add a new key</button>
-  <button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg" on:click={() => removeKeyPopup = true}>- Remove a key</button>
->>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
 
   {#if addKeyPopup}
     <div
@@ -180,21 +174,9 @@
         <h2 class="text-2xl font-semibold mb-4">Add New Key</h2>
         <div class="space-y-4">
           <div>
-<<<<<<< HEAD
-            <div class="block text-gray-700">Name</div>
-            <input
-              type="text"
-              bind:value={newName}
-              class="form-input mt-1 block w-full border rounded p-2"
-            />
-=======
             <div class="block text-gray-700">Provider</div>
-<<<<<<< HEAD
-            <Select items={filteredItems} bind:value={newName} />
->>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
-=======
+
             <Select {items} bind:value={newName} />
->>>>>>> abda7d6 (Allow multiple APIs from the same provider)
           </div>
           <div>
             <div class="block text-gray-700">Key</div>
@@ -243,14 +225,10 @@
             </div>
           {/if}
           <div class="pt-6">
-<<<<<<< HEAD
             <button
-              class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none"
+              class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none"
               on:click={removeKey}>Remove Key</button
             >
-=======
-            <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</button>
->>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
           </div>
         </div>
       </div>
