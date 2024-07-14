@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from models.schemas import schemas
+from schemas import schemas
 from db.database import get_db
 from db.repositories import secrets_repository as secrets_repo
 from db.repositories import user_repository as user_repo
-from services.jwt import get_current_user
+from services.auth.jwt import get_current_user
 from typing_extensions import Annotated
 from models.models import User
 from typing import List
