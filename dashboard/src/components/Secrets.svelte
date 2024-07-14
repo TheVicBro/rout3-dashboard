@@ -114,7 +114,7 @@
               <tr>
                 <td class="p-2">{repo.name}</td>
                 <td class="p-2">**********</td>
-                <td class="p-2">{DateTime.fromISO(repo.last_used).toRelative()}</td>
+                <td class="p-2">{DateTime.fromISO(repo.last_used ?? '').toRelative()}</td>
               </tr>
             {/each}
           </tbody>
