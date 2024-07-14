@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createQuery, useQueryClient } from '@tanstack/svelte-query';
   import Select from 'svelte-select';
+  import { DateTime } from 'luxon';
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -15,6 +16,7 @@
   };
 
   const addNewKey = async () => {
+    const current_date = DateTime.now().toISO();
     const response = await fetch('http://127.0.0.1:8000/secrets/create', {
       method: 'POST',
       headers: {
@@ -24,8 +26,10 @@
       body: JSON.stringify({
         name: newName.label,
         key: newKey,
+        last_used: current_date,
       }),
     });
+
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
@@ -77,7 +81,7 @@
   let addKeyPopup = false;
   let newName = { label: '', value: '' };
   let newKey = '';
-
+  let current_date: string  = '';
   let removeKeyPopup = false;
   let selectedSecretId: number | null = null;
 </script>
@@ -110,7 +114,7 @@
               <tr>
                 <td class="p-2">{repo.name}</td>
                 <td class="p-2">**********</td>
-                <td class="p-2">{repo.last_used}</td>
+                <td class="p-2">{DateTime.fromISO(repo.last_used ?? '').toRelative()}</td>
               </tr>
             {/each}
           </tbody>

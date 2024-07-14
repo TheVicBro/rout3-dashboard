@@ -6,7 +6,7 @@ from schemas import schemas
 def create_secret(db: Session, secret: schemas.SecretCreate, user_id: int):
     # TODO: encrypt key
     fake_key = secret.key
-    db_secret = models.Secret(name=secret.name, key=fake_key, user_id=user_id)
+    db_secret = models.Secret(name=secret.name, key=fake_key, user_id=user_id, last_used=secret.last_used)
     db.add(db_secret)
     db.commit()
     db.refresh(db_secret)
