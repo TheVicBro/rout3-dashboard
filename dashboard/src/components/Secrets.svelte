@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createQuery, useQueryClient } from '@tanstack/svelte-query';
   import Select from 'svelte-select';
-  import { DateTime } from 'luxon'
+  import { DateTime } from 'luxon';
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
