@@ -142,8 +142,7 @@
             <input type="text" bind:value={newKey} class="form-input mt-1 block w-full border rounded p-2" />
           </div>
           <div class="pt-6">
-            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}
-            >Add Key</button>
+            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</button>
           </div>
         </div>
       </div>
