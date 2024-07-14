@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models import models
-from models.schemas import schemas
+from schemas import schemas
 
 
 def create_secret(db: Session, secret: schemas.SecretCreate, user_id: int):
