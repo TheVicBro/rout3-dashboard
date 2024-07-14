@@ -146,9 +146,13 @@
               <tr>
                 <td class="p-2">{repo.name}</td>
                 <td class="p-2">**********</td>
+<<<<<<< HEAD
                 <td class="p-2"
                   >{DateTime.fromISO(repo.last_used).toRelative()}</td
                 >
+=======
+                <td class="p-2">{DateTime.fromISO(repo.last_used ?? '').toRelative()}</td>
+>>>>>>> e34622c (Properly added luxon type declarations to package)
               </tr>
             {/each}
           </tbody>
