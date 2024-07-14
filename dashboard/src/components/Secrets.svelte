@@ -73,7 +73,6 @@
   });
 
   const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
-  $: filteredItems = items.filter(item => !($query.data ?? []).some(repo => repo.name === item));
 
   let addKeyPopup = false;
   let newName = { label: '', value: '' };
@@ -132,7 +131,7 @@
         <div class="space-y-4">
           <div>
             <div class="block text-gray-700">Provider</div>
-            <Select items={filteredItems} bind:value={newName} />
+            <Select {items} bind:value={newName} />
           </div>
           <div>
             <div class="block text-gray-700">Key</div>
