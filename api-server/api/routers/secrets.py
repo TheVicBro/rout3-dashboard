@@ -32,18 +32,6 @@ def read_current_user_secrets(
     return secrets_repo.get_secrets_by_user_id(db, user_id=user_id, skip=skip, limit=limit)
 
 
-@router.get("/list", response_model=List[schemas.Secret])
-def read_secrets_by_user_id(
-    user_id: int,
-    skip: int = 0,
-    limit: int = 10,
-    db: Session = Depends(get_db),
-):
-    return secrets_repo.get_secrets_by_user_id(
-        db, user_id=user_id, skip=skip, limit=limit
-    )
-
-
 @router.delete("/delete")
 def delete_secret_by_id(secret_id: int, db: Session = Depends(get_db)):
     deleted = secrets_repo.delete_secrets_by_id(db, secret_id)

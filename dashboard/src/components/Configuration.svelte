@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
 
   const modelProviders = ["OpenAI", "Hugging Face", "Google AI", "Microsoft Azure"];
@@ -8,22 +7,23 @@
   const maxTokens = writable(100);
   const guardRails = writable<string[]>([""]);
 
-  function setupModel() {
-    // Mock function to simulate model setup
-    alert(`Model from ${$selectedModel} set up with temperature ${$temperature} and max tokens ${$maxTokens}.`);
-    document.getElementById('model-iframe').style.display = 'block';
+  function save() {
+    // Mock function
+    alert("Model settings saved");
   }
 
   function addGuardRail() {
     guardRails.update(gr => [...gr, ""]);
   }
 
-  function updateGuardRail(index: number, value: string) {
+  function updateGuardRail(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
     guardRails.update(gr => {
-      gr[index] = value;
+      gr[index] = input.value;
       return gr;
     });
   }
+
 
   function removeGuardRail(index: number) {
     guardRails.update(gr => {
@@ -34,7 +34,7 @@
 </script>
 
 <div class="flex flex-col flex-1">
-  <h1 class="p-8 pl-20 text-3xl font-bold bg-white border-b-2">MyAI</h1>
+  <h1 class="p-8 pl-20 text-3xl font-bold bg-white border-b-2">Configuration</h1>
   <div class="m-10 border rounded-lg bg-white shadow flex-1 overflow-auto">
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
     <div class="p-20 px-64">
@@ -64,7 +64,7 @@
             class="w-full border p-2 rounded mb-2"
             placeholder="Add guard rail"
             bind:value={$guardRails[index]}
-            on:input={(e) => updateGuardRail(index, e.target.value)}
+            on:input={(e) => updateGuardRail(e, index)}
           />
           {#if index > 0}
             <button on:click={() => removeGuardRail(index)} class="ml-2 text-red-500 hover:text-red-700">Remove</button>
@@ -72,11 +72,8 @@
         </div>
       {/each}
       <button on:click={addGuardRail} class="px-4 py-2 text-white rounded-lg bg-red-800 hover:bg-red-700 transition mb-4">Add Guard Rail</button>
-
-      <button on:click={setupModel} class="px-4 py-2 text-white rounded-lg bg-blue-800 hover:bg-blue-700 transition">Set Up Model</button>
-
-      <div id="model-iframe" style="display: none;" class="mt-8 border rounded overflow-hidden">
-        <iframe src="https://example.com" class="w-full h-96"></iframe>
+      <div>
+        <button on:click={save} class="px-4 py-2 text-white rounded-lg bg-blue-800 hover:bg-blue-700 transition">Save</button>
       </div>
     </div>
   </div>
