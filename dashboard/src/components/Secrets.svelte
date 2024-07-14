@@ -98,7 +98,6 @@
   });
 
   const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
-  $: filteredItems = items.filter(item => !($query.data ?? []).some(repo => repo.name === item));
 
   let addKeyPopup = false;
 <<<<<<< HEAD
@@ -190,8 +189,12 @@
             />
 =======
             <div class="block text-gray-700">Provider</div>
+<<<<<<< HEAD
             <Select items={filteredItems} bind:value={newName} />
 >>>>>>> 34c65d5 (Added drop down list for secrets, begun work on MyAPI page)
+=======
+            <Select {items} bind:value={newName} />
+>>>>>>> abda7d6 (Allow multiple APIs from the same provider)
           </div>
           <div>
             <div class="block text-gray-700">Key</div>
