@@ -48,8 +48,8 @@ class Usage(Base):
     cost = Column(Float, nullable=False)
     tokens = Column(Integer, nullable=False)
     date_time = Column(String, nullable=False)
+    provider = Column(String, nullable=False)
     
-    provider = Column(String, ForeignKey("secrets.provider"))
     user_id = Column(Integer, ForeignKey("users.id"))
     secrets_id = Column(Integer, ForeignKey("secrets.id"))
     
