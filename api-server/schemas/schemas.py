@@ -3,7 +3,7 @@ from typing import List, Optional
 
 
 class SecretBase(BaseModel):
-    name: str
+    provider: str
     last_used: str
 
 
