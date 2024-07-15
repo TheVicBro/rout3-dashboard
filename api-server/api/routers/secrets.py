@@ -48,4 +48,4 @@ def delete_secret_by_id(
             raise HTTPException(status_code=404, detail="Secret not found")
         return {"message": "Secret deleted successfully"}
     else:
-        raise HTTPException(status_code=401, detail="Could not validate credentials.")    
+        raise HTTPException(status_code=401, detail="Could not validate credentials.")
