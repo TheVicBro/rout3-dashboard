@@ -42,3 +42,17 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+class UsageBase(BaseModel):
+    model: str
+    cost: float
+    token: int
+    provider: str
+    date_time: str
+    
+class Usage(UsageBase):
+    id: int
+    user_id: int
+    secret_id: int
+    class Config:
+        orm_mode: True
