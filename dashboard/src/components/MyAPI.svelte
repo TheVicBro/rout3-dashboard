@@ -1,5 +1,8 @@
 <script lang="ts">
   import { createQuery, useQueryClient } from '@tanstack/svelte-query';
+  import * as Dialog from "$lib/components/ui/dialog";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -113,53 +116,52 @@
       {/if}
     </div>
   </div>
-  <button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg" on:click={() => addAPIPopup = true}>+ Create API</button>
-  <button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg" on:click={() => deleteAPIPopup = true}>- Delete API</button>
 
-  {#if addAPIPopup}
-    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div class="bg-white rounded-lg shadow-lg p-8 w-96 relative">
-        <button class="absolute pb-1 top-4 right-4 text-gray-500 hover:text-gray-700 text-4xl rounded-full h-12 w-12 flex items-center justify-center hover:bg-gray-200 transition duration-200 ease-in-out" on:click={() => addAPIPopup = false}>
-          &times;
-        </button>
-        <h2 class="text-2xl font-semibold mb-4">API Key Name</h2>
-        <div class="space-y-4">
+  <!-- Create API Button -->
+  <Dialog.Root>
+    <Dialog.Trigger class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Create API</Dialog.Trigger>
+    <Dialog.Content>
+      <Dialog.Header>
+        <Dialog.Title>Create API Key</Dialog.Title>
+        <Dialog.Description>
+          Create a name for your API key.
+        </Dialog.Description>
+        <div class="grid gap-4 py-4">
+          <div class="grid grid-cols-5 items-center gap-4">
+            <Label for="name" class="text-right">Name</Label>
+            <Input id="name" bind:value={newName} class="col-span-4" />
+          </div>
+        </div>
+        <Dialog.Footer>
+          <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI}>Create API</button>
+        </Dialog.Footer>
+      </Dialog.Header>
+    </Dialog.Content>
+  </Dialog.Root>
+
+  <!-- Delete API Button -->
+  <Dialog.Root>
+    <Dialog.Trigger class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Delete API</Dialog.Trigger>
+    <Dialog.Content>
+      <Dialog.Header>
+        <Dialog.Title>Delete API</Dialog.Title>
+        <Dialog.Description>
+          Select which API key you would like to delete. Please note that this action is irreversible.
+        </Dialog.Description>
+        {#if $query.isSuccess}
           <div>
-            <div class="block text-gray-700">Name</div>
-            <input type="text" bind:value={newName} class="form-input mt-1 block w-full border rounded p-2" />
+            <select bind:value={selectedSecretId} class="form-select mt-1 block w-full border rounded p-2">
+              <option value="" disabled selected>Select API key</option>
+              {#each $query.data as repo}
+                <option value={repo.id}>{repo.name}</option>
+              {/each}
+            </select>
           </div>
-          <div class="pt-6">
-            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI}>Create API</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  {/if}
-
-  {#if deleteAPIPopup}
-    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div class="bg-white rounded-lg shadow-lg p-8 w-96 relative">
-        <button class="absolute pb-1 top-4 right-4 text-gray-500 hover:text-gray-700 text-4xl rounded-full h-12 w-12 flex items-center justify-center hover:bg-gray-200 transition duration-200 ease-in-out" on:click={() => deleteAPIPopup = false}>
-          &times;
-        </button>
-        <h2 class="text-2xl font-semibold mb-4">Delete API</h2>
-        <div class="space-y-4">
-          {#if $query.isSuccess}
-            <div>
-              <div class="block text-gray-700">Select API to Delete</div>
-              <select bind:value={selectedSecretId} class="form-select mt-1 block w-full border rounded p-2">
-                <option value="" disabled selected>Select API key</option>
-                {#each $query.data as repo}
-                  <option value={repo.id}>{repo.name}</option>
-                {/each}
-              </select>
-            </div>
-          {/if}
-          <div class="pt-6">
-            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={deleteAPI}>Delete API</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  {/if}
+        {/if}
+        <Dialog.Footer>
+          <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={deleteAPI}>Delete API</button>
+        </Dialog.Footer>
+      </Dialog.Header>
+    </Dialog.Content>
+  </Dialog.Root>
 </div>
