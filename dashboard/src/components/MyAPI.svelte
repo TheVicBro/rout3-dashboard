@@ -33,7 +33,6 @@
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
-    addAPIPopup = false;
   }
 
   const deleteAPI = async () => {
@@ -51,7 +50,6 @@
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
-    deleteAPIPopup = false;
   }
 
   const fetchRepos = async (): Promise<Repo[]> => {
@@ -73,11 +71,9 @@
     queryFn: fetchRepos,
   });
 
-  let addAPIPopup = false;
   let newName = '';
   let newKey = '';
 
-  let deleteAPIPopup = false;
   let selectedSecretId: number | null = null;
 </script>
 

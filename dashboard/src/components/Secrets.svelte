@@ -40,7 +40,6 @@
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
     newName = { label: '', value: '' };
     newKey = '';
-    addKeyPopup = false;
   }
 
   const removeKey = async () => {
@@ -58,7 +57,6 @@
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
-    removeKeyPopup = false;
   }
 
   const fetchRepos = async (): Promise<Repo[]> => {
@@ -82,11 +80,8 @@
 
   const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
 
-  let addKeyPopup = false;
   let newName = { label: '', value: '' };
   let newKey = '';
-  let current_date: string  = '';
-  let removeKeyPopup = false;
   let selectedSecretId: number | null = null;
 </script>
 
