@@ -3,6 +3,7 @@
   import * as Dialog from "$lib/components/ui/dialog";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
+  import { Dialog as DialogPrimitive } from "bits-ui";
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -133,7 +134,9 @@
           </div>
         </div>
         <Dialog.Footer>
-          <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI}>Create API</button>
+          <DialogPrimitive.Close>
+            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI}>Create API</button>
+          </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>
@@ -159,7 +162,9 @@
           </div>
         {/if}
         <Dialog.Footer>
-          <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={deleteAPI}>Delete API</button>
+          <DialogPrimitive.Close>
+            <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={deleteAPI}>Delete API</button>
+          </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>

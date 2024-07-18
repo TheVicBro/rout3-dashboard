@@ -6,6 +6,7 @@
   import * as Dialog from "$lib/components/ui/dialog";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
+  import { Dialog as DialogPrimitive } from "bits-ui";
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -178,10 +179,16 @@
           </div>
         </div>
         <Dialog.Footer>
+<<<<<<< HEAD
           <button
             class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none"
             on:click={addNewKey}>Add Key</button
           >
+=======
+          <DialogPrimitive.Close>
+            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</button>
+          </DialogPrimitive.Close>
+>>>>>>> 0c6002a (Fixed closing popup using button)
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>
@@ -200,8 +207,12 @@
           Select which key you would like to remove. Please note that this
           action is irreversible.
         </Dialog.Description>
+<<<<<<< HEAD
 
         <div class="space-y-4">
+=======
+        <div class="space-y-4 py-4">
+>>>>>>> 0c6002a (Fixed closing popup using button)
           {#if $query.isSuccess}
             <div>
               <div class="block text-gray-700">Select Secret to Remove</div>
@@ -218,10 +229,16 @@
           {/if}
         </div>
         <Dialog.Footer>
+<<<<<<< HEAD
           <button
             class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none"
             on:click={removeKey}>Remove Key</button
           >
+=======
+          <DialogPrimitive.Close>
+            <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</button>
+          </DialogPrimitive.Close>
+>>>>>>> 0c6002a (Fixed closing popup using button)
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>
