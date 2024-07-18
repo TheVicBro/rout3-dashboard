@@ -39,12 +39,9 @@
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
-
     queryClient.invalidateQueries({ queryKey: ["repoData"] });
     newName = { label: "", value: "" };
     newKey = "";
-
-    addKeyPopup = false;
   };
 
   const removeKey = async () => {
@@ -65,8 +62,6 @@
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
     queryClient.invalidateQueries({ queryKey: ["repoData"] });
-
-    removeKeyPopup = false;
   };
 
   const fetchRepos = async (): Promise<Repo[]> => {
@@ -101,14 +96,8 @@
     "Mistral",
   ];
 
-  let addKeyPopup = false;
-
   let newName = { label: "", value: "" };
   let newKey = "";
-
-  let current_date: string = "";
-
-  let removeKeyPopup = false;
   let selectedSecretId: number | null = null;
 </script>
 
@@ -179,16 +168,12 @@
           </div>
         </div>
         <Dialog.Footer>
-<<<<<<< HEAD
-          <button
-            class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none"
-            on:click={addNewKey}>Add Key</button
-          >
-=======
           <DialogPrimitive.Close>
-            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</button>
+            <button
+              class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none"
+              on:click={addNewKey}>Add Key</button
+            >
           </DialogPrimitive.Close>
->>>>>>> 0c6002a (Fixed closing popup using button)
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>
@@ -207,12 +192,7 @@
           Select which key you would like to remove. Please note that this
           action is irreversible.
         </Dialog.Description>
-<<<<<<< HEAD
-
-        <div class="space-y-4">
-=======
         <div class="space-y-4 py-4">
->>>>>>> 0c6002a (Fixed closing popup using button)
           {#if $query.isSuccess}
             <div>
               <div class="block text-gray-700">Select Secret to Remove</div>
@@ -229,16 +209,12 @@
           {/if}
         </div>
         <Dialog.Footer>
-<<<<<<< HEAD
-          <button
-            class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none"
-            on:click={removeKey}>Remove Key</button
-          >
-=======
           <DialogPrimitive.Close>
-            <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</button>
+            <button
+              class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none"
+              on:click={removeKey}>Remove Key</button
+            >
           </DialogPrimitive.Close>
->>>>>>> 0c6002a (Fixed closing popup using button)
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>
