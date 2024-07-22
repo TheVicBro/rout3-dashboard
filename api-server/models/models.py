@@ -23,6 +23,7 @@ class User(Base):
     # is_active = Column(Boolean, default=True)
 
     secrets = relationship("Secret", back_populates="user")
+    myapi = relationship("Myapi", back_populates="user")
 
 
 class Secret(Base):
@@ -35,3 +36,13 @@ class Secret(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
 
     user = relationship("User", back_populates="secrets")
+
+
+class Myapi(Base):
+    __tablename__ = "myapi"
+
+    id = Column(Integer, primary_key=True)
+    key = Column(String)
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    user = relationship("User", back_populates="myapi")
