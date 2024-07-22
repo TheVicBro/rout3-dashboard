@@ -6,18 +6,21 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Dialog as DialogPrimitive } from "bits-ui";
+  import { z } from 'zod';
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
   const queryClient = useQueryClient();
 
-  type Repo = {
-    name: string;
-    last_used: string | null;
-    user_id: number;
-    id: number;
-    key: string;
-  };
+  const Secret = z.object({
+    name: z.string(),
+    last_used: z.string(),
+    user_id: z.number(),
+    id: z.number(),
+    key: z.string(),
+  });
+
+  type Secret = z.infer<typeof Secret>;
 
   const addNewKey = async () => {
     const current_date = DateTime.now().toISO();
@@ -37,7 +40,7 @@
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
-    queryClient.invalidateQueries({ queryKey: ['repoData'] });
+    queryClient.invalidateQueries({ queryKey: ['secretData'] });
     newName = { label: '', value: '' };
     newKey = '';
   }
@@ -56,10 +59,10 @@
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
-    queryClient.invalidateQueries({ queryKey: ['repoData'] });
+    queryClient.invalidateQueries({ queryKey: ['secretData'] });
   }
 
-  const fetchRepos = async (): Promise<Repo[]> => {
+  const fetchSecrets = async (): Promise<Secret[]> => {
     const response = await fetch(`http://127.0.0.1:8000/secrets/list?user_id=${userid}`, {
       method: 'GET',
       headers: {
@@ -73,9 +76,9 @@
     return response.json();
   };
 
-  const query = createQuery<Repo[]>({
-    queryKey: ['repoData'],
-    queryFn: fetchRepos,
+  const query = createQuery<Secret[]>({
+    queryKey: ['secretData'],
+    queryFn: fetchSecrets,
   });
 
   const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
@@ -109,11 +112,11 @@
             </tr>
           </thead>
           <tbody>
-            {#each $query.data as repo}
+            {#each $query.data as secret}
               <tr>
-                <td class="p-2">{repo.name}</td>
+                <td class="p-2">{secret.name}</td>
                 <td class="p-2">**********</td>
-                <td class="p-2">{DateTime.fromISO(repo.last_used ?? '').toRelative()}</td>
+                <td class="p-2">{DateTime.fromISO(secret.last_used).toRelative()}</td>
               </tr>
             {/each}
           </tbody>
@@ -165,8 +168,8 @@
               <div class="block text-gray-700">Select Secret to Remove</div>
               <select bind:value={selectedSecretId} class="form-select mt-1 block w-full border rounded p-2">
                 <option value="" disabled selected>Select a key</option>
-                {#each $query.data as repo}
-                  <option value={repo.id}>{repo.name}</option>
+                {#each $query.data as secret}
+                  <option value={secret.id}>{secret.name}</option>
                 {/each}
               </select>
             </div>
