@@ -42,3 +42,12 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class MyApiBase(BaseModel):
+    id: int
+    user_id: int
+
+
+class MyApiCreate(MyApiBase):
+    key: str
