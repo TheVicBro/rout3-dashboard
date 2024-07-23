@@ -1,9 +1,25 @@
 <script lang="ts">
+  import { DateTime } from 'luxon';
+  import { Toaster } from "$lib/components/ui/sonner";
+  import { toast } from "svelte-sonner";
+
   let enableNotifications = true;
   let darkMode = false;
+
+  function save() {
+    const current_date = DateTime.now().toISO();
+    toast.success(`Settings has been saved.`, {
+      description: `${current_date}`,
+      action: {
+        label: "Undo",
+        onClick: () => console.info("Undo")
+      }
+    })
+  }
 </script>
 
 <div class="flex flex-col flex-1">
+  <Toaster />
   <h1 class="p-8 pl-20 text-3xl font-bold bg-white border-b-2">Settings</h1>
   <div class="m-10 border rounded-lg bg-white shadow flex-1 overflow-auto">
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
@@ -43,7 +59,7 @@
       </div>
       <!-- Save Changes Button -->
       <div class="pt-6">
-        <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none">Save Changes</button>
+        <button on:click={save} class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none">Save Changes</button>
       </div>
     </div>
   </div>

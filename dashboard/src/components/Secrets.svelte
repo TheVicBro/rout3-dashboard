@@ -51,7 +51,7 @@
       description: `${current_date}`,
       action: {
         label: "Undo",
-        onClick: () => console.info("Undo")
+        onClick: () => removeKey()
       }
     })
     newName = { label: '', value: '' };
@@ -107,8 +107,6 @@
 
   let newName = { label: '', value: '' };
   let newKey = '';
-  let selectedSecretId: number | null = null;
-  let selectedSecretName: string | null = null;
 </script>
 
 <div>
