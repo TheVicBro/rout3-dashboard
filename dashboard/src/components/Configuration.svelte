@@ -12,12 +12,8 @@
 
   function save() {
     const current_date = DateTime.now().toISO();
-    toast.success(`Settings has been saved.`, {
+    toast.success(`${$selectedModel}'s configuration has been saved.`, {
       description: `${current_date}`,
-      action: {
-        label: "Undo",
-        onClick: () => console.info("Undo")
-      }
     })
   }
 

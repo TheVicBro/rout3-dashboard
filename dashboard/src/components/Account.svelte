@@ -15,10 +15,6 @@
     const current_date = DateTime.now().toISO();
     toast.success(`Account information saved.`, {
       description: `${current_date}`,
-      action: {
-        label: "Undo",
-        onClick: () => console.info("Undo")
-      }
     })
   }
 
@@ -26,10 +22,6 @@
     const current_date = DateTime.now().toISO();
     toast.success(`Password has been changed.`, {
       description: `${current_date}`,
-      action: {
-        label: "Undo",
-        onClick: () => console.info("Undo")
-      }
     })
   }
 </script>

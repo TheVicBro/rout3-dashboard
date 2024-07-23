@@ -46,12 +46,16 @@
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
+    const newSecret = await response.json();
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
     toast.success(`${newName.label} has been added.`, {
       description: `${current_date}`,
       action: {
         label: "Undo",
-        onClick: () => removeKey()
+        onClick: () => {
+          selectedSecret = { id: newSecret.id, name: newSecret.name };
+          removeKey()
+        }
       }
     })
     newName = { label: '', value: '' };
@@ -76,10 +80,6 @@
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
     toast.success(`${selectedSecret.name} has been removed.`, {
       description: `${current_date}`,
-      action: {
-        label: "Undo",
-        onClick: () => console.info("Undo")
-      }
     });
     selectedSecret = null;
   }
