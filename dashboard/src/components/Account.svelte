@@ -12,16 +12,16 @@
   let confirmNewPassword = '';
 
   function saveAccountSettings() {
-    const current_date = DateTime.now().toISO();
+    const formatted_date = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
     toast.success(`Account information saved.`, {
-      description: `${current_date}`,
+      description: `${formatted_date}`,
     })
   }
 
   function changePassword() {
-    const current_date = DateTime.now().toISO();
+    const formatted_date = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
     toast.success(`Password has been changed.`, {
-      description: `${current_date}`,
+      description: `${formatted_date}`,
     })
   }
 </script>

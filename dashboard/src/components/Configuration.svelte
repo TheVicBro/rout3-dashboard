@@ -11,9 +11,9 @@
   const guardRails = writable<string[]>([""]);
 
   function save() {
-    const current_date = DateTime.now().toISO();
+    const formatted_date = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
     toast.success(`${$selectedModel}'s configuration has been saved.`, {
-      description: `${current_date}`,
+      description: `${formatted_date}`,
     })
   }
 

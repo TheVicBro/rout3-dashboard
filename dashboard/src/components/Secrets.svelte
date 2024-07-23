@@ -29,7 +29,13 @@
   let selectedSecret: SecretOption | null = null;
 
   const addNewKey = async () => {
-    const current_date = DateTime.now().toISO();
+    const current_date = DateTime.now();
+    const turso_date = current_date.toISO();
+    const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
+
+    if (!newName.label || !newKey) {
+      throw new Error('Please enter a provider and key');
+    }
     const response = await fetch('http://127.0.0.1:8000/secrets/create', {
       method: 'POST',
       headers: {
@@ -39,21 +45,20 @@
       body: JSON.stringify({
         name: newName.label,
         key: newKey,
-        last_used: current_date,
+        last_used: turso_date,
       }),
     });
-
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
-    const newSecret = await response.json();
+    const undoSecret = await response.json();
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
     toast.success(`${newName.label} has been added.`, {
-      description: `${current_date}`,
+      description: `${formatted_date}`,
       action: {
         label: "Undo",
         onClick: () => {
-          selectedSecret = { id: newSecret.id, name: newSecret.name };
+          selectedSecret = { id: undoSecret.id, name: undoSecret.name };
           removeKey()
         }
       }
@@ -63,10 +68,11 @@
   }
 
   const removeKey = async () => {
+    const formatted_date = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
+
     if (!selectedSecret) {
       throw new Error('No secret selected for removal');
     }
-    const current_date = DateTime.now().toISO();
     const response = await fetch(`http://127.0.0.1:8000/secrets/delete?secret_id=${selectedSecret.id}`, {
       method: 'DELETE',
       headers: {
@@ -79,7 +85,7 @@
     }
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
     toast.success(`${selectedSecret.name} has been removed.`, {
-      description: `${current_date}`,
+      description: `${formatted_date}`,
     });
     selectedSecret = null;
   }
