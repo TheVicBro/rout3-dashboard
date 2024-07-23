@@ -2,6 +2,10 @@
   import { createQuery, useQueryClient } from '@tanstack/svelte-query';
   import Select from 'svelte-select';
   import { DateTime } from 'luxon';
+  import * as Dialog from "$lib/components/ui/dialog";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
+  import { Dialog as DialogPrimitive } from "bits-ui";
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -36,7 +40,6 @@
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
     newName = { label: '', value: '' };
     newKey = '';
-    addKeyPopup = false;
   }
 
   const removeKey = async () => {
@@ -54,7 +57,6 @@
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
     queryClient.invalidateQueries({ queryKey: ['repoData'] });
-    removeKeyPopup = false;
   }
 
   const fetchRepos = async (): Promise<Repo[]> => {
@@ -78,11 +80,8 @@
 
   const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
 
-  let addKeyPopup = false;
   let newName = { label: '', value: '' };
   let newKey = '';
-  let current_date: string  = '';
-  let removeKeyPopup = false;
   let selectedSecretId: number | null = null;
 </script>
 
@@ -122,41 +121,45 @@
       {/if}
     </div>
   </div>
-  <button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg" on:click={() => addKeyPopup = true}>+ Add a new key</button>
-  <button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg" on:click={() => removeKeyPopup = true}>- Remove a key</button>
 
-  {#if addKeyPopup}
-    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div class="bg-white rounded-lg shadow-lg p-8 w-96 relative">
-        <button class="absolute pb-1 top-4 right-4 text-gray-500 hover:text-gray-700 text-4xl rounded-full h-12 w-12 flex items-center justify-center hover:bg-gray-200 transition duration-200 ease-in-out" on:click={() => addKeyPopup = false}>
-          &times;
-        </button>
-        <h2 class="text-2xl font-semibold mb-4">Add New Key</h2>
-        <div class="space-y-4">
-          <div>
-            <div class="block text-gray-700">Provider</div>
-            <Select {items} bind:value={newName} />
+  <!-- Add Key Button -->
+  <Dialog.Root>
+    <Dialog.Trigger class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Add a new key</Dialog.Trigger>
+    <Dialog.Content>
+      <Dialog.Header>
+        <Dialog.Title>Add New Key</Dialog.Title>
+        <Dialog.Description>
+          Select a provider and enter a key to add a new key.
+        </Dialog.Description>
+        <div class="grid gap-4 py-4">
+          <div class="grid grid-cols-5 items-center gap-4">
+            <Label for="provider" class="text-right">Provider</Label>
+            <Select {items} bind:value={newName} class="col-span-4"/>
           </div>
-          <div>
-            <div class="block text-gray-700">Key</div>
-            <input type="text" bind:value={newKey} class="form-input mt-1 block w-full border rounded p-2" />
-          </div>
-          <div class="pt-6">
-            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</button>
+          <div class="grid grid-cols-5 items-center gap-4">
+            <Label for="key" class="text-right">Key</Label>
+            <Input id="key" bind:value={newKey} class="col-span-4" />
           </div>
         </div>
-      </div>
-    </div>
-  {/if}
+        <Dialog.Footer>
+          <DialogPrimitive.Close>
+            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</button>
+          </DialogPrimitive.Close>
+        </Dialog.Footer>
+      </Dialog.Header>
+    </Dialog.Content>
+  </Dialog.Root>
 
-  {#if removeKeyPopup}
-    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div class="bg-white rounded-lg shadow-lg p-8 w-96 relative">
-        <button class="absolute pb-1 top-4 right-4 text-gray-500 hover:text-gray-700 text-4xl rounded-full h-12 w-12 flex items-center justify-center hover:bg-gray-200 transition duration-200 ease-in-out" on:click={() => removeKeyPopup = false}>
-          &times;
-        </button>
-        <h2 class="text-2xl font-semibold mb-4">Remove Key</h2>
-        <div class="space-y-4">
+  <!-- Remove Key Button -->
+  <Dialog.Root>
+    <Dialog.Trigger class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Remove a key</Dialog.Trigger>
+    <Dialog.Content>
+      <Dialog.Header>
+        <Dialog.Title>Remove Key</Dialog.Title>
+        <Dialog.Description>
+          Select which key you would like to remove. Please note that this action is irreversible.
+        </Dialog.Description>
+        <div class="space-y-4 py-4">
           {#if $query.isSuccess}
             <div>
               <div class="block text-gray-700">Select Secret to Remove</div>
@@ -168,11 +171,13 @@
               </select>
             </div>
           {/if}
-          <div class="pt-6">
-            <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</button>
-          </div>
         </div>
-      </div>
-    </div>
-  {/if}
+        <Dialog.Footer>
+          <DialogPrimitive.Close>
+            <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</button>
+          </DialogPrimitive.Close>
+        </Dialog.Footer>
+      </Dialog.Header>
+    </Dialog.Content>
+  </Dialog.Root>
 </div>
