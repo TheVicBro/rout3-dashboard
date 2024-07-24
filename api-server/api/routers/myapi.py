@@ -1,15 +1,10 @@
 from fastapi import APIRouter, Depends, Security
 from sqlalchemy.orm import Session
-from models.schemas import schemas
 from db.database import get_db
-from db.repositories import secrets_repository as secrets_repo
-from db.repositories import user_repository as user_repo
 from db.repositories import myapi_repository as myapi_repo
 
 from services.jwt import get_current_user
 from typing_extensions import Annotated
-from models.models import User
-from typing import List
 from services import myapi
 
 router = APIRouter(prefix="/api")
@@ -25,6 +20,7 @@ def get_key(
     return myapi_repo.create_myapi(db=db, myapi=myapi, user_id=current_user)
 
 
+# use this as an example for routes requiring myapi authentication
 @router.get("/test_protected")
 def test_protected(
     api_key_header: str = Security(myapi.get_api_key_from_header),
