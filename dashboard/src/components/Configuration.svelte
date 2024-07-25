@@ -3,16 +3,23 @@
   import { DateTime } from 'luxon';
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
+  import { tick } from "svelte";
+  import * as Command from "$lib/components/ui/command/index.js";
+  import * as Popover from "$lib/components/ui/popover/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { cn } from "$lib/utils.js";
+  import Check from "lucide-svelte/icons/check";
+  import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
 
-  const modelProviders = ["OpenAI", "Hugging Face", "Google AI", "Microsoft Azure"];
-  const selectedModel = writable(modelProviders[0]);
+  const modelProviders = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
+  let selectedProvider = '';
   const temperature = writable(0.7);
   const maxTokens = writable(100);
   const guardRails = writable<string[]>([""]);
 
   function save() {
     const formatted_date = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
-    toast.success(`${$selectedModel}'s configuration has been saved.`, {
+    toast.success(`${selectedProvider}'s configuration has been saved.`, {
       description: `${formatted_date}`,
     })
   }
@@ -29,11 +36,20 @@
     });
   }
 
-
   function removeGuardRail(index: number) {
     guardRails.update(gr => {
       gr.splice(index, 1);
       return gr;
+    });
+  }
+
+  let open = false;
+  $: selectedValue = modelProviders.find((f) => f === selectedProvider) ?? "Select a provider...";
+
+  function closeAndFocusTrigger(triggerId: string) {
+    open = false;
+    tick().then(() => {
+      document.getElementById(triggerId)?.focus();
     });
   }
 </script>
@@ -44,14 +60,47 @@
   <div class="m-10 border rounded-lg bg-white shadow flex-1 overflow-auto">
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
     <div class="p-20 px-64">
-      <h3 class="text-xl font-semibold mb-4">Select a Model Provider</h3>
-      <select bind:value={$selectedModel} class="border p-2 rounded mb-4 bg-white">
-        {#each modelProviders as provider}
-          <option value={provider}>{provider}</option>
-        {/each}
-      </select>
-
-      <h3 class="text-xl font-semibold mb-4">Model Settings</h3>
+      <h3 class="text-xl font-semibold mb-2">Select a Model Provider</h3>
+        <Popover.Root bind:open let:ids>
+          <Popover.Trigger asChild let:builder>
+            <Button
+              builders={[builder]}
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              class="w-[200px] justify-between"
+            >
+              {selectedValue}
+              <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </Popover.Trigger>
+          <Popover.Content class="w-[200px] p-0">
+            <Command.Root>
+              <Command.Input placeholder="Search provider..." />
+              <Command.Empty>No provider found.</Command.Empty>
+              <Command.Group>
+                {#each modelProviders as provider}
+                  <Command.Item
+                    value={provider}
+                    onSelect={(currentValue) => {
+                      selectedProvider = currentValue;
+                      closeAndFocusTrigger(ids.trigger);
+                    }}
+                  >
+                    <Check
+                      class={cn(
+                        "mr-2 h-4 w-4",
+                        selectedProvider !== provider && "text-transparent"
+                      )}
+                    />
+                    {provider}
+                  </Command.Item>
+                {/each}
+              </Command.Group>
+            </Command.Root>
+          </Popover.Content>
+        </Popover.Root>
+      <h3 class="text-xl font-semibold my-4">Model Settings</h3>
       <div class="mb-4">
         <label for="temperature" class="block font-semibold mb-1">Temperature</label>
         <input id="temperature" type="range" min="0" max="1" step="0.01" bind:value={$temperature} class="w-full" />
