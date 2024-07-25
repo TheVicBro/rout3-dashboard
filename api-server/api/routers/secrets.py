@@ -4,7 +4,7 @@ from schemas import schemas
 from db.database import get_db
 from db.repositories import secrets_repository as secrets_repo
 from db.repositories import user_repository as user_repo
-from services.auth.jwt import get_current_user
+from services.auth.jwt import get_current_user, verify_token
 from typing_extensions import Annotated
 from models.models import User
 from typing import List
@@ -24,17 +24,28 @@ def create_key(
 
 @router.get("/list", response_model=List[schemas.Secret])
 def read_current_user_secrets(
+    verified_token: Annotated[str, Depends(verify_token)],
     user_id: int,
     skip: int = 0,
     limit: int = 10,
     db: Session = Depends(get_db),
 ):
-    return secrets_repo.get_secrets_by_user_id(db, user_id=user_id, skip=skip, limit=limit)
+    if verified_token:
+        return secrets_repo.get_secrets_by_user_id(db, user_id=user_id, skip=skip, limit=limit)
+    else:
+        raise HTTPException(status_code=401, detail="Could not validate credentials.")
 
 
 @router.delete("/delete")
-def delete_secret_by_id(secret_id: int, db: Session = Depends(get_db)):
-    deleted = secrets_repo.delete_secrets_by_id(db, secret_id)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Secret not found")
-    return {"message": "Secret deleted successfully"}
+def delete_secret_by_id(
+    secret_id: int,
+    verified_token: Annotated[str, Depends(verify_token)],
+    db: Session = Depends(get_db),
+):
+    if verified_token:
+        deleted = secrets_repo.delete_secrets_by_id(db, secret_id)
+        if not deleted:
+            raise HTTPException(status_code=404, detail="Secret not found")
+        return {"message": "Secret deleted successfully"}
+    else:
+        raise HTTPException(status_code=401, detail="Could not validate credentials.")

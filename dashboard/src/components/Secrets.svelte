@@ -6,6 +6,8 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Dialog as DialogPrimitive } from "bits-ui";
+  import { Toaster } from "$lib/components/ui/sonner";
+  import { toast } from "svelte-sonner";
   import { z } from 'zod';
 
   const token = localStorage.getItem("authToken");
@@ -22,8 +24,21 @@
 
   type Secret = z.infer<typeof Secret>;
 
+  interface SecretOption {
+    id: number;
+    name: string;
+  }
+
+  let selectedSecret: SecretOption | null = null;
+
   const addNewKey = async () => {
-    const current_date = DateTime.now().toISO();
+    const current_date = DateTime.now();
+    const turso_date = current_date.toISO();
+    const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
+
+    if (!newName.label || !newKey) {
+      throw new Error('Please enter a provider and key');
+    }
     const response = await fetch('http://127.0.0.1:8000/secrets/create', {
       method: 'POST',
       headers: {
@@ -33,23 +48,35 @@
       body: JSON.stringify({
         name: newName.label,
         key: newKey,
-        last_used: current_date,
+        last_used: turso_date,
       }),
     });
-
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
+    const undoSecret = await response.json();
     queryClient.invalidateQueries({ queryKey: ['secretData'] });
+    toast.success(`${newName.label} has been added.`, {
+      description: `${formatted_date}`,
+      action: {
+        label: "Undo",
+        onClick: () => {
+          selectedSecret = { id: undoSecret.id, name: undoSecret.name };
+          removeKey()
+        }
+      }
+    })
     newName = { label: '', value: '' };
     newKey = '';
   }
 
   const removeKey = async () => {
-    if (selectedSecretId === null) {
+    const formatted_date = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
+
+    if (!selectedSecret) {
       throw new Error('No secret selected for removal');
     }
-    const response = await fetch(`http://127.0.0.1:8000/secrets/delete?secret_id=${selectedSecretId}`, {
+    const response = await fetch(`http://127.0.0.1:8000/secrets/delete?secret_id=${selectedSecret.id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -60,6 +87,10 @@
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
     queryClient.invalidateQueries({ queryKey: ['secretData'] });
+    toast.success(`${selectedSecret.name} has been removed.`, {
+      description: `${formatted_date}`,
+    });
+    selectedSecret = null;
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
@@ -85,10 +116,10 @@
 
   let newName = { label: '', value: '' };
   let newKey = '';
-  let selectedSecretId: number | null = null;
 </script>
 
 <div>
+  <Toaster />
   <h1 class="p-8 pl-20 text-3xl font-bold bg-white border-b-2">Secrets</h1>
   <div class="m-10 border rounded-lg bg-white shadow">
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
@@ -166,10 +197,12 @@
           {#if $query.isSuccess}
             <div>
               <div class="block text-gray-700">Select Secret to Remove</div>
-              <select bind:value={selectedSecretId} class="form-select mt-1 block w-full border rounded p-2">
+              <select bind:value={selectedSecret} class="form-select mt-1 block w-full border rounded p-2 bg-white">
                 <option value="" disabled selected>Select a key</option>
                 {#each $query.data as secret}
-                  <option value={secret.id}>{secret.name}</option>
+                  <option value={{ id: secret.id, name: secret.name }}>
+                    {secret.name}
+                  </option>
                 {/each}
               </select>
             </div>
