@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-  import Select from 'svelte-select';
   import { DateTime } from 'luxon';
   import * as Dialog from "$lib/components/ui/dialog";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -9,6 +8,13 @@
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
   import { z } from 'zod';
+  import { tick } from "svelte";
+  import * as Command from "$lib/components/ui/command/index.js";
+  import * as Popover from "$lib/components/ui/popover/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { cn } from "$lib/utils.js";
+  import Check from "lucide-svelte/icons/check";
+  import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -45,7 +51,7 @@
 
     try {
       const newSecretData: NewSecret = NewSecretSchema.parse({
-        name: newName.label,
+        name: newName,
         key: newKey,
         last_used: turso_date,
       });
@@ -63,7 +69,7 @@
       }
       const undoSecret = SecretSchema.parse(await response.json());
       queryClient.invalidateQueries({ queryKey: ['secretData'] });
-      toast.success(`${newName.label} has been added.`, {
+      toast.success(`${newName} has been added.`, {
         description: `${formatted_date}`,
         action: {
           label: "Undo",
@@ -73,7 +79,7 @@
           }
         }
       })
-      newName = { label: '', value: '' };
+      newName = '';
       newKey = '';
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -141,7 +147,17 @@
 
   const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
 
-  let newName = { label: '', value: '' };
+  function closeAndFocusTrigger(triggerId: string) {
+    open = false;
+    tick().then(() => {
+      document.getElementById(triggerId)?.focus();
+    });
+  }
+ 
+  let open = false;
+  $: selectedValue = items.find((f) => f === newName) ?? "Select a provider...";
+
+  let newName = '';
   let newKey = '';
 </script>
 
@@ -195,7 +211,47 @@
         <div class="grid gap-4 py-4">
           <div class="grid grid-cols-5 items-center gap-4">
             <Label for="provider" class="text-right">Provider</Label>
-            <Select {items} bind:value={newName} class="col-span-4"/>
+            <div class="col-span-4">
+              <Popover.Root bind:open let:ids>
+                <Popover.Trigger asChild let:builder>
+                  <Button
+                    builders={[builder]}
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    class="w-full justify-between"
+                  >
+                    {selectedValue}
+                    <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </Popover.Trigger>
+                <Popover.Content class="w-[72%] p-0">
+                  <Command.Root>
+                    <Command.Input placeholder="Search provider..." />
+                    <Command.Empty>No provider found.</Command.Empty>
+                    <Command.Group>
+                      {#each items as provider}
+                        <Command.Item
+                          value={provider}
+                          onSelect={(currentValue) => {
+                            newName = currentValue;
+                            closeAndFocusTrigger(ids.trigger);
+                          }}
+                        >
+                          <Check
+                            class={cn(
+                              "mr-2 h-4 w-4",
+                              newName !== provider && "text-transparent"
+                            )}
+                          />
+                          {provider}
+                        </Command.Item>
+                      {/each}
+                    </Command.Group>
+                  </Command.Root>
+                </Popover.Content>
+              </Popover.Root>
+            </div>
           </div>
           <div class="grid grid-cols-5 items-center gap-4">
             <Label for="key" class="text-right">Key</Label>
