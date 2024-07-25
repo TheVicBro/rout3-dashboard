@@ -4,35 +4,44 @@
 
   const dispatch = createEventDispatcher();
 
-  let username = "";
-  let password = "";
-  let confirmPassword = "";
-  let showRegister = false;
-  let errors: { [key: string]: string } = {};
+  const UsernameSchema = z.string().min(1, "Username is required");
+  const PasswordSchema = z.string().min(6, "Password must be at least 6 characters");
 
-  const loginSchema = z.object({
+  const LoginSchema = z.object({
     username: z.string().min(1, "Username is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
   });
 
-  const registerSchema = loginSchema.extend({
+  const RegisterSchema = LoginSchema.extend({
     confirmPassword: z.string().min(1, "Confirm password is required")
   }).refine(data => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"]
   });
 
+  type LoginForm = z.infer<typeof LoginSchema>;
+  type RegisterForm = z.infer<typeof RegisterSchema>;
+
+  let form: LoginForm & { confirmPassword?: string } = {
+    username: "",
+    password: "",
+    confirmPassword: "",
+  };
+  let showRegister = false;
+
+  type FormErrors = Partial<Record<keyof RegisterForm | 'form', string[] | string>>;
+  let errors: FormErrors = {};
+
   async function login() {
     errors = {};
-    const result = loginSchema.safeParse({ username, password });
+    const result = LoginSchema.safeParse(form);
 
     if (!result.success) {
-      result.error.issues.forEach((issue) => {
-        errors[issue.path[0]] = issue.message;
-      });
+      errors = result.error.formErrors.fieldErrors;
       return;
     }
 
+    const { username, password } = result.data;
     const response = await fetch(`http://127.0.0.1:8000/token`, {
       method: "POST",
       headers: {
@@ -54,15 +63,14 @@
 
   async function register() {
     errors = {};
-    const result = registerSchema.safeParse({ username, password, confirmPassword });
+    const result = RegisterSchema.safeParse(form);
 
     if (!result.success) {
-      result.error.issues.forEach((issue) => {
-        errors[issue.path[0]] = issue.message;
-      });
+      errors = result.error.formErrors.fieldErrors;
       return;
     }
 
+    const { username, password } = result.data;
     const response = await fetch(`http://127.0.0.1:8000/user/create`, {
       method: "POST",
       headers: {
@@ -95,15 +103,15 @@
     {#if showRegister}
       <h1 class="text-3xl font-bold mb-4 text-center">Register</h1>
       <div class="mb-4">
-        <input type="text" placeholder="Username" bind:value={username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        <input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
         {#if errors.username}<p class="text-red-500 text-sm mt-1">{errors.username}</p>{/if}
       </div>
       <div class="mb-4">
-        <input type="password" placeholder="Password" bind:value={password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
         {#if errors.password}<p class="text-red-500 text-sm mt-1">{errors.password}</p>{/if}
       </div>
       <div class="mb-4">
-        <input type="password" placeholder="Confirm Password" bind:value={confirmPassword} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        <input type="password" placeholder="Confirm Password" bind:value={form.confirmPassword} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
         {#if errors.confirmPassword}<p class="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>{/if}
       </div>
       <button on:click={register} class="px-4 py-2 bg-green-500 text-white rounded-lg w-full hover:bg-green-600 transition">
@@ -115,11 +123,11 @@
     {:else}
       <h1 class="text-3xl font-bold mb-4 text-center">Login</h1>
       <div class="mb-4">
-        <input type="text" placeholder="Username" bind:value={username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        <input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
         {#if errors.username}<p class="text-red-500 text-sm mt-1">{errors.username}</p>{/if}
       </div>
       <div class="mb-4">
-        <input type="password" placeholder="Password" bind:value={password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
         {#if errors.password}<p class="text-red-500 text-sm mt-1">{errors.password}</p>{/if}
       </div>
       <button on:click={login} class="px-4 py-2 bg-blue-500 text-white rounded-lg w-full hover:bg-blue-600 transition">

@@ -14,20 +14,27 @@
   const userid = localStorage.getItem("userid");
   const queryClient = useQueryClient();
 
-  const Secret = z.object({
+  const SecretSchema = z.object({
     name: z.string(),
     last_used: z.string(),
     user_id: z.number(),
     id: z.number(),
-    key: z.string(),
   });
 
-  type Secret = z.infer<typeof Secret>;
+  const SecretOptionSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+  });
 
-  interface SecretOption {
-    id: number;
-    name: string;
-  }
+  const NewSecretSchema = z.object({
+    name: z.string().min(1, "Provider name is required"),
+    key: z.string().min(1, "Key is required"),
+    last_used: z.string(),
+  });
+
+  type Secret = z.infer<typeof SecretSchema>;
+  type SecretOption = z.infer<typeof SecretOptionSchema>;
+  type NewSecret = z.infer<typeof NewSecretSchema>;
 
   let selectedSecret: SecretOption | null = null;
 
@@ -36,61 +43,80 @@
     const turso_date = current_date.toISO();
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
-    if (!newName.label || !newKey) {
-      throw new Error('Please enter a provider and key');
-    }
-    const response = await fetch('http://127.0.0.1:8000/secrets/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
+    try {
+      const newSecretData: NewSecret = NewSecretSchema.parse({
         name: newName.label,
         key: newKey,
         last_used: turso_date,
-      }),
-    });
-    if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.statusText}`);
-    }
-    const undoSecret = await response.json();
-    queryClient.invalidateQueries({ queryKey: ['secretData'] });
-    toast.success(`${newName.label} has been added.`, {
-      description: `${formatted_date}`,
-      action: {
-        label: "Undo",
-        onClick: () => {
-          selectedSecret = { id: undoSecret.id, name: undoSecret.name };
-          removeKey()
-        }
+      });
+
+      const response = await fetch('http://127.0.0.1:8000/secrets/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newSecretData),
+      });
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
       }
-    })
-    newName = { label: '', value: '' };
-    newKey = '';
+      const undoSecret = SecretSchema.parse(await response.json());
+      queryClient.invalidateQueries({ queryKey: ['secretData'] });
+      toast.success(`${newName.label} has been added.`, {
+        description: `${formatted_date}`,
+        action: {
+          label: "Undo",
+          onClick: () => {
+            selectedSecret = { id: undoSecret.id, name: undoSecret.name };
+            removeKey()
+          }
+        }
+      })
+      newName = { label: '', value: '' };
+      newKey = '';
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error("Validation error", {
+          description: error.errors.map(e => e.message).join(", ")
+        });
+      } else {
+        toast.error("An error occurred", {
+          description: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    }
   }
 
   const removeKey = async () => {
     const formatted_date = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
 
-    if (!selectedSecret) {
-      throw new Error('No secret selected for removal');
+    try {
+      if (!selectedSecret) {
+        throw new Error('No secret selected for removal');
+      }
+      const validatedSecret = SecretOptionSchema.parse(selectedSecret);
+
+      const response = await fetch(`http://127.0.0.1:8000/secrets/delete?secret_id=${validatedSecret.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
+      }
+      queryClient.invalidateQueries({ queryKey: ['secretData'] });
+      toast.success(`${selectedSecret.name} has been removed.`, {
+        description: `${formatted_date}`,
+      });
+      selectedSecret = null;
+    } catch (error) {
+      toast.error("An error occurred", {
+        description: error instanceof Error ? error.message : "Unknown error"
+      });
     }
-    const response = await fetch(`http://127.0.0.1:8000/secrets/delete?secret_id=${selectedSecret.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.statusText}`);
-    }
-    queryClient.invalidateQueries({ queryKey: ['secretData'] });
-    toast.success(`${selectedSecret.name} has been removed.`, {
-      description: `${formatted_date}`,
-    });
-    selectedSecret = null;
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
@@ -104,7 +130,8 @@
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
-    return response.json();
+    const data = await response.json();
+    return z.array(SecretSchema).parse(data);
   };
 
   const query = createQuery<Secret[]>({
