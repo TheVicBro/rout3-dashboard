@@ -8,13 +8,13 @@
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
   import { z } from 'zod';
-  import { tick } from "svelte";
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import { cn } from "$lib/utils.js";
   import Check from "lucide-svelte/icons/check";
   import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
+  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -144,18 +144,9 @@
     queryKey: ['secretData'],
     queryFn: fetchSecrets,
   });
-
-  const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
-
-  function closeAndFocusTrigger(triggerId: string) {
-    open = false;
-    tick().then(() => {
-      document.getElementById(triggerId)?.focus();
-    });
-  }
  
   let open = false;
-  $: selectedValue = items.find((f) => f === newName) ?? "Select a provider...";
+  $: selectedValue = availableModelProviders.find((f) => f === newName) ?? "Select a provider...";
   $: selectedRemoveValue = selectedSecret 
     ? `${selectedSecret.name} (ID: ${selectedSecret.id})` 
     : "Select a key to remove...";
@@ -233,12 +224,13 @@
                     <Command.Input placeholder="Search provider..." />
                     <Command.Empty>No provider found.</Command.Empty>
                     <Command.Group>
-                      {#each items as provider}
+                      {#each availableModelProviders as provider}
                         <Command.Item
                           value={provider}
                           onSelect={(currentValue) => {
                             newName = currentValue;
                             closeAndFocusTrigger(ids.trigger);
+                            open = false;
                           }}
                         >
                           <Check
@@ -308,6 +300,7 @@
                             onSelect={() => {
                               selectedSecret = { id: secret.id, name: secret.name };
                               closeAndFocusTrigger(ids.trigger);
+                              open = false;
                             }}
                           >
                             <Check

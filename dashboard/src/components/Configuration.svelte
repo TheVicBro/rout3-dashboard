@@ -3,15 +3,14 @@
   import { DateTime } from 'luxon';
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
-  import { tick } from "svelte";
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import { cn } from "$lib/utils.js";
   import Check from "lucide-svelte/icons/check";
   import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
+  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
 
-  const modelProviders = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
   let selectedProvider = '';
   const temperature = writable(0.7);
   const maxTokens = writable(100);
@@ -44,14 +43,7 @@
   }
 
   let open = false;
-  $: selectedValue = modelProviders.find((f) => f === selectedProvider) ?? "Select a provider...";
-
-  function closeAndFocusTrigger(triggerId: string) {
-    open = false;
-    tick().then(() => {
-      document.getElementById(triggerId)?.focus();
-    });
-  }
+  $: selectedValue = availableModelProviders.find((f) => f === selectedProvider) ?? "Select a provider...";
 </script>
 
 <div class="flex flex-col flex-1">
@@ -79,12 +71,13 @@
               <Command.Input placeholder="Search provider..." />
               <Command.Empty>No provider found.</Command.Empty>
               <Command.Group>
-                {#each modelProviders as provider}
+                {#each availableModelProviders as provider}
                   <Command.Item
                     value={provider}
                     onSelect={(currentValue) => {
                       selectedProvider = currentValue;
                       closeAndFocusTrigger(ids.trigger);
+                      open = false;
                     }}
                   >
                     <Check
