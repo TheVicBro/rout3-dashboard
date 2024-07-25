@@ -9,14 +9,28 @@ from services import myapi
 router = APIRouter(prefix="/api")
 
 
-@router.get("/get_key")
-def get_key(
+@router.post("/create_key")
+def create_key(
     current_user: Annotated[str, Depends(get_current_user)],
     db: Session = Depends(get_db),
 ):
     key = myapi.generate_api_key()
     myapi.key = key
     return myapi_repo.create_myapi(db=db, myapi=myapi, user_id=current_user)
+
+
+@router.get("/get_key_by_id")
+def get_key_by_id(id: int, db: Session = Depends(get_db)):
+    return myapi_repo.get_myapi_by_id(db, id)
+
+
+@router.get("/get_key_by_user_id")
+def get_key_by_user_id(
+    user_id: int,
+    current_user: Annotated[str, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    return myapi_repo.get_myapi_by_user_id(db, user_id)
 
 
 # use this as a template to get api protected routes
@@ -26,4 +40,10 @@ def test_protected(
     db: Session = Depends(get_db),
 ):
     api_key = myapi.verify_api_key(db=db, api_key_string=api_key_header)
+    return "success"
+
+
+@router.delete("/remove_key")
+def remove_key(id: int, db: Session = Depends(get_db)):
+    myapi_repo.remove_myapi(db, id)
     return "success"

@@ -15,3 +15,18 @@ def create_myapi(db: Session, myapi: schemas.MyApiCreate, user_id: int):
 
 def get_myapi(db: Session, key: str):
     return db.query(models.Myapi).filter(models.Myapi.key == key).first()
+
+
+def get_myapi_by_user_id(db: Session, id: int):
+    return db.query(models.Myapi).filter(models.Myapi.user_id == id).first()
+
+
+def get_myapi_by_id(db: Session, id: int):
+    return db.query(models.Myapi).filter(models.Myapi.id == id).first()
+
+
+def remove_myapi(db: Session, id: int):
+    to_be_deleted = get_myapi_by_id(db, id)
+    db.delete(to_be_deleted)
+    db.commit()
+    return {"message": "success"}
