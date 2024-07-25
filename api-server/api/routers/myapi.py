@@ -27,10 +27,11 @@ def get_key_by_id(id: int, db: Session = Depends(get_db)):
 @router.get("/get_key_by_user_id")
 def get_key_by_user_id(
     user_id: int,
-    current_user: Annotated[str, Depends(get_current_user)],
+    skip: int = 0,
+    limit: int = 10,
     db: Session = Depends(get_db),
 ):
-    return myapi_repo.get_myapi_by_user_id(db, user_id)
+    return myapi_repo.get_myapi_by_user_id(db, user_id, skip, limit)
 
 
 # use this as a template to get api protected routes
