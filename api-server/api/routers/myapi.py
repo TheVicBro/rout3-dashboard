@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Security
 from sqlalchemy.orm import Session
 from db.database import get_db
-from db.repositories import myapi_repository as myapi_repo
-from services.jwt import get_current_user
+from db.repositories import myapi_repository as myapi_repo, user_repository as user_repo
+from services.auth.jwt import get_current_user
 from typing_extensions import Annotated
 from services import myapi
 
@@ -16,7 +16,8 @@ def create_key(
 ):
     key = myapi.generate_api_key()
     myapi.key = key
-    return myapi_repo.create_myapi(db=db, myapi=myapi, user_id=current_user)
+    current_user_id = user_repo.get_user_by_username(db, current_user).id
+    return myapi_repo.create_myapi(db=db, myapi=myapi, user_id=current_user_id)
 
 
 @router.get("/get_key_by_id")
