@@ -57,3 +57,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     except InvalidTokenError:
         raise credentials_exception
     return token_data.username
+
+
+async def verify_token(token: Annotated[str, Depends(oauth2_scheme)]):
+    try:
+        payload = jwt.decode(token, JWT_SIGNING_KEY, algorithms=[ALGORITHM])
+        return True
+    except InvalidTokenError:
+        return False
