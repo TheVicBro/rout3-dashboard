@@ -156,6 +156,9 @@
  
   let open = false;
   $: selectedValue = items.find((f) => f === newName) ?? "Select a provider...";
+  $: selectedRemoveValue = selectedSecret 
+    ? `${selectedSecret.name} (ID: ${selectedSecret.id})` 
+    : "Select a key to remove...";
 
   let newName = '';
   let newKey = '';
@@ -188,7 +191,7 @@
           <tbody>
             {#each $query.data as secret}
               <tr>
-                <td class="p-2">{secret.name}</td>
+                <td class="p-2 flex items-center gap-x-2">{secret.name} <p class="text-xs text-gray-400">(ID: {secret.id})</p></td>
                 <td class="p-2">**********</td>
                 <td class="p-2">{DateTime.fromISO(secret.last_used).toRelative()}</td>
               </tr>
@@ -278,16 +281,49 @@
         </Dialog.Description>
         <div class="space-y-4 py-4">
           {#if $query.isSuccess}
-            <div>
-              <div class="block text-gray-700">Select Secret to Remove</div>
-              <select bind:value={selectedSecret} class="form-select mt-1 block w-full border rounded p-2 bg-white">
-                <option value="" disabled selected>Select a key</option>
-                {#each $query.data as secret}
-                  <option value={{ id: secret.id, name: secret.name }}>
-                    {secret.name}
-                  </option>
-                {/each}
-              </select>
+            <div class="grid grid-cols-5 items-center gap-4">
+              <Label for="remove-key" class="text-right">Secret</Label>
+              <div class="col-span-4">
+                <Popover.Root bind:open let:ids>
+                  <Popover.Trigger asChild let:builder>
+                    <Button
+                      builders={[builder]}
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      class="w-full justify-between"
+                    >
+                      {selectedRemoveValue}
+                      <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </Popover.Trigger>
+                  <Popover.Content class="w-[72%] p-0">
+                    <Command.Root>
+                      <Command.Input placeholder="Search key..." />
+                      <Command.Empty>No key found.</Command.Empty>
+                      <Command.Group>
+                        {#each $query.data as secret}
+                          <Command.Item
+                            value={`${secret.name} (ID: ${secret.id})`}
+                            onSelect={() => {
+                              selectedSecret = { id: secret.id, name: secret.name };
+                              closeAndFocusTrigger(ids.trigger);
+                            }}
+                          >
+                            <Check
+                              class={cn(
+                                "mr-2 h-4 w-4",
+                                selectedSecret?.id !== secret.id && "text-transparent"
+                              )}
+                            />
+                            {secret.name} (ID: {secret.id})
+                          </Command.Item>
+                        {/each}
+                      </Command.Group>
+                    </Command.Root>
+                  </Popover.Content>
+                </Popover.Root>
+              </div>
             </div>
           {/if}
         </div>
