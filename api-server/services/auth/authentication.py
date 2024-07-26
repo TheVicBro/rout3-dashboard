@@ -1,7 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
-from db.database import get_db
 from db.repositories import user_repository as user_repo
 from services.auth.security import verify_password
 from services.auth import jwt
