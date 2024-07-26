@@ -11,7 +11,6 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 from typing_extensions import Annotated
 from dotenv import load_dotenv
-from models.user_model import User
 from models.token_model import Token, TokenData
 from db.repositories import user_repository as user_repo
 

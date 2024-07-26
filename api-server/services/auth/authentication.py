@@ -5,23 +5,8 @@ from db.database import get_db
 from db.repositories import user_repository as user_repo
 from services.auth.security import verify_password
 from services.auth import jwt
-from typing_extensions import Annotated
-from models.user_model import User
 
 security = HTTPBasic()
-
-"""
-def verification(
-    creds: HTTPBasicCredentials = Depends(security), db: Session = Depends(get_db)
-):
-    username = creds.username  # inputted username
-    password = creds.password  # inputted password
-
-    user = user_repo.get_user_by_username(db, username=username)
-    if user == None:
-        return False  # user does not exist
-    return verify_password(password, user.hashed_password)
-"""
 
 
 def verification(username: str, plaintext_password: str, db: Session):
