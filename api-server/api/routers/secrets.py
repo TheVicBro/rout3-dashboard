@@ -6,7 +6,7 @@ from db.repositories import secrets_repository as secrets_repo
 from db.repositories import user_repository as user_repo
 from services.auth.jwt import get_current_user, verify_token
 from typing_extensions import Annotated
-from models.models import User
+from models.user_model import User
 from typing import List
 
 router = APIRouter(prefix="/secrets")

@@ -6,7 +6,7 @@ from db.repositories import user_repository as user_repo
 from services.auth.security import verify_password
 from services.auth import jwt
 from typing_extensions import Annotated
-from models.models import User
+from models.user_model import User
 
 security = HTTPBasic()
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from typing_extensions import Annotated
 from services.auth import authentication as auth
-from models.models import Token
+from models.token_model import Token
 
 router = APIRouter()
 
