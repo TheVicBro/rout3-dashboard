@@ -9,6 +9,7 @@
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
 
+  const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
   const queryClient = useQueryClient();
@@ -27,6 +28,8 @@
   }
 
   let selectedSecret: SecretOption | null = null;
+  let newName = { label: '', value: '' };
+  let newKey = '';
 
   const addNewKey = async () => {
     const current_date = DateTime.now();
@@ -108,11 +111,6 @@
     queryKey: ['repoData'],
     queryFn: fetchRepos,
   });
-
-  const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
-
-  let newName = { label: '', value: '' };
-  let newKey = '';
 </script>
 
 <div>

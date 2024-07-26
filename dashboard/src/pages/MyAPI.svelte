@@ -73,7 +73,6 @@
 
   let newName = '';
   let newKey = '';
-
   let selectedSecretId: number | null = null;
 </script>
 
