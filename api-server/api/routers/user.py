@@ -46,3 +46,8 @@ async def read_users_me(
     db: Session = Depends(get_db),
 ):
     return user_repo.get_user_by_username(db, current_user)
+
+
+@router.delete("/delete")
+def delete_user_by_id(db: Session = Depends(get_db)):
+    return "success"
