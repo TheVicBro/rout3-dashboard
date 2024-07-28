@@ -19,7 +19,7 @@ def record_usage(
     db: Session = Depends(get_db),
     ):
     try:
-        verify_api_key(db, usage.api_key) # this method actually returns the key
+        verify_api_key(db, usage.api_key)
         return {"data": usage_repo.create_usage_entry(db, usage), "error": "", "status": 200}
     except HTTPException as e:
         return {"data": {}, "error": e.detail, "status": e.status_code}
