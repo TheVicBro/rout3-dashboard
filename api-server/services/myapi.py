@@ -21,6 +21,5 @@ def verify_api_key(db: Session, api_key_string):
     if api_key is None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials",
+            detail="Invalid API key provided; could not validate credentials.",
         )
-    return api_key
