@@ -1,5 +1,4 @@
-from typing import Union
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, JSON, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from db.database import Base
 from pydantic import BaseModel
@@ -31,27 +30,34 @@ class Secret(Base):
     __tablename__ = "secrets"
 
     id = Column(Integer, primary_key=True)
-    provider = Column(String, nullable=False)
-    key = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    key = Column(String, nullable=False)  
     last_used = Column(String, nullable=True)
-    
     user_id = Column(Integer, ForeignKey("users.id"))
-
+    
     user = relationship("User", back_populates="secrets")
-    usages = relationship("Usage", back_populates="secret", cascade="all, delete-orphan")
+    usages = relationship("Usage", back_populates="secret")
+    # usages = relationship("Usage", back_populates="secret", cascade="all, delete-orphan")
 
 
 class Usage(Base):
-    __tablename__= "usage"
-    
-    id= Column(Integer, primary_key=True)
-    model = Column(String, nullable=False)
-    cost = Column(Float, nullable=False)
-    tokens = Column(Integer, nullable=False)
-    date_time = Column(String, nullable=False)
+    __tablename__= "usages"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
     provider = Column(String, nullable=False)
+    model = Column(String, nullable=False)
+    chat_history = Column(JSON, nullable=False)
+    prompt = Column(String, nullable=False)
+    response = Column(String, nullable=False)
+    input_cost = Column(Float, nullable=False) # We will need to update the proxy tokenizer to tokenize the chat_history too in order to grab this cost
+    prompt_cost = Column(Float, nullable=False)
+    response_cost = Column(Float, nullable=False)
+    prompt_tokens = Column(Integer, nullable=False)
+    response_tokens = Column(Integer, nullable=False)
+    date_time = Column(DateTime, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
-    secrets_id = Column(Integer, ForeignKey("secrets.id"))
+    secret_id = Column(Integer, ForeignKey("secrets.id"))
+    
     secret = relationship("Secret", back_populates="usages")
 
 
