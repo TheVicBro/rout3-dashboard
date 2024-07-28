@@ -48,7 +48,7 @@ class Usage(Base):
     chat_history = Column(JSON, nullable=False)
     prompt = Column(String, nullable=False)
     response = Column(String, nullable=False)
-    input_cost = Column(Float, nullable=False) # We will need to update the proxy tokenizer to tokenize the chat_history too in order to grab this cost
+    input_cost = Column(Float, nullable=False)
     prompt_cost = Column(Float, nullable=False)
     response_cost = Column(Float, nullable=False)
     prompt_tokens = Column(Integer, nullable=False)
