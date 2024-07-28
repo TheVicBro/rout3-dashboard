@@ -43,7 +43,7 @@ class Secret(Base):
 class Usage(Base):
     __tablename__= "usages"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     provider = Column(String, nullable=False)
     model = Column(String, nullable=False)
     chat_history = Column(JSON, nullable=False)
