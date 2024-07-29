@@ -7,6 +7,7 @@ class Myapi(Base):
     __tablename__ = "myapi"
 
     id = Column(Integer, primary_key=True)
+    name = Column(String)
     key = Column(String)
     user_id = Column(Integer, ForeignKey("users.id"))
 
