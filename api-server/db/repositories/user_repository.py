@@ -31,8 +31,6 @@ def create_user(db: Session, user: user_schema.UserCreate):
 
 def delete_user(db: Session, user_id: int):
     user_to_be_deleted = get_user_by_id(db, user_id)
-    if user_to_be_deleted is None:
-        raise Exception
     db.delete(user_to_be_deleted)
     db.commit()
     return {"message": "success"}
