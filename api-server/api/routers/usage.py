@@ -9,7 +9,7 @@ from db.repositories import user_repository as user_repo
 from db.repositories import usage_repository as usage_repo
 
 from services.auth.jwt import get_current_user
-from errors.custom_db_errors import (
+from custom_errors.db_errors import (
     InvalidProvider, 
     InvalidModel, 
     InvalidDateRangeUsage

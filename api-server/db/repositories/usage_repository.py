@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from models import usage_model
 from models.schemas import usage_schema 
 from datetime import datetime
-from errors.custom_db_errors import (
+from custom_errors.db_errors import (
     InvalidProvider, 
     InvalidModel, 
     InvalidSecret, 
