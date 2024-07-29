@@ -27,3 +27,10 @@ def create_user(db: Session, user: user_schema.UserCreate):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def delete_user(db: Session, user_id: int):
+    user_to_be_deleted = get_user_by_id(db, user_id)
+    db.delete(user_to_be_deleted)
+    db.commit()
+    return {"message": "success"}
