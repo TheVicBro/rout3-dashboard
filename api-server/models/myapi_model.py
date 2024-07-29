@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from db.database import Base
-from models.user_model import User 
 
 class Myapi(Base):
     __tablename__ = "myapi"

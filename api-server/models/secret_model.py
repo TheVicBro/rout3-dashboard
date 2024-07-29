@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from db.database import Base
-from models.usage_model import Usage
-from models.user_model import User 
+ 
 class Secret(Base):
     __tablename__ = "secrets"
 
