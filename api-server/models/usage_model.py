@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, JSON, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from db.database import Base
+from models.secret_model import Secret 
 
 class Usage(Base):
     __tablename__= "usages"

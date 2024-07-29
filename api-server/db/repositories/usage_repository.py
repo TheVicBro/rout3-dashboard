@@ -70,7 +70,7 @@ def get_usage_by_secret(db: Session, secret_id: int, user_id: int, skip: int = 0
         .all()
     )
     if len(db_usage) == 0:
-        raise InvalidSecret
+        raise InvalidSecret(secret_id)
     return db_usage
 
 def get_date_range_usage(db: Session, start_date: datetime, end_date: datetime, user_id: int, skip: int = 0, limit: int = 7):

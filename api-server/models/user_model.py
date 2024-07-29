@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from db.database import Base
+from models.secret_model import Secret 
+from models.myapi_model import Myapi 
 
 
 class User(Base):
