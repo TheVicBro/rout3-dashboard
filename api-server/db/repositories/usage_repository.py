@@ -1,13 +1,18 @@
 from sqlalchemy.orm import Session
-from models import models
-from schemas import schemas
+from models import usage_model
+from models.schemas import usage_schema 
 from datetime import datetime
-from errors.custom_db_errors import InvalidProvider, InvalidModel, InvalidSecret, InvalidDateRangeUsage
+from errors.custom_db_errors import (
+    InvalidProvider, 
+    InvalidModel, 
+    InvalidSecret, 
+    InvalidDateRangeUsage
+    )
 
 
 
-def create_usage_entry(db: Session, usage: schemas.UsageBase):
-    db_usage = models.Usage(
+def create_usage_entry(db: Session, usage: usage_schema.UsageBase):
+    db_usage = usage_model.Usage(
                             provider=usage.provider,
                             model=usage.model,
                             chat_history=usage.chat_history,
@@ -30,9 +35,9 @@ def create_usage_entry(db: Session, usage: schemas.UsageBase):
 
 def get_usage_by_provider(db: Session, provider: str, user_id: int, skip: int = 0, limit: int = 10):
     db_usage = ( 
-        db.query(models.Usage)
-        .filter(models.Usage.user_id == user_id)
-        .filter(models.Usage.provider == provider)
+        db.query(usage_model.Usage)
+        .filter(usage_model.Usage.user_id == user_id)
+        .filter(usage_model.Usage.provider == provider)
         .offset(skip)
         .limit(limit)
         .all()
@@ -44,9 +49,9 @@ def get_usage_by_provider(db: Session, provider: str, user_id: int, skip: int = 
 
 def get_usage_by_model(db: Session, model: str, user_id: int, skip: int = 0, limit: int = 10):
     db_usage = (
-        db.query(models.Usage)
-        .filter(models.Usage.user_id == user_id)
-        .filter(models.Usage.model == model)
+        db.query(usage_model.Usage)
+        .filter(usage_model.Usage.user_id == user_id)
+        .filter(usage_model.Usage.model == model)
         .offset(skip)
         .limit(limit)
         .all()
@@ -57,9 +62,9 @@ def get_usage_by_model(db: Session, model: str, user_id: int, skip: int = 0, lim
 
 def get_usage_by_secret(db: Session, secret_id: int, user_id: int, skip: int = 0, limit: int = 10):
     db_usage = ( 
-        db.query(models.Usage)
-        .filter(models.Usage.user_id == user_id)
-        .filter(models.Usage.secret_id == secret_id)
+        db.query(usage_model.Usage)
+        .filter(usage_model.Usage.user_id == user_id)
+        .filter(usage_model.Usage.secret_id == secret_id)
         .offset(skip)
         .limit(limit)
         .all()
@@ -70,9 +75,9 @@ def get_usage_by_secret(db: Session, secret_id: int, user_id: int, skip: int = 0
 
 def get_date_range_usage(db: Session, start_date: datetime, end_date: datetime, user_id: int, skip: int = 0, limit: int = 7):
     db_usage = ( 
-        db.query(models.Usage)
-        .filter(models.Usage.user_id == user_id)
-        .filter(models.Usage.date_time > start_date, models.Usage.date_time < end_date)
+        db.query(usage_model.Usage)
+        .filter(usage_model.Usage.user_id == user_id)
+        .filter(usage_model.Usage.date_time > start_date, usage_model.Usage.date_time < end_date)
         .offset(skip)
         .limit(limit)
         .all()
