@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
 from sqlalchemy.orm import Session
-from typing_extensions import Annotated
+from typing_extensions import Annotated, Optional
 from services.myapi import verify_api_key
 from models.schemas import usage_schema
 from db.database import get_db
@@ -33,11 +33,13 @@ def record_usage(
 def list_provider_usage(
     provider: str,
     current_user: Annotated[str, Depends(get_current_user)],
+    limit: Optional[int] = 10,
+    skip: Optional[int] = 0,
     db: Session = Depends(get_db),
     ):
-    current_user_id = user_repo.get_user_by_username(db, current_user).id
+    user_id = user_repo.get_user_by_username(db, current_user).id
     try:
-        data = usage_repo.get_usage_by_provider(db, provider, user_id=current_user_id)
+        data = usage_repo.get_usage_by_provider(db, provider, user_id, skip, limit)
         return {"data": data, "error": "", "status": 200}
     except InvalidProvider as e:
         return {"data": [], "error": e.message, "status": e.status_code}
@@ -47,11 +49,13 @@ def list_provider_usage(
 def list_model_usage(
     model: str,
     current_user: Annotated[str, Depends(get_current_user)],
+    limit: Optional[int] = 10,
+    skip: Optional[int] = 0,
     db: Session = Depends(get_db),
     ):
-    current_user_id = user_repo.get_user_by_username(db, current_user).id
+    user_id = user_repo.get_user_by_username(db, current_user).id
     try:
-        data = usage_repo.get_usage_by_model(db, model, user_id=current_user_id)
+        data = usage_repo.get_usage_by_model(db, model, user_id, skip, limit)
         return {"data": data, "error": "", "status": 200}
     except InvalidModel as e:
         return {"data": [], "error": e.message, "status": e.status_code}
@@ -61,11 +65,13 @@ def list_model_usage(
 def list_secret_usage(
     secret_id: int,
     current_user: Annotated[str, Depends(get_current_user)],
+    limit: Optional[int] = 10,
+    skip: Optional[int] = 0,
     db: Session = Depends(get_db),
     ):
-    current_user_id = user_repo.get_user_by_username(db, current_user).id
+    user_id = user_repo.get_user_by_username(db, current_user).id
     try:
-        data = usage_repo.get_usage_by_secret(db, secret_id, current_user_id)
+        data = usage_repo.get_usage_by_secret(db, secret_id, user_id, skip, limit)
         return {"data": data, "error": "", "status": 200}
     except InvalidModel as e:
         return {"data": [], "error": e.message, "status": e.status_code}
@@ -76,11 +82,13 @@ def list_date_range_usage(
     start_date: datetime,
     end_date: datetime,
     current_user: Annotated[str, Depends(get_current_user)],
+    limit: Optional[int] = 10,
+    skip: Optional[int] = 0,
     db: Session = Depends(get_db),
     ):
-    current_user_id = user_repo.get_user_by_username(db, current_user).id
+    user_id = user_repo.get_user_by_username(db, current_user).id
     try:
-        data = usage_repo.get_date_range_usage(db, start_date, end_date, current_user_id)
+        data = usage_repo.get_date_range_usage(db, start_date, end_date, user_id, skip, limit)
         return {"data": data, "error": "", "status": 200}
     except InvalidDateRangeUsage as e:
         return {"data": [], "error": e.message, "status": e.status_code}
