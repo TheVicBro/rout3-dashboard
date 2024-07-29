@@ -12,7 +12,7 @@ class InvalidProvider(Exception):
 
 
 class InvalidModel(Exception):
-    """Error raised when user provides an unsupported model or when the provider entry does not exist.
+    """Error raised when user provides an unsupported model or when the model entry does not exist.
 
     Args:
         Exception (_type_): _description_
