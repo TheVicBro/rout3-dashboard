@@ -47,7 +47,9 @@
     </Router>
   {:else}
     <div class="min-h-screen flex items-center justify-center bg-slate-100">
-      <Login on:loginSuccess={handleLoginSuccess} />
+      <div class="w-full max-w-md px-6 py-8">
+        <Login on:loginSuccess={handleLoginSuccess} />
+      </div>
     </div>
   {/if}
 </QueryClientProvider>

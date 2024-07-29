@@ -8,23 +8,33 @@
   import { Dialog as DialogPrimitive } from "bits-ui";
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
+  import { z } from 'zod';
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
   const queryClient = useQueryClient();
 
-  type Repo = {
-    name: string;
-    last_used: string | null;
-    user_id: number;
-    id: number;
-    key: string;
-  };
+  const SecretSchema = z.object({
+    name: z.string(),
+    last_used: z.string(),
+    user_id: z.number(),
+    id: z.number(),
+  });
 
-  interface SecretOption {
-    id: number;
-    name: string;
-  }
+  const SecretOptionSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+  });
+
+  const NewSecretSchema = z.object({
+    name: z.string().min(1, "Provider name is required"),
+    key: z.string().min(1, "Key is required"),
+    last_used: z.string(),
+  });
+
+  type Secret = z.infer<typeof SecretSchema>;
+  type SecretOption = z.infer<typeof SecretOptionSchema>;
+  type NewSecret = z.infer<typeof NewSecretSchema>;
 
   let selectedSecret: SecretOption | null = null;
 
@@ -33,64 +43,83 @@
     const turso_date = current_date.toISO();
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
-    if (!newName.label || !newKey) {
-      throw new Error('Please enter a provider and key');
-    }
-    const response = await fetch('http://127.0.0.1:8000/secrets/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
+    try {
+      const newSecretData: NewSecret = NewSecretSchema.parse({
         name: newName.label,
         key: newKey,
         last_used: turso_date,
-      }),
-    });
-    if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.statusText}`);
-    }
-    const undoSecret = await response.json();
-    queryClient.invalidateQueries({ queryKey: ['repoData'] });
-    toast.success(`${newName.label} has been added.`, {
-      description: `${formatted_date}`,
-      action: {
-        label: "Undo",
-        onClick: () => {
-          selectedSecret = { id: undoSecret.id, name: undoSecret.name };
-          removeKey()
-        }
+      });
+
+      const response = await fetch('http://127.0.0.1:8000/secrets/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newSecretData),
+      });
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
       }
-    })
-    newName = { label: '', value: '' };
-    newKey = '';
+      const undoSecret = SecretSchema.parse(await response.json());
+      queryClient.invalidateQueries({ queryKey: ['secretData'] });
+      toast.success(`${newName.label} has been added.`, {
+        description: `${formatted_date}`,
+        action: {
+          label: "Undo",
+          onClick: () => {
+            selectedSecret = { id: undoSecret.id, name: undoSecret.name };
+            removeKey()
+          }
+        }
+      })
+      newName = { label: '', value: '' };
+      newKey = '';
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error("Validation error", {
+          description: error.errors.map(e => e.message).join(", ")
+        });
+      } else {
+        toast.error("An error occurred", {
+          description: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    }
   }
 
   const removeKey = async () => {
     const formatted_date = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
 
-    if (!selectedSecret) {
-      throw new Error('No secret selected for removal');
+    try {
+      if (!selectedSecret) {
+        throw new Error('No secret selected for removal');
+      }
+      const validatedSecret = SecretOptionSchema.parse(selectedSecret);
+
+      const response = await fetch(`http://127.0.0.1:8000/secrets/delete?secret_id=${validatedSecret.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
+      }
+      queryClient.invalidateQueries({ queryKey: ['secretData'] });
+      toast.success(`${selectedSecret.name} has been removed.`, {
+        description: `${formatted_date}`,
+      });
+      selectedSecret = null;
+    } catch (error) {
+      toast.error("An error occurred", {
+        description: error instanceof Error ? error.message : "Unknown error"
+      });
     }
-    const response = await fetch(`http://127.0.0.1:8000/secrets/delete?secret_id=${selectedSecret.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.statusText}`);
-    }
-    queryClient.invalidateQueries({ queryKey: ['repoData'] });
-    toast.success(`${selectedSecret.name} has been removed.`, {
-      description: `${formatted_date}`,
-    });
-    selectedSecret = null;
   }
 
-  const fetchRepos = async (): Promise<Repo[]> => {
+  const fetchSecrets = async (): Promise<Secret[]> => {
     const response = await fetch(`http://127.0.0.1:8000/secrets/list?user_id=${userid}`, {
       method: 'GET',
       headers: {
@@ -101,12 +130,13 @@
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.statusText}`);
     }
-    return response.json();
+    const data = await response.json();
+    return z.array(SecretSchema).parse(data);
   };
 
-  const query = createQuery<Repo[]>({
-    queryKey: ['repoData'],
-    queryFn: fetchRepos,
+  const query = createQuery<Secret[]>({
+    queryKey: ['secretData'],
+    queryFn: fetchSecrets,
   });
 
   const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
@@ -140,11 +170,11 @@
             </tr>
           </thead>
           <tbody>
-            {#each $query.data as repo}
+            {#each $query.data as secret}
               <tr>
-                <td class="p-2">{repo.name}</td>
+                <td class="p-2">{secret.name}</td>
                 <td class="p-2">**********</td>
-                <td class="p-2">{DateTime.fromISO(repo.last_used ?? '').toRelative()}</td>
+                <td class="p-2">{DateTime.fromISO(secret.last_used).toRelative()}</td>
               </tr>
             {/each}
           </tbody>
@@ -196,9 +226,9 @@
               <div class="block text-gray-700">Select Secret to Remove</div>
               <select bind:value={selectedSecret} class="form-select mt-1 block w-full border rounded p-2 bg-white">
                 <option value="" disabled selected>Select a key</option>
-                {#each $query.data as repo}
-                  <option value={{ id: repo.id, name: repo.name }}>
-                    {repo.name}
+                {#each $query.data as secret}
+                  <option value={{ id: secret.id, name: secret.name }}>
+                    {secret.name}
                   </option>
                 {/each}
               </select>
