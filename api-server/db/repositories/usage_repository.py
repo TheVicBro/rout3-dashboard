@@ -33,7 +33,7 @@ def create_usage_entry(db: Session, usage: usage_schema.UsageBase):
     return db_usage
 
 
-def get_usage_by_provider(db: Session, provider: str, user_id: int, skip: int = 0, limit: int = 10):
+def get_usage_by_provider(db: Session, provider: str, user_id: int, skip: int, limit: int):
     db_usage = ( 
         db.query(usage_model.Usage)
         .filter(usage_model.Usage.user_id == user_id)
@@ -47,7 +47,7 @@ def get_usage_by_provider(db: Session, provider: str, user_id: int, skip: int = 
     return db_usage
 
 
-def get_usage_by_model(db: Session, model: str, user_id: int, skip: int = 0, limit: int = 10):
+def get_usage_by_model(db: Session, model: str, user_id: int, skip: int, limit: int):
     db_usage = (
         db.query(usage_model.Usage)
         .filter(usage_model.Usage.user_id == user_id)
@@ -60,7 +60,7 @@ def get_usage_by_model(db: Session, model: str, user_id: int, skip: int = 0, lim
         raise InvalidModel(model)
     return db_usage
 
-def get_usage_by_secret(db: Session, secret_id: int, user_id: int, skip: int = 0, limit: int = 10):
+def get_usage_by_secret(db: Session, secret_id: int, user_id: int, skip: int, limit: int):
     db_usage = ( 
         db.query(usage_model.Usage)
         .filter(usage_model.Usage.user_id == user_id)
@@ -73,7 +73,7 @@ def get_usage_by_secret(db: Session, secret_id: int, user_id: int, skip: int = 0
         raise InvalidSecret(secret_id)
     return db_usage
 
-def get_date_range_usage(db: Session, start_date: datetime, end_date: datetime, user_id: int, skip: int = 0, limit: int = 7):
+def get_date_range_usage(db: Session, start_date: datetime, end_date: datetime, user_id: int, skip: int, limit: int):
     db_usage = ( 
         db.query(usage_model.Usage)
         .filter(usage_model.Usage.user_id == user_id)
