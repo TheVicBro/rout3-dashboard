@@ -3,19 +3,23 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from typing_extensions import Annotated
 from services.myapi import verify_api_key
-from schemas import schemas
+from models.schemas import usage_schema
 from db.database import get_db
 from db.repositories import user_repository as user_repo
 from db.repositories import usage_repository as usage_repo
 
 from services.auth.jwt import get_current_user
-from errors.custom_db_errors import InvalidProvider, InvalidModel, InvalidDateRangeUsage
+from errors.custom_db_errors import (
+    InvalidProvider, 
+    InvalidModel, 
+    InvalidDateRangeUsage
+    )
 
 router = APIRouter(prefix="/usages")
 
-@router.post("/create", response_model=schemas.UsageCreateData)
+@router.post("/create", response_model=usage_schema.UsageCreateData)
 def record_usage(
-    usage: schemas.UsageCreate,
+    usage: usage_schema.UsageCreate,
     db: Session = Depends(get_db),
     ):
     try:
@@ -25,7 +29,7 @@ def record_usage(
         return {"data": {}, "error": e.detail, "status": e.status_code}
 
 
-@router.get("/provider", response_model=schemas.UsageData)
+@router.get("/provider", response_model=usage_schema.UsageData)
 def list_provider_usage(
     provider: str,
     current_user: Annotated[str, Depends(get_current_user)],
@@ -39,7 +43,7 @@ def list_provider_usage(
         return {"data": [], "error": e.message, "status": e.status_code}
 
 
-@router.get("/model", response_model=schemas.UsageData)
+@router.get("/model", response_model=usage_schema.UsageData)
 def list_model_usage(
     model: str,
     current_user: Annotated[str, Depends(get_current_user)],
@@ -53,7 +57,7 @@ def list_model_usage(
         return {"data": [], "error": e.message, "status": e.status_code}
 
 
-@router.get("/secret", response_model=schemas.UsageData)
+@router.get("/secret", response_model=usage_schema.UsageData)
 def list_secret_usage(
     secret_id: int,
     current_user: Annotated[str, Depends(get_current_user)],
@@ -67,7 +71,7 @@ def list_secret_usage(
         return {"data": [], "error": e.message, "status": e.status_code}
 
 
-@router.get("/date/range", response_model=schemas.UsageData)
+@router.get("/date/range", response_model=usage_schema.UsageData)
 def list_date_range_usage(
     start_date: datetime,
     end_date: datetime,
