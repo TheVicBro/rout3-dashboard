@@ -13,6 +13,7 @@ class SecretCreate(SecretBase):
     """
 
     key: str
+    last_used: Optional[str] = None
 
 
 class Secret(SecretBase):
