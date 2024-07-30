@@ -22,7 +22,6 @@ def create_key(
     key = myapi.generate_api_key()
     myapi.key = key
     current_user_id = user_repo.get_user_by_username(db, current_user).id
-    print(name)
     return myapi_repo.create_myapi(db=db, myapi=myapi, user_id=current_user_id, name=name)
 
 
