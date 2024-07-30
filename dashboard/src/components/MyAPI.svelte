@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-  import Select from 'svelte-select';
   import { DateTime } from 'luxon';
   import * as Dialog from "$lib/components/ui/dialog";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -9,6 +8,13 @@
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
   import { z } from 'zod';
+  import * as Command from "$lib/components/ui/command/index.js";
+  import * as Popover from "$lib/components/ui/popover/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { cn } from "$lib/utils.js";
+  import Check from "lucide-svelte/icons/check";
+  import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
+  import { closeAndFocusTrigger } from "../utils/utils"; 
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -121,9 +127,11 @@
     queryFn: fetchSecrets,
   });
 
-  const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
-
   let newName = '';
+  let open = false;
+  $: selectedRemoveValue = selectedAPItoDelete 
+    ? `${selectedAPItoDelete.name} (ID: ${selectedAPItoDelete.id})` 
+    : "Select a key to remove...";
 </script>
 
 <div>
@@ -199,17 +207,51 @@
         </Dialog.Description>
         <div class="space-y-4 py-4">
           {#if $query.isSuccess}
-            <div>
-              <div class="block text-gray-700">Select API to Remove</div>
-              <select bind:value={selectedAPItoDelete} class="form-select mt-1 block w-full border rounded p-2 bg-white">
-                <option value="" disabled selected>Select a key</option>
-                {#each $query.data as api}
-                  <option value={{ id: api.id, name: api.name }}>
-                    {api.name}
-                  </option>
-                {/each}
-              </select>
+          <div class="grid grid-cols-5 items-center gap-4">
+            <Label for="remove-key" class="text-right">Secret</Label>
+            <div class="col-span-4">
+              <Popover.Root bind:open let:ids>
+                <Popover.Trigger asChild let:builder>
+                  <Button
+                    builders={[builder]}
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    class="w-full justify-between"
+                  >
+                    {selectedRemoveValue}
+                    <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </Popover.Trigger>
+                <Popover.Content class="w-[72%] p-0">
+                  <Command.Root>
+                    <Command.Input placeholder="Search key..." />
+                    <Command.Empty>No key found.</Command.Empty>
+                    <Command.Group>
+                      {#each $query.data as api}
+                        <Command.Item
+                          value={`${api.name} (ID: ${api.id})`}
+                          onSelect={() => {
+                            selectedAPItoDelete = { id: api.id, name: api.name };
+                            closeAndFocusTrigger(ids.trigger);
+                            open = false;
+                          }}
+                        >
+                          <Check
+                            class={cn(
+                              "mr-2 h-4 w-4",
+                              selectedAPItoDelete?.id !== api.id && "text-transparent"
+                            )}
+                          />
+                          {api.name} (ID: {api.id})
+                        </Command.Item>
+                      {/each}
+                    </Command.Group>
+                  </Command.Root>
+                </Popover.Content>
+              </Popover.Root>
             </div>
+          </div>
           {/if}
         </div>
         <Dialog.Footer>
