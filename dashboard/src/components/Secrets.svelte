@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-  import Select from 'svelte-select';
   import { DateTime } from 'luxon';
   import * as Dialog from "$lib/components/ui/dialog";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -9,6 +8,13 @@
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
   import { z } from 'zod';
+  import * as Command from "$lib/components/ui/command/index.js";
+  import * as Popover from "$lib/components/ui/popover/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { cn } from "$lib/utils.js";
+  import Check from "lucide-svelte/icons/check";
+  import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
+  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -16,7 +22,7 @@
 
   const SecretSchema = z.object({
     name: z.string(),
-    last_used: z.string(),
+    last_used: z.string().nullable(),
     user_id: z.number(),
     id: z.number(),
   });
@@ -29,7 +35,6 @@
   const NewSecretSchema = z.object({
     name: z.string().min(1, "Provider name is required"),
     key: z.string().min(1, "Key is required"),
-    last_used: z.string(),
   });
 
   type Secret = z.infer<typeof SecretSchema>;
@@ -45,9 +50,8 @@
 
     try {
       const newSecretData: NewSecret = NewSecretSchema.parse({
-        name: newName.label,
+        name: newName,
         key: newKey,
-        last_used: turso_date,
       });
 
       const response = await fetch('http://127.0.0.1:8000/secrets/create', {
@@ -63,7 +67,7 @@
       }
       const undoSecret = SecretSchema.parse(await response.json());
       queryClient.invalidateQueries({ queryKey: ['secretData'] });
-      toast.success(`${newName.label} has been added.`, {
+      toast.success(`${newName} has been added.`, {
         description: `${formatted_date}`,
         action: {
           label: "Undo",
@@ -73,7 +77,7 @@
           }
         }
       })
-      newName = { label: '', value: '' };
+      newName = '';
       newKey = '';
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -138,10 +142,14 @@
     queryKey: ['secretData'],
     queryFn: fetchSecrets,
   });
+ 
+  let open = false;
+  $: selectedValue = availableModelProviders.find((f) => f === newName) ?? "Select a provider...";
+  $: selectedRemoveValue = selectedSecret 
+    ? `${selectedSecret.name} (ID: ${selectedSecret.id})` 
+    : "Select a key to remove...";
 
-  const items = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
-
-  let newName = { label: '', value: '' };
+  let newName = '';
   let newKey = '';
 </script>
 
@@ -172,9 +180,12 @@
           <tbody>
             {#each $query.data as secret}
               <tr>
-                <td class="p-2">{secret.name}</td>
+                <td class="p-2 flex items-center gap-x-2">{secret.name} <p class="text-xs text-gray-400">(ID: {secret.id})</p></td>
                 <td class="p-2">**********</td>
-                <td class="p-2">{DateTime.fromISO(secret.last_used).toRelative()}</td>
+                <td class="p-2">
+                  {secret.last_used 
+                    ? DateTime.fromISO(secret.last_used).toRelative() 
+                    : "Never Used"}</td>
               </tr>
             {/each}
           </tbody>
@@ -195,7 +206,48 @@
         <div class="grid gap-4 py-4">
           <div class="grid grid-cols-5 items-center gap-4">
             <Label for="provider" class="text-right">Provider</Label>
-            <Select {items} bind:value={newName} class="col-span-4"/>
+            <div class="col-span-4">
+              <Popover.Root bind:open let:ids>
+                <Popover.Trigger asChild let:builder>
+                  <Button
+                    builders={[builder]}
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    class="w-full justify-between"
+                  >
+                    {selectedValue}
+                    <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </Popover.Trigger>
+                <Popover.Content class="w-[72%] p-0">
+                  <Command.Root>
+                    <Command.Input placeholder="Search provider..." />
+                    <Command.Empty>No provider found.</Command.Empty>
+                    <Command.Group>
+                      {#each availableModelProviders as provider}
+                        <Command.Item
+                          value={provider}
+                          onSelect={(currentValue) => {
+                            newName = currentValue;
+                            closeAndFocusTrigger(ids.trigger);
+                            open = false;
+                          }}
+                        >
+                          <Check
+                            class={cn(
+                              "mr-2 h-4 w-4",
+                              newName !== provider && "text-transparent"
+                            )}
+                          />
+                          {provider}
+                        </Command.Item>
+                      {/each}
+                    </Command.Group>
+                  </Command.Root>
+                </Popover.Content>
+              </Popover.Root>
+            </div>
           </div>
           <div class="grid grid-cols-5 items-center gap-4">
             <Label for="key" class="text-right">Key</Label>
@@ -222,16 +274,50 @@
         </Dialog.Description>
         <div class="space-y-4 py-4">
           {#if $query.isSuccess}
-            <div>
-              <div class="block text-gray-700">Select Secret to Remove</div>
-              <select bind:value={selectedSecret} class="form-select mt-1 block w-full border rounded p-2 bg-white">
-                <option value="" disabled selected>Select a key</option>
-                {#each $query.data as secret}
-                  <option value={{ id: secret.id, name: secret.name }}>
-                    {secret.name}
-                  </option>
-                {/each}
-              </select>
+            <div class="grid grid-cols-5 items-center gap-4">
+              <Label for="remove-key" class="text-right">Secret</Label>
+              <div class="col-span-4">
+                <Popover.Root bind:open let:ids>
+                  <Popover.Trigger asChild let:builder>
+                    <Button
+                      builders={[builder]}
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      class="w-full justify-between"
+                    >
+                      {selectedRemoveValue}
+                      <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </Popover.Trigger>
+                  <Popover.Content class="w-[72%] p-0">
+                    <Command.Root>
+                      <Command.Input placeholder="Search key..." />
+                      <Command.Empty>No key found.</Command.Empty>
+                      <Command.Group>
+                        {#each $query.data as secret}
+                          <Command.Item
+                            value={`${secret.name} (ID: ${secret.id})`}
+                            onSelect={() => {
+                              selectedSecret = { id: secret.id, name: secret.name };
+                              closeAndFocusTrigger(ids.trigger);
+                              open = false;
+                            }}
+                          >
+                            <Check
+                              class={cn(
+                                "mr-2 h-4 w-4",
+                                selectedSecret?.id !== secret.id && "text-transparent"
+                              )}
+                            />
+                            {secret.name} (ID: {secret.id})
+                          </Command.Item>
+                        {/each}
+                      </Command.Group>
+                    </Command.Root>
+                  </Popover.Content>
+                </Popover.Root>
+              </div>
             </div>
           {/if}
         </div>

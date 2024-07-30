@@ -15,13 +15,14 @@ router = APIRouter(prefix="/api")
 
 @router.post("/create_key")
 def create_key(
+    name: str,
     current_user: Annotated[str, Depends(get_current_user)],
     db: Session = Depends(get_db),
 ):
     key = myapi.generate_api_key()
     myapi.key = key
     current_user_id = user_repo.get_user_by_username(db, current_user).id
-    return myapi_repo.create_myapi(db=db, myapi=myapi, user_id=current_user_id)
+    return myapi_repo.create_myapi(db=db, myapi=myapi, user_id=current_user_id, name=name)
 
 
 @router.get("/get_key_by_id")

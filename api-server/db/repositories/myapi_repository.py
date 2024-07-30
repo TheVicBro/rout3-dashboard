@@ -3,10 +3,10 @@ from models import myapi_model
 from models.schemas import myapi_schema
 
 
-def create_myapi(db: Session, myapi: myapi_schema.MyApiCreate, user_id: int):
+def create_myapi(db: Session, myapi: myapi_schema.MyApiCreate, user_id: int, name: str):
     # TODO: encrypt key
     fake_key = myapi.key
-    db_myapi = myapi_model.Myapi(key=fake_key, user_id=user_id)
+    db_myapi = myapi_model.Myapi(key=fake_key, user_id=user_id, name=name)
     db.add(db_myapi)
     db.commit()
     db.refresh(db_myapi)
