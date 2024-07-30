@@ -22,7 +22,7 @@
 
   const SecretSchema = z.object({
     name: z.string(),
-    last_used: z.string(),
+    last_used: z.string().nullable(),
     user_id: z.number(),
     id: z.number(),
   });
@@ -35,7 +35,6 @@
   const NewSecretSchema = z.object({
     name: z.string().min(1, "Provider name is required"),
     key: z.string().min(1, "Key is required"),
-    last_used: z.string(),
   });
 
   type Secret = z.infer<typeof SecretSchema>;
@@ -53,7 +52,6 @@
       const newSecretData: NewSecret = NewSecretSchema.parse({
         name: newName,
         key: newKey,
-        last_used: turso_date,
       });
 
       const response = await fetch('http://127.0.0.1:8000/secrets/create', {
@@ -184,7 +182,10 @@
               <tr>
                 <td class="p-2 flex items-center gap-x-2">{secret.name} <p class="text-xs text-gray-400">(ID: {secret.id})</p></td>
                 <td class="p-2">**********</td>
-                <td class="p-2">{DateTime.fromISO(secret.last_used).toRelative()}</td>
+                <td class="p-2">
+                  {secret.last_used 
+                    ? DateTime.fromISO(secret.last_used).toRelative() 
+                    : "Never Used"}</td>
               </tr>
             {/each}
           </tbody>

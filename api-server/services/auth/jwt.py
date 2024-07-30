@@ -1,18 +1,16 @@
 import jwt
 import os
+from dotenv import load_dotenv
 
 from datetime import datetime, timedelta, timezone
+
 from typing import Union
-from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jwt.exceptions import InvalidTokenError
-from sqlalchemy.orm import Session
-from passlib.context import CryptContext
-from pydantic import BaseModel
 from typing_extensions import Annotated
-from dotenv import load_dotenv
-from models.models import Token, TokenData, User
-from db.repositories import user_repository as user_repo
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jwt.exceptions import InvalidTokenError
+from models.token_model import Token, TokenData
 
 load_dotenv()
 
