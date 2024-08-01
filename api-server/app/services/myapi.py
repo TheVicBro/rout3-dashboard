@@ -4,9 +4,9 @@ from fastapi import HTTPException, Security, status
 from fastapi.security import APIKeyHeader
 from sqlalchemy.orm import Session
 
-from app.db.repositories import myapi_repository as myapi_repo
+from app.repositories import myapi_repo
 
-API_KEY_NAME = "api_key"
+API_KEY_NAME = "myapi_key"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
 
 
@@ -14,8 +14,9 @@ def generate_api_key():
     return secrets.token_hex()  # Generates a 64-character hex string
 
 
+# Security used instead of Depends(), for context and openapi docs? Maybe more?
 def get_api_key_from_header(api_key_header: str = Security(api_key_header)):
-    return api_key_header
+   return api_key_header
 
 
 def verify_api_key(db: Session, api_key_string):
@@ -25,4 +26,5 @@ def verify_api_key(db: Session, api_key_string):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
+
     return api_key
