@@ -13,7 +13,7 @@ def parse_cors(v: Any) -> list[str] | str:
     raise ValueError(v)
 
 
-# Attempts to grab all of the data form env variable, else uses default
+# Attempt to grab all of the data form env variable, else uses default
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", env_ignore_empty=True, extra="ignore"
