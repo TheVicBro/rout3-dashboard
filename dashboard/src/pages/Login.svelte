@@ -1,8 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { z } from "zod";
+  import { Input } from "$lib/components/ui/input";
   import Logo from '/llmproxyTransparent.png';
   import Login from '/Login.png';
+  import { UserRound, Lock } from 'lucide-svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -99,9 +101,9 @@
 
 <div class="flex items-center justify-center bg-gray-100">
   <div class="flex bg-white rounded-lg shadow-md w-full max-w-4xl">
-    <div class="flex flex-col p-12 w-1/2 justify-center">
-      <div class="flex justify-center">
-        <img src={Logo} alt="Logo" class="w-1/3 object-cover object-center rounded-r-lg" />
+    <div class="flex flex-col p-12 pt-8 w-1/2 justify-center">
+      <div class="flex justify-center mb-4">
+        <img src={Logo} alt="Logo" class="w-2/5 object-cover object-center rounded-r-lg" />
       </div>
       {#if showRegister}
         <h1 class="text-3xl font-bold mb-8 text-center">Register</h1>
@@ -123,16 +125,24 @@
           </button>
         </div>
         <div class="text-center mt-8">
-          <button type="button" class="cursor-pointer text-blue-500" on:click={() => showRegister = false}>Already have an account? Login here</button>
+          <button type="button" class="cursor-pointer text-blue-500 hover:underline" on:click={() => showRegister = false}>Already have an account? Login here</button>
         </div>
       {:else}
         <h1 class="text-3xl font-bold mb-8 text-center">Login</h1>
         <div class="mb-4">
-          <input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+          <Input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown}>
+            <svelte:fragment slot="icon">
+              <UserRound class="text-gray-300" />
+            </svelte:fragment>
+          </Input>
           {#if errors.username}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.username}</p>{/if}
         </div>
         <div class="mb-4">
-          <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+          <Input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown}>
+            <svelte:fragment slot="icon">
+              <Lock class="text-gray-300" />
+            </svelte:fragment>
+          </Input>
           {#if errors.password}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.password}</p>{/if}
         </div>
         <div class="flex justify-center items-center">
@@ -141,10 +151,10 @@
           </button>
         </div>
         <div class="text-center mt-8">
-          <button type="button" class="cursor-pointer text-blue-500" on:click={() => showRegister = true}>Don't have an account? Register here</button>
+          <button type="button" class="cursor-pointer text-blue-500 hover:underline" on:click={() => showRegister = true}>Don't have an account? Register here</button>
         </div>
       {/if}
-      {#if errors.form}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-4 text-center">{errors.form}</p>{/if}
+      {#if errors.form}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-4">{errors.form}</p>{/if}
     </div>
     <div class="w-1/2 overflow-hidden">
       <img src={Login} alt="Login" class="w-full h-full object-cover object-center rounded-r-lg" />
