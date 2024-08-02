@@ -107,15 +107,15 @@
         <h1 class="text-3xl font-bold mb-8 text-center">Register</h1>
         <div class="mb-4">
           <input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
-          {#if errors.username}<p class="text-red-500 text-sm mt-1">{errors.username}</p>{/if}
+          {#if errors.username}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.username}</p>{/if}
         </div>
         <div class="mb-4">
           <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
-          {#if errors.password}<p class="text-red-500 text-sm mt-1">{errors.password}</p>{/if}
+          {#if errors.password}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.password}</p>{/if}
         </div>
         <div class="mb-4">
           <input type="password" placeholder="Confirm Password" bind:value={form.confirmPassword} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
-          {#if errors.confirmPassword}<p class="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>{/if}
+          {#if errors.confirmPassword}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.confirmPassword}</p>{/if}
         </div>
         <div class="flex justify-center items-center">
           <button on:click={register} class="mt-8 px-4 py-4 bg-green-500 text-xl text-white font-semibold rounded-full w-1/2 hover:bg-green-600 transition">
@@ -129,11 +129,11 @@
         <h1 class="text-3xl font-bold mb-8 text-center">Login</h1>
         <div class="mb-4">
           <input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
-          {#if errors.username}<p class="text-red-500 text-sm mt-1">{errors.username}</p>{/if}
+          {#if errors.username}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.username}</p>{/if}
         </div>
         <div class="mb-4">
           <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
-          {#if errors.password}<p class="text-red-500 text-sm mt-1">{errors.password}</p>{/if}
+          {#if errors.password}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.password}</p>{/if}
         </div>
         <div class="flex justify-center items-center">
           <button on:click={login} class="mt-8 px-4 py-4 bg-blue-500 text-xl text-white font-semibold rounded-full w-1/2 hover:bg-blue-600 transition">
@@ -144,7 +144,7 @@
           <button type="button" class="cursor-pointer text-blue-500" on:click={() => showRegister = true}>Don't have an account? Register here</button>
         </div>
       {/if}
-      {#if errors.form}<p class="text-red-500 text-sm mt-4 text-center">{errors.form}</p>{/if}
+      {#if errors.form}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-4 text-center">{errors.form}</p>{/if}
     </div>
     <div class="w-1/2 overflow-hidden">
       <img src={Login} alt="Login" class="w-full h-full object-cover object-center rounded-r-lg" />
