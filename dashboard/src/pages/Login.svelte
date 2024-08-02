@@ -108,15 +108,27 @@
       {#if showRegister}
         <h1 class="text-3xl font-bold mb-8 text-center">Register</h1>
         <div class="mb-4">
-          <input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+          <Input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown}>
+            <svelte:fragment slot="icon">
+              <UserRound class="text-gray-500" />
+            </svelte:fragment>
+          </Input>
           {#if errors.username}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.username}</p>{/if}
         </div>
         <div class="mb-4">
-          <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+          <Input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown}>
+            <svelte:fragment slot="icon">
+              <Lock class="text-gray-500" />
+            </svelte:fragment>
+          </Input>
           {#if errors.password}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.password}</p>{/if}
         </div>
         <div class="mb-4">
-          <input type="password" placeholder="Confirm Password" bind:value={form.confirmPassword} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+          <Input type="password" placeholder="Confirm Password" bind:value={form.confirmPassword} on:keydown={handleKeydown}>
+            <svelte:fragment slot="icon">
+              <Lock class="text-gray-500" />
+            </svelte:fragment>
+          </Input>
           {#if errors.confirmPassword}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.confirmPassword}</p>{/if}
         </div>
         <div class="flex justify-center items-center">
@@ -132,7 +144,7 @@
         <div class="mb-4">
           <Input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown}>
             <svelte:fragment slot="icon">
-              <UserRound class="text-gray-300" />
+              <UserRound class="text-gray-500" />
             </svelte:fragment>
           </Input>
           {#if errors.username}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.username}</p>{/if}
@@ -140,7 +152,7 @@
         <div class="mb-4">
           <Input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown}>
             <svelte:fragment slot="icon">
-              <Lock class="text-gray-300" />
+              <Lock class="text-gray-500" />
             </svelte:fragment>
           </Input>
           {#if errors.password}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.password}</p>{/if}
