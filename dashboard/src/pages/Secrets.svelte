@@ -14,7 +14,8 @@
   import { cn } from "$lib/utils.js";
   import Check from "lucide-svelte/icons/check";
   import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
-  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
+  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils";
+  import Skeleton from "../components/Skeleton.svelte"
 
   const token = localStorage.getItem("authToken");
   const userid = localStorage.getItem("userid");
@@ -160,7 +161,7 @@
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
     <div class="p-10">
       {#if $query.isPending}
-        Loading...
+        <Skeleton />
       {/if}
       {#if $query.error}
         An error has occurred: {$query.error.message}
