@@ -45,8 +45,8 @@
       </div>
     </Router>
   {:else}
-    <div class="min-h-screen flex items-center justify-center bg-slate-100">
-      <div class="w-full max-w-md px-6 py-8">
+    <div class="h-screen flex items-center justify-center bg-slate-100">
+      <div class="w-full px-6 py-8">
         <Login on:loginSuccess={handleLoginSuccess} />
       </div>
     </div>
