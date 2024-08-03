@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.deps import SessionDep, UserDep
 from app.repositories import myapi_repo
-from app.schemas import Myapi
+from app.schemas import Myapi, MyApiBase
 from app.services import myapi
 
 router = APIRouter()
@@ -11,12 +11,17 @@ router = APIRouter()
 
 @router.post("/", response_model=Myapi)
 def create_api_key(
-    name: str,
+    myapi_data: MyApiBase,
     user: UserDep,
     db: SessionDep,
 ):
-    key = myapi.generate_api_key()
-    return myapi_repo.create_myapi(db=db, myapi_key=key, user_id=user.id, name=name)
+    """
+    Create new myapi for user to connect to unified interface
+    """
+    virtual_key = myapi.generate_api_key()
+    return myapi_repo.create_myapi(
+        db=db, myapi_key=virtual_key, user_id=user.id, name=myapi_data.name
+    )
 
 
 @router.get("/", response_model=list[Myapi])
