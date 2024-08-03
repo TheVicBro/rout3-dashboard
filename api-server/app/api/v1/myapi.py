@@ -16,12 +16,20 @@ def create_api_key(
     db: SessionDep,
 ):
     """
-    Create new myapi for user to connect to unified interface
+    Create new myapi for user to connect to unified interface.
+    Vitrual Key will be created automatically.
     """
     virtual_key = myapi.generate_api_key()
-    return myapi_repo.create_myapi(
-        db=db, myapi_key=virtual_key, user_id=user.id, name=myapi_data.name
-    )
+
+    try:
+        return myapi_repo.create_myapi(
+            db=db, myapi_key=virtual_key, user_id=user.id, name=myapi_data.name
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Failed to create myapi key.",
+        ) from e
 
 
 @router.get("/", response_model=list[Myapi])

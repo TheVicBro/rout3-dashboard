@@ -1,12 +1,13 @@
+from datetime import datetime
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 # Secret Schemas
 class SecretBase(BaseModel):
     name: str
-    last_used: str
+    last_used: datetime
 
 
 class SecretCreate(SecretBase):
@@ -21,29 +22,6 @@ class SecretCreate(SecretBase):
 class Secret(SecretBase):
     id: int
     user_id: int
-
-    class Config:
-        orm_mode = True
-
-
-# User Schemas
-class UserBase(BaseModel):
-    username: str
-
-
-class UserCreate(UserBase):
-    """
-    Seperate password from base model
-    so it won't be sent from API when reading a user
-    """
-
-    password: str
-
-
-class User(UserBase):
-    id: int
-    secrets: List[Secret] = []
-    hashed_password: str
 
     class Config:
         orm_mode = True
@@ -77,3 +55,29 @@ class TokenData(BaseModel):
 # General Schemas
 class Message(BaseModel):
     message: str
+
+
+# User Schemas
+class UserBase(BaseModel):
+    username: str
+    email: EmailStr
+
+
+class UserCreate(UserBase):
+    """
+    Seperate password from base model
+    so it won't be sent from API when reading a user
+    """
+
+    password: str
+
+
+class User(UserBase):
+    id: int
+    secrets: List[Secret] = []
+    hashed_password: str
+    is_admin: bool
+    myapi: List[Myapi]
+
+    class Config:
+        orm_mode = True

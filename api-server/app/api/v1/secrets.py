@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 
 from app.api.deps import SessionDep, UserDep
 from app.repositories import secrets_repo
@@ -19,7 +19,13 @@ def add_secret(
     Add secret to current user
     """
     # Fix type error later, still works for now
-    return secrets_repo.create_secret(db=db, secret=secret, user_id=user.id)
+    try:
+        return secrets_repo.create_secret(db=db, secret=secret, user_id=user.id)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Failed to create secret.",
+        ) from e
 
 
 # Later we can create a super users that can get all secrets in an org for example

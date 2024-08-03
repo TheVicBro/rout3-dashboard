@@ -1,3 +1,4 @@
+from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash
@@ -15,14 +16,24 @@ def get_user_by_username(db: Session, username: str):
     return data
 
 
+def get_user_by_email(db: Session, email: EmailStr):
+    data = db.query(User).filter(User.email == email).first()
+    return data
+
+
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     data = db.query(User).offset(skip).limit(limit).all()
     return data
 
 
-def create_user(db: Session, user: UserCreate):
+def create_user(db: Session, user: UserCreate, is_admin: bool = False):
     hashed_password = get_password_hash(user.password)
-    db_user = User(username=user.username, hashed_password=hashed_password)
+    db_user = User(
+        username=user.username,
+        email=user.email,
+        hashed_password=hashed_password,
+        is_admin=is_admin,
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
