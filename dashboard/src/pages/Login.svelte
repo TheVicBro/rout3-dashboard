@@ -100,7 +100,7 @@
 </script>
 
 <div class="flex items-center justify-center bg-gray-100">
-  <div class="flex bg-white rounded-lg shadow-md w-full max-w-4xl">
+  <div class="flex bg-white rounded-lg shadow-lg w-full max-w-4xl">
     <div class="flex flex-col p-12 pt-8 w-1/2 justify-center">
       <div class="flex justify-center mb-4">
         <img src={Logo} alt="Logo" class="w-2/5 object-cover object-center rounded-r-lg" />
@@ -168,7 +168,7 @@
       {/if}
       {#if errors.form}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-4">{errors.form}</p>{/if}
     </div>
-    <div class="w-1/2 overflow-hidden">
+    <div class="w-1/2 overflow-hidden shadow-lg">
       <img src={Login} alt="Login" class="w-full h-full object-cover object-center rounded-r-lg" />
     </div>
   </div>
