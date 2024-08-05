@@ -6,11 +6,7 @@ from app.schemas import Message, SecretCreate
 
 
 def create_secret(db: Session, secret: SecretCreate, user_id: int) -> Secret | None:
-    exists = (
-        db.query(Secret)
-        .filter(or_(Secret.name == secret.name, Secret.key == secret.key))
-        .first()
-    )
+    exists = db.query(Secret).where(Secret.key == secret.key).first()
 
     if exists:
         return None

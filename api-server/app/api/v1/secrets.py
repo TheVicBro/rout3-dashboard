@@ -24,7 +24,7 @@ def add_secret(
     if not res:
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            detail="Failed to add secret. Please ensure they are name and key are unique.",
+            detail="Failed to add secret. Please ensure the key is unique.",
         )
 
     return res
