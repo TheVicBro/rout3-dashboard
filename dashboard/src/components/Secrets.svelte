@@ -64,7 +64,8 @@
         body: JSON.stringify(newSecretData),
       });
       if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
       }
       const undoSecret = SecretSchema.parse(await response.json());
       queryClient.invalidateQueries({ queryKey: ['secretData'] });
@@ -110,7 +111,8 @@
         },
       });
       if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
       }
       queryClient.invalidateQueries({ queryKey: ['secretData'] });
       toast.success(`${selectedSecret.name} has been removed.`, {
@@ -133,7 +135,8 @@
       }
     });
     if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.statusText}`);
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
     }
     const data = await response.json();
     return z.array(SecretSchema).parse(data);

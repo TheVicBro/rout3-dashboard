@@ -59,7 +59,7 @@
       dispatch("loginSuccess");
     } else {
       errors.form = "Login failed";
-  }
+    }
   }
 
   async function register() {

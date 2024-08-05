@@ -55,7 +55,8 @@
         body: JSON.stringify({ name: newName }),
       });
       if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
       }
       queryClient.invalidateQueries({ queryKey: ['secretData'] });
       toast.success(`${newName} has been added.`, {
@@ -92,7 +93,8 @@
         },
       });
       if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
       }
       queryClient.invalidateQueries({ queryKey: ['secretData'] });
       toast.success(`${selectedAPItoDelete.name} has been removed.`, {
@@ -115,7 +117,8 @@
       }
     });
     if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.statusText}`);
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
     }
     const data = await response.json();
     return z.array(APISchema).parse(data);
