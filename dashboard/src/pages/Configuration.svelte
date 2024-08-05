@@ -9,10 +9,10 @@
   import { cn } from "$lib/utils.js";
   import Check from "lucide-svelte/icons/check";
   import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
-  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
+  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils";
+  import { Slider } from "$lib/components/ui/slider";
 
   let selectedProvider = '';
-  const temperature = writable(0.7);
   const maxTokens = writable(100);
   const guardRails = writable<string[]>([""]);
 
@@ -43,6 +43,7 @@
   }
 
   let open = false;
+  let temperature = [50];
   $: selectedValue = availableModelProviders.find((f) => f === selectedProvider) ?? "Select a provider...";
 </script>
 
@@ -96,8 +97,8 @@
       <h3 class="text-xl font-semibold my-4">Model Settings</h3>
       <div class="mb-4">
         <label for="temperature" class="block font-semibold mb-1">Temperature</label>
-        <input id="temperature" type="range" min="0" max="1" step="0.01" bind:value={$temperature} class="w-full" />
-        <span>{($temperature).toFixed(2)}</span>
+        <Slider bind:value={temperature} max={100} step={1} />
+        <span>{temperature[0]}</span>
       </div>
       <div class="mb-4">
         <label for="maxTokens" class="block font-semibold mb-1">Max Tokens</label>
