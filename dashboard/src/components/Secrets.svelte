@@ -78,8 +78,6 @@
           }
         }
       })
-      newName = '';
-      newKey = '';
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error("Validation error", {
@@ -91,6 +89,8 @@
         });
       }
     }
+    newName = '';
+    newKey = '';
   }
 
   const removeKey = async () => {
@@ -102,7 +102,7 @@
       }
       const validatedSecret = SecretOptionSchema.parse(selectedSecret);
 
-      const response = await fetch('http://127.0.0.1:8000/api/v1/secrets/delete', {
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/secrets/${validatedSecret.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -116,12 +116,12 @@
       toast.success(`${selectedSecret.name} has been removed.`, {
         description: `${formatted_date}`,
       });
-      selectedSecret = null;
     } catch (error) {
       toast.error("An error occurred", {
         description: error instanceof Error ? error.message : "Unknown error"
       });
     }
+    selectedSecret = null;
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
