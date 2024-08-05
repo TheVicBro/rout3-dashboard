@@ -80,7 +80,7 @@
 
     try {
       if (!selectedAPItoDelete) {
-        throw new Error('No secret selected for removal');
+        throw new Error('No API selected for removal');
       }
       const validatedAPI = APIOptionSchema.parse(selectedAPItoDelete);
 
@@ -135,7 +135,7 @@
 
 <div>
   <Toaster />
-  <h1 class="p-8 pl-20 text-3xl font-bold bg-white border-b-2">Secrets</h1>
+  <h1 class="p-8 pl-20 text-3xl font-bold bg-white border-b-2">MyAPI</h1>
   <div class="m-10 border rounded-lg bg-white shadow">
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
     <div class="p-10">
@@ -147,7 +147,7 @@
       {/if}
       {#if $query.isSuccess}
         {#if $query.data.length === 0}
-          <div class="mb-4 text-red-600">No secrets found. Click "Add key" to add a new key.</div>
+          <div class="mb-4 text-red-600">No APIs found. Click "Create API" to add a new API.</div>
         {/if}
         <table class="w-full">
           <thead>
