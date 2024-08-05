@@ -3,7 +3,6 @@
   import { z } from "zod";
   import { Input } from "$lib/components/ui/input";
   import Logo from '/llmproxyTransparent.png';
-  import Login from '/Login.png';
   import { UserRound, Lock } from 'lucide-svelte';
 
   const dispatch = createEventDispatcher();
@@ -28,10 +27,25 @@
     password: "",
     confirmPassword: "",
   };
-  let showRegister = false;
 
   type FormErrors = Partial<Record<keyof RegisterForm | 'form', string[] | string>>;
   let errors: FormErrors = {};
+
+  let showRegister = false;
+
+  function registerLoginSwitch() {
+    showRegister = !showRegister;
+    resetForm();
+  }
+
+  function resetForm() {
+    form = {
+      username: "",
+      password: "",
+      confirmPassword: "",
+    };
+    errors = {};
+  }
 
   async function login() {
     errors = {};
@@ -132,12 +146,15 @@
           {#if errors.confirmPassword}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.confirmPassword}</p>{/if}
         </div>
         <div class="flex justify-center items-center">
-          <button on:click={register} class="mt-8 px-4 py-4 bg-green-500 text-xl text-white font-semibold rounded-full w-1/2 hover:bg-green-600 transition">
+          <button
+            on:click={register}
+            class="mt-4 px-4 py-4 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
+          >
             Register
           </button>
         </div>
         <div class="text-center mt-8">
-          <button type="button" class="cursor-pointer text-blue-500 hover:underline" on:click={() => showRegister = false}>Already have an account? Login here</button>
+          <button type="button" class="cursor-pointer text-blue-500 hover:underline" on:click={registerLoginSwitch}>Already have an account? Login here</button>
         </div>
       {:else}
         <h1 class="text-3xl font-bold mb-8 text-center">Login</h1>
@@ -158,18 +175,21 @@
           {#if errors.password}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.password}</p>{/if}
         </div>
         <div class="flex justify-center items-center">
-          <button on:click={login} class="mt-8 px-4 py-4 bg-blue-500 text-xl text-white font-semibold rounded-full w-1/2 hover:bg-blue-600 transition">
+          <button
+            on:click={login}
+            class="mt-8 px-4 py-4 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
+          >
             Login
           </button>
         </div>
         <div class="text-center mt-8">
-          <button type="button" class="cursor-pointer text-blue-500 hover:underline" on:click={() => showRegister = true}>Don't have an account? Register here</button>
+          <button type="button" class="cursor-pointer text-blue-500 hover:underline" on:click={registerLoginSwitch}>Don't have an account? Register here</button>
         </div>
       {/if}
       {#if errors.form}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-4">{errors.form}</p>{/if}
     </div>
     <div class="w-1/2 overflow-hidden shadow-lg">
-      <img src={Login} alt="Login" class="w-full h-full object-cover object-center rounded-r-lg" />
+      <div class="w-full h-full rounded-r-lg bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"></div>
     </div>
   </div>
 </div>
