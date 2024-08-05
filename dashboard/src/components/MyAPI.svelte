@@ -17,14 +17,12 @@
   import { closeAndFocusTrigger } from "../utils/utils"; 
 
   const token = localStorage.getItem("authToken");
-  const userid = localStorage.getItem("userid");
   const queryClient = useQueryClient();
 
   const APISchema = z.object({
     name: z.string(),
-    key: z.string(),
-    user_id: z.number(),
     id: z.number(),
+    user_id: z.number(),
   });
 
   const APIOptionSchema = z.object({
@@ -48,12 +46,13 @@
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/create_key?name=${newName}`, {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/myapi', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({ name: newName }),
       });
       if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -83,9 +82,9 @@
       if (!selectedAPItoDelete) {
         throw new Error('No secret selected for removal');
       }
-      const validatedSecret = APIOptionSchema.parse(selectedAPItoDelete);
+      const validatedAPI = APIOptionSchema.parse(selectedAPItoDelete);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/remove_key?id=${validatedSecret.id}`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/myapi/${validatedAPI.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -108,7 +107,7 @@
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
-    const response = await fetch(`http://127.0.0.1:8000/api/get_key_by_user_id?user_id=${userid}`, {
+    const response = await fetch('http://127.0.0.1:8000/api/v1/myapi', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -155,15 +154,13 @@
             <tr>
               <th class="text-left p-2">Name</th>
               <th class="text-left p-2">Key</th>
-              <th class="text-left p-2">ID</th>
             </tr>
           </thead>
           <tbody>
             {#each $query.data as api}
               <tr>
-                <td class="p-2">{api.name}</td>
-                <td class="p-2">{api.key}</td>
-                <td class="p-2">{api.id}</td>
+                <td class="p-2 flex items-center gap-x-2">{api.name}<p class="text-xs text-gray-400">(ID: {api.id})</p></td>
+                <td class="p-2">**********</td>
               </tr>
             {/each}
           </tbody>

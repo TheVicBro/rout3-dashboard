@@ -5,11 +5,14 @@
   const dispatch = createEventDispatcher();
 
   const LoginSchema = z.object({
-    username: z.string().min(1, "Username is required"),
+    usernameOrEmail: z.string().min(1, "Username or email is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
   });
 
-  const RegisterSchema = LoginSchema.extend({
+  const RegisterSchema = z.object({
+    username: z.string().min(1, "Username is required"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(1, "Confirm password is required")
   }).refine(data => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -19,17 +22,20 @@
   type LoginForm = z.infer<typeof LoginSchema>;
   type RegisterForm = z.infer<typeof RegisterSchema>;
 
-  let form: LoginForm & { confirmPassword?: string } = {
+  let form: LoginForm & Partial<RegisterForm> = {
     username: "",
+    email: "",
     password: "",
     confirmPassword: "",
+    usernameOrEmail: "",
   };
   let showRegister = false;
 
-  type FormErrors = Partial<Record<keyof RegisterForm | 'form', string[] | string>>;
+  type FormErrors = Partial<Record<keyof (LoginForm & RegisterForm) | 'form', string[] | string>>;
   let errors: FormErrors = {};
 
   async function login() {
+    console.log("LOGIN REQUEST")
     errors = {};
     const result = LoginSchema.safeParse(form);
 
@@ -38,20 +44,18 @@
       return;
     }
 
-    const { username, password } = result.data;
-    const response = await fetch(`http://127.0.0.1:8000/token`, {
+    const { usernameOrEmail, password } = result.data;
+    const response = await fetch(`http://127.0.0.1:8000/api/v1/login/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({ username, password }),
+      body: new URLSearchParams({ username: usernameOrEmail, password }),
     });
 
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem("authToken", data.access_token);
-      localStorage.setItem("username", username);
-      localStorage.setItem("userid", data.userid);
       dispatch("loginSuccess");
     } else {
       errors.form = "Login failed";
@@ -67,13 +71,13 @@
       return;
     }
 
-    const { username, password } = result.data;
-    const response = await fetch(`http://127.0.0.1:8000/user/create`, {
+    const { username, email, password } = result.data;
+    const response = await fetch(`http://127.0.0.1:8000/api/v1/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, email, password }),
     });
 
     if (response.ok) {
@@ -104,6 +108,10 @@
         {#if errors.username}<p class="text-red-500 text-sm mt-1">{errors.username}</p>{/if}
       </div>
       <div class="mb-4">
+        <input type="text" placeholder="Email" bind:value={form.email} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        {#if errors.email}<p class="text-red-500 text-sm mt-1">{errors.email}</p>{/if}
+      </div>
+      <div class="mb-4">
         <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
         {#if errors.password}<p class="text-red-500 text-sm mt-1">{errors.password}</p>{/if}
       </div>
@@ -120,8 +128,8 @@
     {:else}
       <h1 class="text-3xl font-bold mb-4 text-center">Login</h1>
       <div class="mb-4">
-        <input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
-        {#if errors.username}<p class="text-red-500 text-sm mt-1">{errors.username}</p>{/if}
+        <input type="text" placeholder="Username or Email" bind:value={form.usernameOrEmail} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        {#if errors.usernameOrEmail}<p class="text-red-500 text-sm mt-1">{errors.usernameOrEmail}</p>{/if}
       </div>
       <div class="mb-4">
         <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />

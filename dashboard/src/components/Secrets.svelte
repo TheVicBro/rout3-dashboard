@@ -17,7 +17,6 @@
   import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
 
   const token = localStorage.getItem("authToken");
-  const userid = localStorage.getItem("userid");
   const queryClient = useQueryClient();
 
   const SecretSchema = z.object({
@@ -34,6 +33,7 @@
 
   const NewSecretSchema = z.object({
     name: z.string().min(1, "Provider name is required"),
+    last_used: z.string().nullable(),
     key: z.string().min(1, "Key is required"),
   });
 
@@ -44,17 +44,18 @@
   let selectedSecret: SecretOption | null = null;
 
   const addNewKey = async () => {
-    const current_date = DateTime.now();
+    const current_date = DateTime.utc();
     const turso_date = current_date.toISO();
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
     try {
       const newSecretData: NewSecret = NewSecretSchema.parse({
         name: newName,
+        last_used: turso_date,
         key: newKey,
       });
 
-      const response = await fetch('http://127.0.0.1:8000/secrets/create', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/secrets', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +102,7 @@
       }
       const validatedSecret = SecretOptionSchema.parse(selectedSecret);
 
-      const response = await fetch(`http://127.0.0.1:8000/secrets/delete?secret_id=${validatedSecret.id}`, {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/secrets/delete', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -124,7 +125,7 @@
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
-    const response = await fetch(`http://127.0.0.1:8000/secrets/list?user_id=${userid}`, {
+    const response = await fetch(`http://127.0.0.1:8000/api/v1/secrets`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
