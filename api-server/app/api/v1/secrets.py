@@ -1,8 +1,9 @@
 from typing import List
 
 from fastapi import APIRouter, HTTPException, status
+from fastapi.responses import JSONResponse
 
-from app.api.deps import SessionDep, UserDep
+from app.api.deps import SessionDep, UserDep, require_auth
 from app.repositories import secrets_repo
 from app.schemas import Secret, SecretCreate
 
@@ -19,13 +20,14 @@ def add_secret(
     Add secret to current user
     """
     # Fix type error later, still works for now
-    try:
-        return secrets_repo.create_secret(db=db, secret=secret, user_id=user.id)
-    except Exception as e:
+    res = secrets_repo.create_secret(db=db, secret=secret, user_id=user.id)
+    if not res:
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            detail="Failed to create secret.",
-        ) from e
+            detail="Failed to add secret. Please ensure they are name and key are unique.",
+        )
+
+    return res
 
 
 # Later we can create a super users that can get all secrets in an org for example
@@ -45,17 +47,18 @@ def read_current_user_secrets(
     )
 
 
-# Todo: Make availble with super user
-# @router.delete("/delete")
-# def delete_secret_by_id(
-#     secret_id: int,
-#     verified_token: Annotated[str, Depends(verify_token)],
-#     db: Session = Depends(get_db),
-# ):
-#     if verified_token:
-#         deleted = secrets_repo.delete_secrets_by_id(db, secret_id)
-#         if not deleted:
-#             raise HTTPException(status_code=404, detail="Secret not found")
-#         return {"message": "Secret deleted successfully"}
-#     else:
-#         raise HTTPExeption(status_code=401, detail="Could not validate credentials.")
+@router.delete("/{secret_id}", dependencies=[require_auth])
+def delete_secret_by_id(secret_id: int, db: SessionDep):
+    """
+    Delete Secret of current user using secret_id in DB.
+    """
+    res = secrets_repo.delete_secrets_by_id(db, secret_id)
+
+    if res:
+        return JSONResponse(
+            status_code=status.HTTP_200_OK, content={"message": res.message}
+        )
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Secret not delete. Please ensure id exists.",
+    )

@@ -1,10 +1,20 @@
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.models import Secret
 from app.schemas import Message, SecretCreate
 
 
-def create_secret(db: Session, secret: SecretCreate, user_id: int) -> Secret:
+def create_secret(db: Session, secret: SecretCreate, user_id: int) -> Secret | None:
+    exists = (
+        db.query(Secret)
+        .filter(or_(Secret.name == secret.name, Secret.key == secret.key))
+        .first()
+    )
+
+    if exists:
+        return None
+
     # TODO: encrypt key with jwt
     fake_key = secret.key
     secret_obj = Secret(
@@ -27,12 +37,11 @@ def get_secrets_by_user_id(db: Session, user_id: int, skip: int = 0, limit: int 
     return data
 
 
-def get_secret_by_id(db: Session, secret_id: int):
-    return db.query(Secret).filter(Secret.id == secret_id).first()
-
-
 def delete_secrets_by_id(db: Session, id: int):
-    to_be_deleted = get_secret_by_id(db, id)
-    db.delete(to_be_deleted)
-    db.commit()
-    return Message(messsage="Item successfully deleted")
+    to_be_deleted = db.get(Secret, id)
+
+    if to_be_deleted:
+        db.delete(to_be_deleted)
+        db.commit()
+        return Message(message="Item successfully deleted")
+    return None

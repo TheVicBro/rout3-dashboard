@@ -26,6 +26,21 @@ SessionDep = Annotated[Session, Depends(get_db)]
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
 
 
+def verify_token(token: str = Depends(reusable_oauth2)):
+    try:
+        jwt.decode(token, settings.JWT_SIGNING_KEY, algorithms=[security.ALGORITHM])
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return True
+
+
+require_auth = Depends(verify_token)
+
 
 def get_current_user(db: SessionDep, token: TokenDep) -> User:
     try:
