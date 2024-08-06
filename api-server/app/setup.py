@@ -29,7 +29,7 @@ def init_db(num_myapi_keys=3):
         # Create user if it does not exist
         user = db.query(User).filter(User.username == "a").first()
         if not user:
-            user_in = UserCreate(username="a", password="a", email="a@gmail.com")
+            user_in = UserCreate(username="a", password="password", email="a@gmail.com")
             user = user_repo.create_user(db=db, user=user_in, is_admin=False)
 
         # Create secrets for specified providers

@@ -39,6 +39,7 @@ class MyApiCreate(MyApiBase):
 class Myapi(MyApiBase):
     id: int
     user_id: int
+    key: str
 
 
 # Token Schemas
