@@ -5,7 +5,6 @@ from app.models import Myapi
 
 
 def create_myapi(db: Session, myapi_key: str, user_id: int, name: str):
-    # TODO: encrypt key
     db_myapi = Myapi(key=myapi_key, user_id=user_id, name=name)
     db.add(db_myapi)
     db.commit()
