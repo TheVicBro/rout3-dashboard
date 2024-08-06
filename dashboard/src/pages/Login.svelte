@@ -100,15 +100,15 @@
     {#if showRegister}
       <h1 class="text-3xl font-bold mb-4 text-center">Register</h1>
       <div class="mb-4">
-        <input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        <input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full bg-white" />
         {#if errors.username}<p class="text-red-500 text-sm mt-1">{errors.username}</p>{/if}
       </div>
       <div class="mb-4">
-        <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full bg-white" />
         {#if errors.password}<p class="text-red-500 text-sm mt-1">{errors.password}</p>{/if}
       </div>
       <div class="mb-4">
-        <input type="password" placeholder="Confirm Password" bind:value={form.confirmPassword} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        <input type="password" placeholder="Confirm Password" bind:value={form.confirmPassword} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full bg-white" />
         {#if errors.confirmPassword}<p class="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>{/if}
       </div>
       <button on:click={register} class="px-4 py-2 bg-green-500 text-white rounded-lg w-full hover:bg-green-600 transition">
@@ -120,11 +120,11 @@
     {:else}
       <h1 class="text-3xl font-bold mb-4 text-center">Login</h1>
       <div class="mb-4">
-        <input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        <input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full bg-white" />
         {#if errors.username}<p class="text-red-500 text-sm mt-1">{errors.username}</p>{/if}
       </div>
       <div class="mb-4">
-        <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full" />
+        <input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown} class="border rounded-lg p-2 w-full bg-white" />
         {#if errors.password}<p class="text-red-500 text-sm mt-1">{errors.password}</p>{/if}
       </div>
       <button on:click={login} class="px-4 py-2 bg-blue-500 text-white rounded-lg w-full hover:bg-blue-600 transition">
