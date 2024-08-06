@@ -46,7 +46,7 @@
   $: selectedValue = availableModelProviders.find((f) => f === selectedProvider) ?? "Select a provider...";
 </script>
 
-<div class="flex flex-col flex-1">
+<div class="flex flex-col h-screen">
   <Toaster />
   <h1 class="p-8 pl-20 text-3xl font-bold bg-white border-b-2">Configuration</h1>
   <div class="flex-1 overflow-auto">
