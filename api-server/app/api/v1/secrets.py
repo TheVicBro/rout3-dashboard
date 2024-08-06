@@ -60,5 +60,5 @@ def delete_secret_by_id(secret_id: int, db: SessionDep):
         )
     return HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail="Secret not delete. Please ensure id exists.",
+       detail="Secret not delete. Please ensure id exists.",
     )
