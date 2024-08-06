@@ -3,7 +3,7 @@
   import { z } from "zod";
   import { Input } from "$lib/components/ui/input";
   import Logo from '/llmproxyTransparent.png';
-  import { UserRound, Lock } from 'lucide-svelte';
+  import { UserRound, Mail, Lock } from 'lucide-svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -138,10 +138,10 @@
         <div class="mb-4">
           <Input type="text" placeholder="Email" bind:value={form.email} on:keydown={handleKeydown}>
             <svelte:fragment slot="icon">
-              <UserRound class="text-gray-500" />
+              <Mail class="text-gray-500" />
             </svelte:fragment>
           </Input>
-          {#if errors.username}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.username}</p>{/if}
+          {#if errors.email}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.email}</p>{/if}
         </div>
         <div class="mb-4">
           <Input type="password" placeholder="Password" bind:value={form.password} on:keydown={handleKeydown}>
@@ -173,7 +173,7 @@
       {:else}
         <h1 class="text-3xl font-bold mb-8 text-center">Login</h1>
         <div class="mb-4">
-          <Input type="text" placeholder="Username" bind:value={form.usernameOrEmail} on:keydown={handleKeydown}>
+          <Input type="text" placeholder="Username or Email" bind:value={form.usernameOrEmail} on:keydown={handleKeydown}>
             <svelte:fragment slot="icon">
               <UserRound class="text-gray-500" />
             </svelte:fragment>
