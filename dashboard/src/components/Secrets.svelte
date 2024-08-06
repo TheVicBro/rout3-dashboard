@@ -14,11 +14,9 @@
   import { cn } from "$lib/utils.js";
   import Check from "lucide-svelte/icons/check";
   import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
-  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils";
-  import Skeleton from "../components/Skeleton.svelte"
+  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
 
   const token = localStorage.getItem("authToken");
-  const userid = localStorage.getItem("userid");
   const queryClient = useQueryClient();
 
   const SecretSchema = z.object({
@@ -35,6 +33,7 @@
 
   const NewSecretSchema = z.object({
     name: z.string().min(1, "Provider name is required"),
+    last_used: z.string().nullable(),
     key: z.string().min(1, "Key is required"),
   });
 
@@ -45,17 +44,18 @@
   let selectedSecret: SecretOption | null = null;
 
   const addNewKey = async () => {
-    const current_date = DateTime.now();
+    const current_date = DateTime.utc();
     const turso_date = current_date.toISO();
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
     try {
       const newSecretData: NewSecret = NewSecretSchema.parse({
         name: newName,
+        last_used: turso_date,
         key: newKey,
       });
 
-      const response = await fetch('http://127.0.0.1:8000/secrets/create', {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/secrets', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,8 @@
         body: JSON.stringify(newSecretData),
       });
       if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
       }
       const undoSecret = SecretSchema.parse(await response.json());
       queryClient.invalidateQueries({ queryKey: ['secretData'] });
@@ -78,8 +79,6 @@
           }
         }
       })
-      newName = '';
-      newKey = '';
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error("Validation error", {
@@ -91,6 +90,8 @@
         });
       }
     }
+    newName = '';
+    newKey = '';
   }
 
   const removeKey = async () => {
@@ -102,7 +103,7 @@
       }
       const validatedSecret = SecretOptionSchema.parse(selectedSecret);
 
-      const response = await fetch(`http://127.0.0.1:8000/secrets/delete?secret_id=${validatedSecret.id}`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/secrets/${validatedSecret.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -110,22 +111,23 @@
         },
       });
       if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
       }
       queryClient.invalidateQueries({ queryKey: ['secretData'] });
       toast.success(`${selectedSecret.name} has been removed.`, {
         description: `${formatted_date}`,
       });
-      selectedSecret = null;
     } catch (error) {
       toast.error("An error occurred", {
         description: error instanceof Error ? error.message : "Unknown error"
       });
     }
+    selectedSecret = null;
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
-    const response = await fetch(`http://127.0.0.1:8000/secrets/list?user_id=${userid}`, {
+    const response = await fetch(`http://127.0.0.1:8000/api/v1/secrets`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -133,7 +135,8 @@
       }
     });
     if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.statusText}`);
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
     }
     const data = await response.json();
     return z.array(SecretSchema).parse(data);
@@ -161,7 +164,7 @@
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
     <div class="p-10">
       {#if $query.isPending}
-        <Skeleton />
+        Loading...
       {/if}
       {#if $query.error}
         An error has occurred: {$query.error.message}
