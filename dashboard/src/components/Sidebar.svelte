@@ -2,19 +2,9 @@
   import { Link, useLocation } from 'svelte-routing';
   import logo from '/llmproxyTransparent.png';
   import { isAuthenticated } from '../stores/auth';
-  import LogOutLogo from '../../public/log-out.svelte';
-  import SettingsLogo from '../../public/settings.svelte';
-  import AccountLogo from '../../public/account.svelte';
-  import SecretsLogo from '../../public/secrets.svelte';
-  import AnalyticsLogo from '../../public/analytics.svelte';
-  import BillingLogo from '../../public/billing.svelte';
-  import MyAILogo from '../../public/myai.svelte';
+  import { Bot, FileSliders, KeyRound, BarChart3, Wallet, UserRound, Settings, LogOut } from 'lucide-svelte';
 
-  
-  // Get the current location
   const location = useLocation();
-
-  // Reactive statement to track the current path
   $: currentPath = $location.pathname;
 
   function logout() {
@@ -37,7 +27,7 @@
           }`}
           type="button"
         >
-          <MyAILogo />
+          <Bot />
           <span class="font-semibold">MyAPI</span>
         </button>
       </Link>
@@ -48,7 +38,7 @@
           }`}
           type="button"
         >
-          <MyAILogo />
+          <FileSliders />
           <span class="font-semibold">Configuration</span>
         </button>
       </Link>
@@ -59,7 +49,7 @@
           }`}
           type="button"
         >
-          <SecretsLogo />
+          <KeyRound />
           <span class="font-semibold">Secrets</span>
         </button>
       </Link>
@@ -70,7 +60,7 @@
           }`}
           type="button"
         >
-          <AnalyticsLogo />
+          <BarChart3 />
           <span class="font-semibold">Analytics</span>
         </button>
       </Link>
@@ -81,7 +71,7 @@
           }`}
           type="button"
         >
-          <BillingLogo />
+          <Wallet />
           <span class="font-semibold">Billing</span>
         </button>
       </Link>
@@ -94,7 +84,7 @@
           }`}
           type="button"
         >
-          <AccountLogo />
+          <UserRound />
           <span class="font-semibold">Account</span>
         </button>
       </Link>
@@ -105,7 +95,7 @@
           }`}
           type="button"
         >
-          <SettingsLogo />
+          <Settings />
           <span class="font-semibold">Settings</span>
         </button>
       </Link>
@@ -115,7 +105,7 @@
           type="button"
           on:click={logout}
         >
-          <LogOutLogo />
+          <LogOut />
           <span class="font-semibold">Logout</span>
         </button>
       </Link>
