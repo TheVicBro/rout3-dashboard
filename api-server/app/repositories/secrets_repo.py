@@ -2,18 +2,13 @@ from sqlalchemy.orm import Session
 
 from app.models import Secret
 from app.schemas import Message, SecretCreate
+from app.core import security
 
 
 def create_secret(db: Session, secret: SecretCreate, user_id: int) -> Secret | None:
-    exists = db.query(Secret).where(Secret.key == secret.key).first()
-
-    if exists:
-        return None
-
-    # TODO: encrypt key with jwt
-    fake_key = secret.key
+    encrypted_key = security.encrypt_data(secret.key)
     secret_obj = Secret(
-        name=secret.name, key=fake_key, user_id=user_id, last_used=secret.last_used
+        name=secret.name, key=encrypted_key, user_id=user_id, last_used=secret.last_used
     )
     db.add(secret_obj)
     db.commit()
