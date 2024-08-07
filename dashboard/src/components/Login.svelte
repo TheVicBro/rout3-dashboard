@@ -104,6 +104,8 @@
     if (response.ok) {
       alert("Registration successful");
       showRegister = false;
+      form.usernameOrEmail = username;
+      login();
     } else {
       errors.form = "Registration failed";
     }
