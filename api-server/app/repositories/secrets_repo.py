@@ -6,15 +6,7 @@ from app.core import security
 
 
 def create_secret(db: Session, secret: SecretCreate, user_id: int) -> Secret | None:
-    exists = (
-        db.query(Secret)
-        .where(security.fernet_decrypt_data(Secret.key) == secret.key)
-        .first()
-    )
-
-    if exists:
-        return None
-
+    # add redudant check later (fernet does not verify keys. instead we need decrypt all keys to verify)
     encrypted_key = security.fernet_encrypt_data(secret.key)
     secret_obj = Secret(
         name=secret.name, key=encrypted_key, user_id=user_id, last_used=secret.last_used

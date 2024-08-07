@@ -20,7 +20,7 @@ class Secret(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    key = Column(String)
+    key = Column(String, unique=True)
     last_used = Column(DateTime, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"))
 
