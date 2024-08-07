@@ -200,7 +200,9 @@
 
   <!-- Add Key Button -->
   <Dialog.Root>
-    <Dialog.Trigger class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Add a new key</Dialog.Trigger>
+    <Dialog.Trigger>
+      <Button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Add a new key</Button>
+    </Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Add New Key</Dialog.Title>
@@ -260,7 +262,7 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</button>
+            <Button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
@@ -269,7 +271,9 @@
 
   <!-- Remove Key Button -->
   <Dialog.Root>
-    <Dialog.Trigger class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Remove a key</Dialog.Trigger>
+    <Dialog.Trigger>
+      <Button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Remove a key</Button>
+    </Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Remove Key</Dialog.Title>
@@ -327,7 +331,7 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</button>
+            <Button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>

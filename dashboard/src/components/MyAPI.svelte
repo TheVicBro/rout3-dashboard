@@ -58,11 +58,13 @@
         const errorData = await response.json();
         throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
       }
+      const data = await response.json();
+      newApiKey = data.key;
       queryClient.invalidateQueries({ queryKey: ['secretData'] });
       toast.success(`${newName} has been added.`, {
         description: `${formatted_date}`,
       })
-      newName = '';
+      apiCreationSuccess = true;
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error("Validation error", {
@@ -134,6 +136,31 @@
   $: selectedRemoveValue = selectedAPItoDelete 
     ? `${selectedAPItoDelete.name} (ID: ${selectedAPItoDelete.id})` 
     : "Select a key to remove...";
+
+  let apiCreationSuccess = false;
+  let dialogOpen = false;
+  let newApiKey = '';
+  let copiedText = 'Copy';
+
+  const handleDialogClose = () => {
+    dialogOpen = false;
+    apiCreationSuccess = false;
+    newName = '';
+    newApiKey = '';
+    copiedText = 'Copy';
+  }
+
+  $: if (!dialogOpen) {
+    handleDialogClose();
+  }
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(newApiKey);
+    copiedText = 'Copied!';
+    setTimeout(() => {
+      copiedText = 'Copy';
+    }, 2000);
+  }
 </script>
 
 <div>
@@ -173,11 +200,29 @@
   </div>
 
   <!-- Create API Button -->
-  <Dialog.Root>
-    <Dialog.Trigger class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Create API</Dialog.Trigger>
+  <Dialog.Root bind:open={dialogOpen}>
+    <Dialog.Trigger>
+      <Button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Create API</Button>
+    </Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Create API Key</Dialog.Title>
+        {#if apiCreationSuccess}
+          <Dialog.Description class="text-green-600">API key has been created successfully.</Dialog.Description>
+          <div class="mt-4">
+            <Label for="new-api-key">Your new API key:</Label>
+            <div class="flex mt-2">
+              <Input id="new-api-key" value={newApiKey} readonly class="flex-grow" />
+              <Button 
+                variant="outline"
+                class="ml-2 px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 hover:text-white focus:outline-none"
+                on:click={copyToClipboard}
+              >
+                {copiedText}
+              </Button>
+            </div>
+          </div>
+        {:else}
         <Dialog.Description>
           Create a name for your API key.
         </Dialog.Description>
@@ -188,17 +233,17 @@
           </div>
         </div>
         <Dialog.Footer>
-          <DialogPrimitive.Close>
-            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI}>Create API</button>
-          </DialogPrimitive.Close>
+          <Button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI}>Create API</Button>
         </Dialog.Footer>
+        {/if}
       </Dialog.Header>
     </Dialog.Content>
   </Dialog.Root>
 
   <!-- Delete API Button -->
   <Dialog.Root>
-    <Dialog.Trigger class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Delete API</Dialog.Trigger>
+    <Dialog.Trigger>
+      <Button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Delete API</Button></Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Delete API</Dialog.Title>
@@ -256,7 +301,7 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={deleteAPI}>Remove Key</button>
+            <Button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={deleteAPI}>Remove Key</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>

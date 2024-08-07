@@ -116,13 +116,13 @@
               on:input={(e) => updateGuardRail(e, index)}
             />
             {#if index > 0}
-              <button on:click={() => removeGuardRail(index)} class="ml-2 text-red-500 hover:text-red-700">Remove</button>
+              <Button on:click={() => removeGuardRail(index)} class="ml-2 text-red-500 hover:text-red-700">Remove</Button>
             {/if}
           </div>
         {/each}
-        <button on:click={addGuardRail} class="px-4 py-2 text-white rounded-lg bg-red-800 hover:bg-red-700 transition mb-4">Add Guard Rail</button>
+        <Button on:click={addGuardRail} class="px-4 py-2 text-white rounded-lg bg-red-800 hover:bg-red-700 transition mb-4">Add Guard Rail</Button>
         <div>
-          <button on:click={save} class="px-4 py-2 text-white rounded-lg bg-blue-800 hover:bg-blue-700 transition">Save</button>
+          <Button on:click={save} class="px-4 py-2 text-white rounded-lg bg-blue-800 hover:bg-blue-700 transition">Save</Button>
         </div>
       </div>
     </div>

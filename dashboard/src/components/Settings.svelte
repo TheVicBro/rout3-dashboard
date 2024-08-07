@@ -2,6 +2,7 @@
   import { DateTime } from 'luxon';
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
+  import { Button } from "$lib/components/ui/button/index.js";
 
   let enableNotifications = true;
   let darkMode = false;
@@ -55,7 +56,7 @@
       </div>
       <!-- Save Changes Button -->
       <div class="pt-6">
-        <button on:click={save} class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none">Save Changes</button>
+        <Button on:click={save} class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none">Save Changes</Button>
       </div>
     </div>
   </div>

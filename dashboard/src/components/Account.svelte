@@ -2,6 +2,7 @@
   import { DateTime } from 'luxon';
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
+  import { Button } from "$lib/components/ui/button/index.js";
 
   let firstName = '';
   let lastName = '';
@@ -55,7 +56,7 @@
               <input type="email" bind:value={email} class="form-input mt-1 block w-full border rounded p-2 bg-white" />
             </div>
             <div class="pt-2">
-              <button type="submit" class="px-4 py-2 bg-blue-800 transition text-white rounded-lg hover:bg-blue-700 hover:transition focus:outline-none">Save Account Settings</button>
+              <Button type="submit" class="px-4 py-2 bg-blue-800 transition text-white rounded-lg hover:bg-blue-700 hover:transition focus:outline-none">Save Account Settings</Button>
             </div>
           </form>
         </div>
@@ -76,7 +77,7 @@
               <input type="password" bind:value={confirmNewPassword} class="form-input mt-1 block w-full border rounded p-2 bg-white" />
             </div>
             <div class="pt-2">
-              <button type="submit" class="px-4 py-2 bg-blue-800 transition text-white rounded-lg hover:bg-blue-700 hover:transition focus:outline-none">Change Password</button>
+              <Button type="submit" class="px-4 py-2 bg-blue-800 transition text-white rounded-lg hover:bg-blue-700 hover:transition focus:outline-none">Change Password</Button>
             </div>
           </form>
         </div>  
