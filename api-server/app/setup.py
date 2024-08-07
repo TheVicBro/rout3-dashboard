@@ -46,10 +46,11 @@ def init_db(num_myapi_keys=3):
         for secret_name in secret_names:
             secret = db.query(Secret).filter(Secret.name == secret_name).first()
             if not secret:
+                plaintext_secret_key = myapi.generate_api_key()
                 secret_in = SecretCreate(
                     name=secret_name,
                     last_used=generate_random_past_date(),
-                    key=myapi.generate_api_key(),
+                    key=security.fernet_encrypt_data(plaintext_secret_key),
                 )
                 secrets_repo.create_secret(db=db, secret=secret_in, user_id=user.id)
 
