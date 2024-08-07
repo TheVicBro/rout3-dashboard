@@ -5,6 +5,7 @@ from app.api.deps import SessionDep, UserDep
 from app.repositories import myapi_repo
 from app.schemas import Myapi, MyApiBase
 from app.services import myapi
+from app.core import security
 
 router = APIRouter()
 
@@ -19,12 +20,14 @@ def create_api_key(
     Create new myapi for user to connect to unified interface.
     Vitrual Key will be created automatically.
     """
-    virtual_key = myapi.generate_api_key()
-
+    plaintext_key = myapi.generate_api_key()
+    encrypted_key = security.encrypt_data(plaintext_key)
     try:
-        return myapi_repo.create_myapi(
-            db=db, myapi_key=virtual_key, user_id=user.id, name=myapi_data.name
+        myApi_model = myapi_repo.create_myapi(
+            db=db, myapi_key=encrypted_key, user_id=user.id, name=myapi_data.name
         )
+        myApi_model.key = plaintext_key  # store plaintext key in memory temporarily
+        return myApi_model
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
