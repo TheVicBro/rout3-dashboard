@@ -10,11 +10,13 @@ from app.core import security
 router = APIRouter()
 
 # create (POST)
+@router.post("/create")
 
 # update (PUT)
+@router.post("/edit")
 
 # reset (PATCH)
+@router.patch("/reset")
 
 # list user configs (GET)
-
-# list configs internal use (utils) (GET)
+@router.get("/{config_id}/")
