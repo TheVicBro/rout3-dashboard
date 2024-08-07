@@ -15,7 +15,7 @@ def create_secret(db: Session, secret: SecretCreate, user_id: int) -> Secret | N
     if exists:
         return None
 
-    encrypted_key = security.encrypt_data(secret.key)
+    encrypted_key = security.fernet_encrypt_data(secret.key)
     secret_obj = Secret(
         name=secret.name, key=encrypted_key, user_id=user_id, last_used=secret.last_used
     )
