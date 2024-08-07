@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -38,3 +38,21 @@ class User(Base):
 
     secrets = relationship("Secret", back_populates="user")
     myapi = relationship("Myapi", back_populates="user")
+    configuration = relationship("Config", back_populates="user")
+
+
+class Config(Base):
+    __tablename__ = "configuration"
+
+    id = Column(Integer, primary_key=True)
+    provider = Column(String, index=True)  # scrap
+    model = Column(String)  # enums
+    max_tokens = Column(Integer)
+    temperature = Column(Float)
+    route_type = Column(String, index=True)  # enums
+    timeout = Column(Integer)
+    force_timeout = Column(Boolean, default=False)
+    secrets_id = Column(Integer, ForeignKey("secrets.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    user = relationship("User", back_populates="configuration")

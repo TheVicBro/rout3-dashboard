@@ -83,5 +83,9 @@ class User(UserBase):
     class Config:
         orm_mode = True
 
+
 class RouteRequest(BaseModel):
     chat_history: List[Dict[str, str]]
+
+
+# Configuration Schemas
