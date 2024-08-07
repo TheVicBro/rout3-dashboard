@@ -14,7 +14,9 @@
   import { cn } from "$lib/utils.js";
   import Check from "lucide-svelte/icons/check";
   import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
-  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
+  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils";
+  import { isAuthenticated } from '../stores/auth';
+  import { navigate } from 'svelte-routing';
 
   const token = localStorage.getItem("authToken");
   const queryClient = useQueryClient();
@@ -135,6 +137,10 @@
       }
     });
     if (!response.ok) {
+      if (response.status === 403) {
+        isAuthenticated.set(false);
+        navigate('/login');
+      }
       const errorData = await response.json();
       throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
     }
