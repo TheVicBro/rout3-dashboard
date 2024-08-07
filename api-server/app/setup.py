@@ -65,7 +65,7 @@ def init_db(num_myapi_keys=3):
         keys_to_add = num_myapi_keys - len(existing_myapi_keys)
         for _ in range(max(0, keys_to_add)):
             plaintext_myapi_key = myapi.generate_api_key()
-            encrypted_key = security.encrypt_data(plaintext_myapi_key)
+            encrypted_key = security.fernet_encrypt_data(plaintext_myapi_key)
             myapi_key_in = MyApiCreate(name=generate_random_name(), key=encrypted_key)
             myapi_repo.create_myapi(
                 db=db,

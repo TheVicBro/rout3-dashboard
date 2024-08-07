@@ -40,12 +40,11 @@ def create_access_token(sub: str, expires_delta: timedelta) -> Token:
     return Token(access_token=encoded_jwt_token, token_type="Bearer")
 
 
-def encrypt_data(data: str) -> bytes:
+def fernet_encrypt_data(data: str) -> bytes:
     bytes_data = bytes(data, "utf-8")
-    print(bytes_data)
     return multifernet.encrypt(bytes_data)
 
 
-def decrypt_data(encrypted_data: bytes) -> str:
+def fernet_decrypt_data(encrypted_data: bytes) -> str:
     rotated_data = multifernet.rotate(encrypted_data)
     return multifernet.decrypt(rotated_data).decode("utf-8")
