@@ -21,7 +21,7 @@ def create_api_key(
     Vitrual Key will be created automatically.
     """
     plaintext_key = myapi.generate_api_key()
-    encrypted_key = security.encrypt_data(plaintext_key)
+    encrypted_key = security.fernet_encrypt_data(plaintext_key)
     try:
         myApi_model = myapi_repo.create_myapi(
             db=db, myapi_key=encrypted_key, user_id=user.id, name=myapi_data.name
