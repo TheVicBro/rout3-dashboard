@@ -47,10 +47,10 @@ class Config(Base):
     id = Column(Integer, primary_key=True)
     provider = Column(String, index=True)  # scrap
     model = Column(String)  # enums
-    max_tokens = Column(Integer)
-    temperature = Column(Float)
-    route_type = Column(String, index=True)  # enums
-    timeout = Column(Integer)
+    max_tokens = Column(Integer, nullable=False, default=512)
+    temperature = Column(Float, nullable=False, default=0.75)
+    route_type = Column(String, nullable=False, index=True, default="cost")  # enums
+    timeout = Column(Integer, default=10)
     force_timeout = Column(Boolean, default=False)
     secrets_id = Column(Integer, ForeignKey("secrets.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
