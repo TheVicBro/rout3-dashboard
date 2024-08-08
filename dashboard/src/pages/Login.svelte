@@ -2,8 +2,9 @@
   import { createEventDispatcher } from "svelte";
   import { z } from "zod";
   import { Input } from "$lib/components/ui/input";
-  import Logo from '/llmproxyTransparent.png';
+  import { Button } from "$lib/components/ui/button";
   import { UserRound, Mail, Lock } from 'lucide-svelte';
+  import Logo from '/llmproxyTransparent.png';
 
   const dispatch = createEventDispatcher();
 
@@ -55,7 +56,6 @@
   }
 
   async function login() {
-    console.log("LOGIN REQUEST")
     errors = {};
     const result = LoginSchema.safeParse(form);
 
@@ -76,6 +76,7 @@
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem("authToken", data.access_token);
+      localStorage.setItem("username", usernameOrEmail);
       dispatch("loginSuccess");
     } else {
       errors.form = "Login failed";
@@ -110,11 +111,7 @@
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === "Enter") {
-      if (showRegister) {
-        register();
-      } else {
-        login();
-      }
+      showRegister ? register() : login();
     }
   }
 </script>
@@ -125,8 +122,8 @@
       <div class="flex justify-center mb-4">
         <img src={Logo} alt="Logo" class="w-2/5 object-cover object-center rounded-r-lg" />
       </div>
+      <h1 class="text-3xl font-bold mb-8 text-center">{showRegister ? 'Register' : 'Login'}</h1>
       {#if showRegister}
-        <h1 class="text-3xl font-bold mb-8 text-center">Register</h1>
         <div class="mb-4">
           <Input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown}>
             <svelte:fragment slot="icon">
@@ -171,7 +168,6 @@
           <button type="button" class="cursor-pointer text-blue-500 hover:underline" on:click={registerLoginSwitch}>Already have an account? Login here</button>
         </div>
       {:else}
-        <h1 class="text-3xl font-bold mb-8 text-center">Login</h1>
         <div class="mb-4">
           <Input type="text" placeholder="Username or Email" bind:value={form.usernameOrEmail} on:keydown={handleKeydown}>
             <svelte:fragment slot="icon">
