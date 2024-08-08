@@ -87,7 +87,7 @@ def test_protected(
     db: SessionDep,
     api_key_header: str = Security(myapi.get_api_key_from_header),
 ):
-    myapi.verify_api_key(db=db, api_key_string=api_key_header)
-    return JSONResponse(
-        status_code=status.HTTP_200_OK, content="Key successfully deleted."
-    )
+    try:
+        return myapi.verify_api_key(db=db, api_key_string=api_key_header)
+    except HTTPException as e:
+        return False

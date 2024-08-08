@@ -13,7 +13,9 @@ def create_myapi(db: Session, myapi_key: str, user_id: int, name: str):
 
 
 def get_myapi(db: Session, key: str):
+    print(f'''API KEY: \n\n'{key}'\n\n''')
     myapi_key = db.query(Myapi).filter(Myapi.key == key).first()
+    print(f'''RETURNED KEY: \n\n'{myapi_key}'\n\n''')
     return myapi_key
 
 
@@ -42,3 +44,13 @@ def remove_myapi(db: Session, myapi_id: int, user_id: int):
     )
     db.commit()
     return data
+
+
+def get_user_id_by_myapi(db: Session, myapi_key: str):
+    data = (
+        db.query(Myapi)
+        .filter(Myapi.key == myapi_key)
+        .first()
+    )
+    db.commit()
+    return data.user_id
