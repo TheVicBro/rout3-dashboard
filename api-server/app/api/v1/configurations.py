@@ -108,6 +108,10 @@ def create_configuration(
     secret_id: int,
     db: SessionDep,
 ):
+    """
+    Create a new configuration model record.
+    Multiple records can exist for each configuration/user
+    """
     try:
         secret = secrets_repo.get_secret_by_id(db, secret_id)
         config_model = configuration_models_repo.create_config_models(
@@ -131,6 +135,10 @@ def edit_configuration(
     config_model_id: int,
     db: SessionDep,
 ):
+    """
+    Edit existing configurations.
+    Can only edit models, max tokens, and temperature parameters.
+    """
     try:
         config_model_updated = configuration_models_repo.update_config_models(
             db=db,
@@ -152,6 +160,9 @@ def reset_configuration(
     config_model_id: int,
     db: SessionDep,
 ):
+    """
+    Reset configuration model to default values
+    """
     try:
         config_model_updated = configuration_models_repo.update_config_models(
             db=db,
@@ -172,6 +183,9 @@ def get_configuration_model_by_id(
     db: SessionDep,
     config_models_id: int,
 ):
+    """
+    Get configuration model setup by id
+    """
     try:
         config_model = configuration_models_repo.get_configuration_models_by_id(
             db, config_models_id=config_models_id
@@ -189,6 +203,9 @@ def get_configuratio_model_by_config_id(
     config_id: int,
     db: SessionDep,
 ):
+    """
+    Get all configuration models from the current user's configuration
+    """
     try:
         config_model = configuration_models_repo.get_configuration_models_by_config_id(
             db, config_id=config_id
@@ -203,6 +220,9 @@ def get_configuratio_model_by_config_id(
 
 @router.get("/key/{config_id}", response_model=ConfigModelKey)
 def get_configuration_by_id(db: SessionDep, config_models_id: int):
+    """
+    Get model secret key and decrypt it
+    """
     try:
         config_model = configuration_models_repo.get_configuration_models_by_id(
             db, config_models_id=config_models_id
@@ -218,6 +238,9 @@ def get_configuration_by_id(db: SessionDep, config_models_id: int):
 
 @router.delete("/{config_model_id}")
 def remove_config_model_record(config_models_id: int, db: SessionDep):
+    """
+    Delete a configuration model record
+    """
     try:
         config_model = configuration_models_repo.delete_config_model(
             db, config_models_id=config_models_id
