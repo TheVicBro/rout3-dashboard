@@ -2,9 +2,9 @@ from litellm import Router, cost_per_token
 from typing import List, Dict, Any
 import asyncio
 from datetime import datetime
-from app.schemas import RouteRequest
+from app.schemas import RouteRequest, CompletionResponse
 
-def get_completion(user_settings: List[Dict[str, Any]], data: RouteRequest, user_id):
+def get_completion(user_settings: List[Dict[str, Any]], data: RouteRequest, user_id) -> CompletionResponse:
     llm_router = Router(model_list=user_settings, routing_strategy="cost-based-routing")
     response = asyncio.run(router_acompletion(llm_router, data.chat_history))
     
@@ -19,7 +19,7 @@ def get_completion(user_settings: List[Dict[str, Any]], data: RouteRequest, user
         completion_tokens=response_tokens
     )
     date_time = datetime.now()
-    chat_history = data.chat_history.append(
+    data.chat_history.append(
         {"role": "assistant", "content": response_content}
     )
     
@@ -28,8 +28,7 @@ def get_completion(user_settings: List[Dict[str, Any]], data: RouteRequest, user
             "model": response.model,
             "prompt": prompt_content,
             "response": response_content,
-            "chat_history": chat_history,
-            "input_cost": 11215,
+            "chat_history": data.chat_history,
             "prompt_cost": prompt_tokens_cost_usd_dollar,
             "response_cost": completion_tokens_cost_usd_dollar,
             "prompt_tokens": prompt_tokens,
@@ -37,9 +36,8 @@ def get_completion(user_settings: List[Dict[str, Any]], data: RouteRequest, user
             "date_time": date_time,
             "user_id" : user_id,
             "secret_id": 1 # how do I want to grab this?
-        }
-    
-    
+        } 
+  
     return body
 
 async def router_acompletion(llm_router: Router, chat_history: List[Dict[str, str]]):
@@ -47,6 +45,6 @@ async def router_acompletion(llm_router: Router, chat_history: List[Dict[str, st
         model="router",
         messages=chat_history
     )
-    print(f'\n\n{response}\n\n')
-    print(f'------------------RESPONSE: {response.choices[0].message.content} ------------------\n\n')
+    # print(f'\n\n{response}\n\n')
+    # print(f'------------------RESPONSE: {response.choices[0].message.content} ------------------\n\n')
     return response

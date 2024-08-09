@@ -85,3 +85,17 @@ class User(UserBase):
 
 class RouteRequest(BaseModel):
     chat_history: List[Dict[str, str]]
+
+class CompletionResponse(BaseModel):
+    provider : str
+    model : str
+    prompt : str
+    response : str
+    chat_history : List[Dict[str, str]]
+    prompt_cost : float
+    response_cost : float
+    prompt_tokens : int
+    response_tokens : int
+    date_time : datetime
+    user_id : int
+    secret_id : int
