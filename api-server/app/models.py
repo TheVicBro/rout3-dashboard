@@ -45,14 +45,30 @@ class Config(Base):
     __tablename__ = "configuration"
 
     id = Column(Integer, primary_key=True)
-    provider = Column(String, index=True)  # scrap
-    model = Column(String)  # enums
-    max_tokens = Column(Integer, nullable=False, default=512)
-    temperature = Column(Float, nullable=False, default=0.75)
+    config_model_id = Column(Integer, index=True)
     route_type = Column(String, nullable=False, index=True, default="cost")  # enums
-    timeout = Column(Integer, default=10)
-    force_timeout = Column(Boolean, default=False)
+    router_name = Column(String, default="router")  # DO NOT CHANGE
+    timeout = Column(Integer, default=1)
     secrets_id = Column(Integer, ForeignKey("secrets.id"))
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        unique=True,  # allow only one record per user to exist in the database
+    )
+    # max_retries = Column(Integer, nullable=True)
 
     user = relationship("User", back_populates="configuration")
+    secrets = relationship("Secret", back_populates="configuration")
+
+
+class Config_Models(Base):
+    __tablename__ = "config_models"
+
+    id = Column(Integer, primary_key=True)
+    config_id = Column(Integer, ForeignKey("configuration.id"), primary_key=True)
+    user_id = Column()
+    models = Column(String)  # enums
+    max_tokens = Column(Integer, nullable=False, default=512)
+    temperature = Column(Float, nullable=False, default=0.75)
+
+    configuration = relationship("Config", back_populates="config_models")

@@ -4,8 +4,8 @@ from app.models import Config
 
 
 # create configuration
-def create_config(db: Session, route_type: str, timeout: int):
-    db_config = Config(route_type=route_type, timeout=timeout)
+def create_config(db: Session, route_type: str, timeout: int, user_id: int):
+    db_config = Config(user_id=user_id, route_type=route_type, timeout=timeout)
     db.add(db_config)
     db.commit()
     db.refresh(db_config)
@@ -26,7 +26,7 @@ def update_configuration(db: Session, config_id: int, route_type: str, timeout: 
     db.refresh(db_config)
 
 
-# get configuration by id
+# get configuration by id (FOR TESTING)
 def get_configuration_by_id(db: Session, config_id: int):
     data = db.query(Config).filter(Config.config_id == config_id).first()
     return data

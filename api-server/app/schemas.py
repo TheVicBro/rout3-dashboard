@@ -89,3 +89,21 @@ class RouteRequest(BaseModel):
 
 
 # Configuration Schemas
+
+
+class ConfigBase(BaseModel):
+    timeout: int
+    route_type: str
+
+
+class Config(ConfigBase):
+    id: int
+    config_model_id: int
+    router_name: str
+    secrets_id: int
+    user_id: int
+
+
+# class ConfigModelUpdate
+
+# class ConfigModel
