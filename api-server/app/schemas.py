@@ -105,9 +105,7 @@ class Configuration(ConfigBase):
         orm_mode = True
 
 
-# class ConfigModelUpdate
-
-# class ConfigModel
+# Configuration Model Schemas
 
 
 class ConfigModelBase(BaseModel):
