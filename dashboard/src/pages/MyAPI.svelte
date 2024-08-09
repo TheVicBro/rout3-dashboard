@@ -1,20 +1,20 @@
 <script lang="ts">
   import { createQuery, useQueryClient } from '@tanstack/svelte-query';
   import { DateTime } from 'luxon';
-  import * as Dialog from "$lib/components/ui/dialog";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Dialog as DialogPrimitive } from "bits-ui";
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
-  import { z } from 'zod';
-  import * as Command from "$lib/components/ui/command/index.js";
-  import * as Popover from "$lib/components/ui/popover/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import { cn } from "$lib/utils.js";
-  import Check from "lucide-svelte/icons/check";
-  import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
+  import { z } from 'zod';
+  import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
   import { closeAndFocusTrigger } from "../utils/utils"; 
+  import * as Dialog from "$lib/components/ui/dialog";
+  import * as Command from "$lib/components/ui/command/index.js";
+  import * as Popover from "$lib/components/ui/popover/index.js";
+  import Skeleton from "../components/Skeleton.svelte"
 
   const token = localStorage.getItem("authToken");
   const queryClient = useQueryClient();
@@ -30,19 +30,15 @@
     name: z.string(),
   });
 
-  const NewSecretSchema = z.object({
-    name: z.string().min(1, "Provider name is required"),
-  });
-
-  type Secret = z.infer<typeof APISchema>;
+  type API = z.infer<typeof APISchema>;
   type SelectedAPIOption = z.infer<typeof APIOptionSchema>;
-  type NewSecret = z.infer<typeof NewSecretSchema>;
 
   let selectedAPItoDelete: SelectedAPIOption | null = null;
+  let newName = '';
+  let open = false;
 
   const createAPI = async () => {
     const current_date = DateTime.now();
-    const turso_date = current_date.toISO();
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
     try {
@@ -58,7 +54,7 @@
         const errorData = await response.json();
         throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
       }
-      queryClient.invalidateQueries({ queryKey: ['secretData'] });
+      await queryClient.invalidateQueries({ queryKey: ['apiData'] });
       toast.success(`${newName} has been added.`, {
         description: `${formatted_date}`,
       })
@@ -79,12 +75,12 @@
   const deleteAPI = async () => {
     const formatted_date = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
 
-    try {
-      if (!selectedAPItoDelete) {
+    if (!selectedAPItoDelete) {
         throw new Error('No API selected for removal');
       }
-      const validatedAPI = APIOptionSchema.parse(selectedAPItoDelete);
 
+    try {
+      const validatedAPI = APIOptionSchema.parse(selectedAPItoDelete);
       const response = await fetch(`http://127.0.0.1:8000/api/v1/myapi/${validatedAPI.id}`, {
         method: 'DELETE',
         headers: {
@@ -96,7 +92,7 @@
         const errorData = await response.json();
         throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
       }
-      queryClient.invalidateQueries({ queryKey: ['secretData'] });
+      await queryClient.invalidateQueries({ queryKey: ['apiData'] });
       toast.success(`${selectedAPItoDelete.name} has been removed.`, {
         description: `${formatted_date}`,
       });
@@ -108,7 +104,7 @@
     }
   }
 
-  const fetchSecrets = async (): Promise<Secret[]> => {
+  const fetchAPI = async (): Promise<API[]> => {
     const response = await fetch('http://127.0.0.1:8000/api/v1/myapi', {
       method: 'GET',
       headers: {
@@ -124,13 +120,11 @@
     return z.array(APISchema).parse(data);
   };
 
-  const query = createQuery<Secret[]>({
-    queryKey: ['secretData'],
-    queryFn: fetchSecrets,
+  const query = createQuery<API[]>({
+    queryKey: ['apiData'],
+    queryFn: fetchAPI,
   });
 
-  let newName = '';
-  let open = false;
   $: selectedRemoveValue = selectedAPItoDelete 
     ? `${selectedAPItoDelete.name} (ID: ${selectedAPItoDelete.id})` 
     : "Select a key to remove...";
@@ -143,15 +137,15 @@
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
     <div class="p-10">
       {#if $query.isPending}
-        Loading...
-      {/if}
-      {#if $query.error}
-        An error has occurred: {$query.error.message}
-      {/if}
-      {#if $query.isSuccess}
-        {#if $query.data.length === 0}
-          <div class="mb-4 text-red-600">No APIs found. Click "Create API" to add a new API.</div>
-        {/if}
+        <Skeleton />
+      {:else if $query.error}
+        <p class="text-red-600">An error has occurred: {$query.error.message}</p>
+      {:else if $query.data.length === 0}
+        <div class="flex flex-col items-center">
+          <CirclePlus class="w-12 h-12 mb-4 text-gray-400" />
+          <p>No APIs found. Click "Create API" to add a new API.</p>
+        </div>
+      {:else}
         <table class="w-full">
           <thead>
             <tr>
@@ -174,7 +168,9 @@
 
   <!-- Create API Button -->
   <Dialog.Root>
-    <Dialog.Trigger class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Create API</Dialog.Trigger>
+    <Dialog.Trigger>
+      <Button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Create API</Button>
+    </Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Create API Key</Dialog.Title>
@@ -189,7 +185,7 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI}>Create API</button>
+            <Button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI}>Create API</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
@@ -198,7 +194,9 @@
 
   <!-- Delete API Button -->
   <Dialog.Root>
-    <Dialog.Trigger class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Delete API</Dialog.Trigger>
+    <Dialog.Trigger>
+      <Button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Delete API</Button>
+    </Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Delete API</Dialog.Title>
@@ -208,7 +206,7 @@
         <div class="space-y-4 py-4">
           {#if $query.isSuccess}
           <div class="grid grid-cols-5 items-center gap-4">
-            <Label for="remove-key" class="text-right">Secret</Label>
+            <Label for="remove-key" class="text-right">API</Label>
             <div class="col-span-4">
               <Popover.Root bind:open let:ids>
                 <Popover.Trigger asChild let:builder>
@@ -256,7 +254,7 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={deleteAPI}>Remove Key</button>
+            <Button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={deleteAPI}>Delete API</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>

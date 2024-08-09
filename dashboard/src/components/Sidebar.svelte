@@ -1,11 +1,26 @@
 <script lang="ts">
   import { Link, useLocation } from 'svelte-routing';
-  import logo from '/llmproxyTransparent.png';
   import { isAuthenticated } from '../stores/auth';
+  import { Button } from "$lib/components/ui/button/index.js";
   import { Bot, FileSliders, KeyRound, BarChart3, Wallet, UserRound, Settings, LogOut } from 'lucide-svelte';
+  import logo from '/llmproxyTransparent.png';
 
   const location = useLocation();
   $: currentPath = $location.pathname;
+
+  const topMenuItems = [
+    { path: '/myapi', label: 'MyAPI', icon: Bot },
+    { path: '/configuration', label: 'Configuration', icon: FileSliders },
+    { path: '/secrets', label: 'Secrets', icon: KeyRound },
+    { path: '/analytics', label: 'Analytics', icon: BarChart3 },
+    { path: '/billing', label: 'Billing', icon: Wallet },
+  ];
+
+  const bottomMenuItems = [
+    { path: '/account', label: 'Account', icon: UserRound },
+    { path: '/settings', label: 'Settings', icon: Settings },
+    { path: '/login', label: 'Logout', icon: LogOut, onClick: logout },
+  ];
 
   function logout() {
     localStorage.clear();
@@ -20,95 +35,35 @@
   <div class="font-semibold p-4 text-gray-400">MENU</div>
   <div class="flex flex-col justify-between space-y-2 w-full h-full">
     <div>
-      <Link to="/myapi" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/myapi' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <Bot />
-          <span class="font-semibold">MyAPI</span>
-        </button>
-      </Link>
-      <Link to="/configuration" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/configuration' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <FileSliders />
-          <span class="font-semibold">Configuration</span>
-        </button>
-      </Link>
-      <Link to="/secrets" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/secrets' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <KeyRound />
-          <span class="font-semibold">Secrets</span>
-        </button>
-      </Link>
-      <Link to="/analytics" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/analytics' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <BarChart3 />
-          <span class="font-semibold">Analytics</span>
-        </button>
-      </Link>
-      <Link to="/billing" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/billing' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <Wallet />
-          <span class="font-semibold">Billing</span>
-        </button>
-      </Link>
+      {#each topMenuItems as { path, label, icon }}
+        <Link to={path} class="w-full">
+          <Button
+            class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white ${
+              currentPath === path ? 'bg-blue-100 hover:bg-blue-200 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+            }`}
+            type="button"
+          >
+            <svelte:component this={icon} />
+            <span class="font-semibold">{label}</span>
+          </Button>
+        </Link>
+      {/each}
     </div>
     <div class="pb-8 pt-8 border-t-2">
-      <Link to="/account" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/account' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <UserRound />
-          <span class="font-semibold">Account</span>
-        </button>
-      </Link>
-      <Link to="/settings" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/settings' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <Settings />
-          <span class="font-semibold">Settings</span>
-        </button>
-      </Link>
-      <Link to="/login" class="w-full">
-        <button
-          class="menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition text-gray-500 hover:bg-gray-200 hover:text-gray-700"
-          type="button"
-          on:click={logout}
-        >
-          <LogOut />
-          <span class="font-semibold">Logout</span>
-        </button>
-      </Link>
+      {#each bottomMenuItems as { path, label, icon, onClick }}
+        <Link to={path} class="w-full">
+          <Button
+            class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white ${
+              currentPath === path ? 'bg-blue-100 hover:bg-blue-200 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+            }`}
+            type="button"
+            on:click={onClick}
+          >
+            <svelte:component this={icon} />
+            <span class="font-semibold">{label}</span>
+          </Button>
+        </Link>
+      {/each}
     </div>
   </div>
 </div>
