@@ -102,7 +102,7 @@ def get_configuration(db: SessionDep, user: UserDep):
 """Configuration Models"""
 
 
-@router.post("/", response_mode=ConfigModel)
+@router.post("/", response_model=ConfigModel)
 def create_configuration(
     config_model_data: ConfigModelBase,
     secret_id: int,
