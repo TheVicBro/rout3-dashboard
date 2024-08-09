@@ -4,9 +4,11 @@ from app.models import Config_Models
 
 
 # create configuration
-def create_config_models(db: Session, models: str, max_tokens: int, temperature: float):
+def create_config_models(
+    db: Session, models: str, max_tokens: int, temperature: float, key: str
+):
     db_config_model = Config_Models(
-        models=models, max_tokens=max_tokens, temperature=temperature
+        models=models, max_tokens=max_tokens, temperature=temperature, key=key
     )
     db.add(db_config_model)
     db.commit()
@@ -41,7 +43,7 @@ def get_configuration_models_by_id(db: Session, config_models_id: int):
 
 
 # get all configuration models by configuration id
-def get_configuration_models_by_id(
+def get_configuration_models_by_config_id(
     db: Session, config_id: int, skip: int = 0, limit: int = 10
 ):
     data = (
