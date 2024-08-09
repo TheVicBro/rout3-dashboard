@@ -96,14 +96,30 @@ class ConfigBase(BaseModel):
     route_type: str
 
 
-class Config(ConfigBase):
+class Configuration(ConfigBase):
     id: int
-    config_model_id: int
     router_name: str
-    secrets_id: int
     user_id: int
+
+    class Config:
+        orm_mode = True
 
 
 # class ConfigModelUpdate
 
 # class ConfigModel
+
+
+class ConfigModelBase(BaseModel):
+    models: str
+    max_tokens: int
+    temperature: float
+
+
+class ConfigModel(ConfigModelBase):
+    id: int
+    config_id: int
+
+
+class ConfigModelKey(ConfigModelBase):
+    key: str

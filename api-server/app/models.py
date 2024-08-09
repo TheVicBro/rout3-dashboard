@@ -45,11 +45,9 @@ class Config(Base):
     __tablename__ = "configuration"
 
     id = Column(Integer, primary_key=True)
-    config_model_id = Column(Integer, index=True)
+    timeout = Column(Integer, default=1)
     route_type = Column(String, nullable=False, index=True, default="cost")  # enums
     router_name = Column(String, default="router")  # DO NOT CHANGE
-    timeout = Column(Integer, default=1)
-    secrets_id = Column(Integer, ForeignKey("secrets.id"))
     user_id = Column(
         Integer,
         ForeignKey("users.id"),
@@ -58,7 +56,7 @@ class Config(Base):
     # max_retries = Column(Integer, nullable=True)
 
     user = relationship("User", back_populates="configuration")
-    secrets = relationship("Secret", back_populates="configuration")
+    config_models = relationship("Config_Models", back_populates="configuration")
 
 
 class Config_Models(Base):
@@ -66,6 +64,7 @@ class Config_Models(Base):
 
     id = Column(Integer, primary_key=True)
     config_id = Column(Integer, ForeignKey("configuration.id"), primary_key=True)
+    secret_key = Column(String, ForeignKey("secrets.key"))
     models = Column(String)  # enums
     max_tokens = Column(Integer, nullable=False, default=512)
     temperature = Column(Float, nullable=False, default=0.75)

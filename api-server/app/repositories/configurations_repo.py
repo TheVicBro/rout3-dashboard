@@ -13,8 +13,8 @@ def create_config(db: Session, route_type: str, timeout: int, user_id: int):
 
 
 # update configuration
-def update_configuration(db: Session, config_id: int, route_type: str, timeout: int):
-    db_config = db.query(Config).filter(Config.id == config_id).first()
+def update_configuration(db: Session, user_id: int, route_type: str, timeout: int):
+    db_config = db.query(Config).filter(Config.user_id == user_id).first()
 
     # update only given parameters
     if route_type is not None:
@@ -24,6 +24,7 @@ def update_configuration(db: Session, config_id: int, route_type: str, timeout: 
 
     db.commit()
     db.refresh(db_config)
+    return db_config
 
 
 # get configuration by id (FOR TESTING)
@@ -33,13 +34,5 @@ def get_configuration_by_id(db: Session, config_id: int):
 
 
 # get all configurations for a user
-def get_configuration_by_user_id(
-    db: Session, user_id: int, skip: int = 0, limit: int = 10
-):
-    return (
-        db.query(Config)
-        .filter(Config.user_id == user_id)
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
+def get_configuration_by_user_id(db: Session, user_id: int):
+    return db.query(Config).filter(Config.user_id == user_id).first()
