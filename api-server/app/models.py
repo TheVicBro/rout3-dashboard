@@ -66,7 +66,6 @@ class Config_Models(Base):
 
     id = Column(Integer, primary_key=True)
     config_id = Column(Integer, ForeignKey("configuration.id"), primary_key=True)
-    user_id = Column()
     models = Column(String)  # enums
     max_tokens = Column(Integer, nullable=False, default=512)
     temperature = Column(Float, nullable=False, default=0.75)
