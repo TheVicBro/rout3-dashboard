@@ -132,9 +132,9 @@
 
 <div>
   <Toaster />
-  <h1 class="p-8 pl-20 text-3xl font-bold bg-white border-b-2">MyAPI</h1>
-  <div class="m-10 border rounded-lg bg-white shadow">
-    <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
+  <h1 class="p-8 pl-20 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">MyAPI</h1>
+  <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
+    <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
     <div class="p-10">
       {#if $query.isPending}
         <Skeleton />
