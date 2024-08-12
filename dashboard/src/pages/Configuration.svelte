@@ -119,7 +119,7 @@
               on:input={(e) => updateGuardRail(e, index)}
             />
             {#if index > 0}
-              <button on:click={() => removeGuardRail(index)} class="ml-2 text-red-500 hover:text-red-700">Remove</button>
+              <Button on:click={() => removeGuardRail(index)} class="ml-2 text-red-500 hover:text-red-700">Remove</Button>
             {/if}
           </div>
         {/each}

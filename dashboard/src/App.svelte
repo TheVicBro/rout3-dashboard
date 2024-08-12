@@ -16,7 +16,6 @@
   const queryClient = new QueryClient()
 
   onMount(() => {
-    // Check if the user is already authenticated on load
     if (localStorage.getItem("authToken")) {
       isAuthenticated.set(true);
     }
@@ -24,7 +23,7 @@
 
   function handleLoginSuccess() {
     isAuthenticated.set(true);
-    navigate('/secrets');
+    navigate('/myapi');
   }
 </script>
 
