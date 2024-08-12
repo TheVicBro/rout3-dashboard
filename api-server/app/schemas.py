@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Dict
 
 from pydantic import BaseModel, EmailStr
 
@@ -82,3 +82,6 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+class RouteRequest(BaseModel):
+    chat_history: List[Dict[str, str]]

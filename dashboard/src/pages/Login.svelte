@@ -2,9 +2,9 @@
   import { createEventDispatcher } from "svelte";
   import { z } from "zod";
   import { Input } from "$lib/components/ui/input";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import Logo from '/llmproxyTransparent.png';
+  import { Button } from "$lib/components/ui/button";
   import { UserRound, Mail, Lock } from 'lucide-svelte';
+  import Logo from '/llmproxyTransparent.png';
 
   const dispatch = createEventDispatcher();
 
@@ -56,7 +56,6 @@
   }
 
   async function login() {
-    console.log("LOGIN REQUEST")
     errors = {};
     const result = LoginSchema.safeParse(form);
 
@@ -77,6 +76,7 @@
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem("authToken", data.access_token);
+      localStorage.setItem("username", usernameOrEmail);
       dispatch("loginSuccess");
     } else {
       errors.form = "Login failed";
@@ -104,8 +104,6 @@
     if (response.ok) {
       alert("Registration successful");
       showRegister = false;
-      form.usernameOrEmail = username;
-      login();
     } else {
       errors.form = "Registration failed";
     }
@@ -113,11 +111,7 @@
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === "Enter") {
-      if (showRegister) {
-        register();
-      } else {
-        login();
-      }
+      showRegister ? register() : login();
     }
   }
 </script>
@@ -128,8 +122,8 @@
       <div class="flex justify-center mb-4">
         <img src={Logo} alt="Logo" class="w-2/5 object-cover object-center rounded-r-lg" />
       </div>
+      <h1 class="text-3xl font-bold mb-8 text-center">{showRegister ? 'Register' : 'Login'}</h1>
       {#if showRegister}
-        <h1 class="text-3xl font-bold mb-8 text-center">Register</h1>
         <div class="mb-4">
           <Input type="text" placeholder="Username" bind:value={form.username} on:keydown={handleKeydown}>
             <svelte:fragment slot="icon">
@@ -163,18 +157,17 @@
           {#if errors.confirmPassword}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.confirmPassword}</p>{/if}
         </div>
         <div class="flex justify-center items-center">
-          <Button
+          <button
             on:click={register}
-            class="mt-4 px-4 py-8 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
+            class="mt-4 px-4 py-4 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
           >
             Register
-          </Button>
+          </button>
         </div>
         <div class="text-center mt-8">
-          <Button type="button" class="bg-white text-blue-500 hover:underline hover:bg-white" on:click={registerLoginSwitch}>Already have an account? Login here</Button>
+          <button type="button" class="cursor-pointer text-blue-500 hover:underline" on:click={registerLoginSwitch}>Already have an account? Login here</button>
         </div>
       {:else}
-        <h1 class="text-3xl font-bold mb-8 text-center">Login</h1>
         <div class="mb-4">
           <Input type="text" placeholder="Username or Email" bind:value={form.usernameOrEmail} on:keydown={handleKeydown}>
             <svelte:fragment slot="icon">
@@ -192,15 +185,15 @@
           {#if errors.password}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.password}</p>{/if}
         </div>
         <div class="flex justify-center items-center">
-          <Button
+          <button
             on:click={login}
-            class="mt-8 px-4 py-8 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
+            class="mt-8 px-4 py-4 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
           >
             Login
-          </Button>
+          </button>
         </div>
         <div class="text-center mt-8">
-          <Button type="button" class="bg-white text-blue-500 hover:underline hover:bg-white" on:click={registerLoginSwitch}>Don't have an account? Register here</Button>
+          <button type="button" class="cursor-pointer text-blue-500 hover:underline" on:click={registerLoginSwitch}>Don't have an account? Register here</button>
         </div>
       {/if}
       {#if errors.form}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-4">{errors.form}</p>{/if}

@@ -1,16 +1,23 @@
 <script lang="ts">
   import { DateTime } from 'luxon';
+  import { Label } from "$lib/components/ui/label/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
-  import { Button } from "$lib/components/ui/button/index.js";
 
-  let firstName = '';
-  let lastName = '';
-  let email = '';
-  let username = localStorage.getItem('username') || '';
-  let currentPassword = '';
-  let newPassword = '';
-  let confirmNewPassword = '';
+  let accountInfo = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    username: localStorage.getItem('username') || ''
+  };
+
+  let passwordInfo = {
+    currentPassword: '',
+    newPassword: '',
+    confirmNewPassword: ''
+  };
 
   function saveAccountSettings() {
     const formatted_date = DateTime.now().toFormat('yyyy-MM-dd HH:mm:ss');
@@ -39,48 +46,48 @@
           <form on:submit|preventDefault={saveAccountSettings} class="space-y-4">
             <div class="flex space-x-4">
               <div class="w-1/2">
-                <div class="block text-gray-700">First Name</div>
-                <input type="text" bind:value={firstName} class="form-input mt-1 block w-full border rounded p-2 bg-white" />
+                <Label for="firstName" class="block text-gray-700">First Name</Label>
+                <Input id="firstName" type="firstName" bind:value={accountInfo.firstName} class="mt-2" />
               </div>
               <div class="w-1/2">
-                <div class="block text-gray-700">Last Name</div>
-                <input type="text" bind:value={lastName} class="form-input mt-1 block w-full border rounded p-2 bg-white" />
+                <Label for="lastName" class="block text-gray-700">Last Name</Label>
+                <Input id="lastName" type="lastName" bind:value={accountInfo.lastName} class="mt-2"  />
               </div>
             </div>
             <div>
-              <div class="block text-gray-700">Username</div>
-              <input type="text" bind:value={username} class="form-input mt-1 block w-full border rounded p-2 bg-gray-200" readonly />
+              <Label for="username" class="block text-gray-700">Username</Label>
+              <Input disabled id="username" type="username" bind:value={accountInfo.username} class="mt-2" />
             </div>
             <div>
-              <div class="block text-gray-700">Email Address</div>
-              <input type="email" bind:value={email} class="form-input mt-1 block w-full border rounded p-2 bg-white" />
+              <Label for="email" class="block text-gray-700">Email Address</Label>
+              <Input id="email" type="email" bind:value={accountInfo.email} class="mt-2" />
             </div>
             <div class="pt-2">
               <Button type="submit" class="px-4 py-2 bg-blue-800 transition text-white rounded-lg hover:bg-blue-700 hover:transition focus:outline-none">Save Account Settings</Button>
             </div>
           </form>
         </div>
-
+        
         <div class="pt-2">
           <h3 class="text-xl font-semibold mb-4">Change Password</h3>
           <form on:submit|preventDefault={changePassword} class="space-y-4">
             <div>
-              <div class="block text-gray-700">Current Password</div>
-              <input type="password" bind:value={currentPassword} class="form-input mt-1 block w-full border rounded p-2 bg-white" />
+              <Label for="currentPassword" class="block text-gray-700">Current Password</Label>
+              <Input id="currentPassword" type="currentPassword" bind:value={passwordInfo.currentPassword} class="mt-2" />
             </div>
             <div>
-              <div class="block text-gray-700">New Password</div>
-              <input type="password" bind:value={newPassword} class="form-input mt-1 block w-full border rounded p-2 bg-white" />
+              <Label for="newPassword" class="block text-gray-700">New Password</Label>
+              <Input id="newPassword" type="newPassword" bind:value={passwordInfo.newPassword} class="mt-2" />
             </div>
             <div>
-              <div class="block text-gray-700">Confirm New Password</div>
-              <input type="password" bind:value={confirmNewPassword} class="form-input mt-1 block w-full border rounded p-2 bg-white" />
+              <Label for="confirmNewPassword" class="block text-gray-700">Confirm New Password</Label>
+              <Input id="confirmNewPassword" type="confirmNewPassword" bind:value={passwordInfo.confirmNewPassword} class="mt-2" />
             </div>
             <div class="pt-2">
               <Button type="submit" class="px-4 py-2 bg-blue-800 transition text-white rounded-lg hover:bg-blue-700 hover:transition focus:outline-none">Change Password</Button>
             </div>
           </form>
-        </div>  
+        </div>
       </div>
     </div>
   </div>

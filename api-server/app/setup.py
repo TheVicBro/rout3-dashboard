@@ -7,6 +7,7 @@ from app.models import Myapi, Secret, User
 from app.repositories import myapi_repo, secrets_repo, user_repo
 from app.schemas import MyApiCreate, SecretCreate, UserCreate
 from app.services import myapi
+from app.core import security
 
 
 def generate_random_name(length=8):
@@ -45,10 +46,11 @@ def init_db(num_myapi_keys=3):
         for secret_name in secret_names:
             secret = db.query(Secret).filter(Secret.name == secret_name).first()
             if not secret:
+                plaintext_secret_key = myapi.generate_api_key()
                 secret_in = SecretCreate(
                     name=secret_name,
                     last_used=generate_random_past_date(),
-                    key=myapi.generate_api_key(),
+                    key=security.fernet_encrypt_data(plaintext_secret_key),
                 )
                 secrets_repo.create_secret(db=db, secret=secret_in, user_id=user.id)
 
@@ -63,9 +65,9 @@ def init_db(num_myapi_keys=3):
         # Add new keys if there are fewer than num_myapi_keys
         keys_to_add = num_myapi_keys - len(existing_myapi_keys)
         for _ in range(max(0, keys_to_add)):
-            myapi_key_in = MyApiCreate(
-                name=generate_random_name(), key=myapi.generate_api_key()
-            )
+            plaintext_myapi_key = myapi.generate_api_key()
+            encrypted_key = security.fernet_encrypt_data(plaintext_myapi_key)
+            myapi_key_in = MyApiCreate(name=generate_random_name(), key=encrypted_key)
             myapi_repo.create_myapi(
                 db=db,
                 myapi_key=myapi_key_in.key,
