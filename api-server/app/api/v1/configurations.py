@@ -129,7 +129,7 @@ def create_configuration_model(
         )
 
 
-@router.post("/model/edit", response_model=ConfigBase)
+@router.post("/model/edit", response_model=ConfigModelBase)
 def edit_configuration_model(
     config_model_data: ConfigModelBase,
     config_model_id: int,
