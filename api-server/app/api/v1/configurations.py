@@ -102,8 +102,8 @@ def get_configuration(db: SessionDep, user: UserDep):
 """Configuration Models"""
 
 
-@router.post("/", response_model=ConfigModel)
-def create_configuration(
+@router.post("/model", response_model=ConfigModel)
+def create_configuration_model(
     config_model_data: ConfigModelBase,
     secret_id: int,
     db: SessionDep,
@@ -129,8 +129,8 @@ def create_configuration(
         )
 
 
-@router.post("/edit", response_model=ConfigBase)
-def edit_configuration(
+@router.post("/model/edit", response_model=ConfigBase)
+def edit_configuration_model(
     config_model_data: ConfigModelBase,
     config_model_id: int,
     db: SessionDep,
@@ -155,8 +155,8 @@ def edit_configuration(
         )
 
 
-@router.patch("/reset", response_model=ConfigBase)
-def reset_configuration(
+@router.patch("/model/reset", response_model=ConfigBase)
+def reset_configuration_model(
     config_model_id: int,
     db: SessionDep,
 ):
@@ -198,7 +198,7 @@ def get_configuration_model_by_id(
         )
 
 
-@router.get("/{config_id}/", response_model=list[ConfigModel])
+@router.get("/model/{config_id}/", response_model=list[ConfigModel])
 def get_configuratio_model_by_config_id(
     config_id: int,
     db: SessionDep,
@@ -236,7 +236,7 @@ def get_configuration_by_id(db: SessionDep, config_models_id: int):
         )
 
 
-@router.delete("/{config_model_id}")
+@router.delete("/model/{config_model_id}")
 def remove_config_model_record(config_models_id: int, db: SessionDep):
     """
     Delete a configuration model record
