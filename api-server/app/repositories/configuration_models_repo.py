@@ -43,6 +43,7 @@ def update_config_models(
 
     db.commit()
     db.refresh(db_config_model)
+    return db_config_model
 
 
 # get configuration models by id

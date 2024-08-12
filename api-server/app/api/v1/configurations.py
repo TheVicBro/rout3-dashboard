@@ -113,10 +113,6 @@ def create_configuration_model(
     try:
         secret = secrets_repo.get_secret_by_id(db, secret_id)
         config = configurations_repo.get_configuration_by_user_id(db, user.id)
-        print(
-            "========================================================================================================================================================================================================================================================================================================================"
-        )
-        print(config.id)
         config_model = configuration_models_repo.create_config_models(
             db=db,
             config_id=config.id,
@@ -159,7 +155,7 @@ def edit_configuration_model(
         )
 
 
-@router.patch("/model/reset", response_model=ConfigBase)
+@router.patch("/model/reset", response_model=ConfigModelBase)
 def reset_configuration_model(
     config_model_id: int,
     db: SessionDep,
@@ -171,6 +167,7 @@ def reset_configuration_model(
         config_model_updated = configuration_models_repo.update_config_models(
             db=db,
             config_model_id=config_model_id,
+            models=None,
             max_tokens=512,
             temperature=0.75,
         )
@@ -222,7 +219,7 @@ def get_configuratio_model_by_config_id(
         )
 
 
-@router.get("/key/{config_id}", response_model=ConfigModelKey)
+@router.get("/key/{config_id}")
 def get_configuration_by_id(db: SessionDep, config_models_id: int):
     """
     Get model secret key and decrypt it
@@ -252,7 +249,7 @@ def remove_config_model_record(config_models_id: int, db: SessionDep):
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
-                "message": "Key successfully deleted",
+                "message": "Configuration Model successfully deleted",
                 "model": config_model.models,
             },
         )
