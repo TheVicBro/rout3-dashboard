@@ -29,7 +29,7 @@ def update_configuration(db: Session, user_id: int, route_type: str, timeout: in
 
 # get configuration by id (FOR TESTING)
 def get_configuration_by_id(db: Session, config_id: int):
-    data = db.query(Config).filter(Config.config_id == config_id).first()
+    data = db.query(Config).filter(Config.id == config_id).first()
     return data
 
 

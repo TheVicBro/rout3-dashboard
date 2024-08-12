@@ -104,9 +104,7 @@ def get_configuration(db: SessionDep, user: UserDep):
 
 @router.post("/model", response_model=ConfigModel)
 def create_configuration_model(
-    config_model_data: ConfigModelBase,
-    secret_id: int,
-    db: SessionDep,
+    config_model_data: ConfigModelBase, secret_id: int, db: SessionDep, user: UserDep
 ):
     """
     Create a new configuration model record.
@@ -114,12 +112,18 @@ def create_configuration_model(
     """
     try:
         secret = secrets_repo.get_secret_by_id(db, secret_id)
+        config = configurations_repo.get_configuration_by_user_id(db, user.id)
+        print(
+            "========================================================================================================================================================================================================================================================================================================================"
+        )
+        print(config.id)
         config_model = configuration_models_repo.create_config_models(
             db=db,
+            config_id=config.id,
+            secret_key=secret.key,
             models=config_model_data.models,
             max_tokens=config_model_data.max_tokens,
             temperature=config_model_data.temperature,
-            key=secret.key,
         )
         return config_model
     except Exception as e:
@@ -178,7 +182,7 @@ def reset_configuration_model(
         )
 
 
-@router.get("/", response_model=ConfigModel)
+@router.get("/model/", response_model=ConfigModel)
 def get_configuration_model_by_id(
     db: SessionDep,
     config_models_id: int,

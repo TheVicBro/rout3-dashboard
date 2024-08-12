@@ -63,7 +63,7 @@ class Config_Models(Base):
     __tablename__ = "config_models"
 
     id = Column(Integer, primary_key=True)
-    config_id = Column(Integer, ForeignKey("configuration.id"), primary_key=True)
+    config_id = Column(Integer, ForeignKey("configuration.id"))
     secret_key = Column(String, ForeignKey("secrets.key"))
     models = Column(String)  # enums
     max_tokens = Column(Integer, nullable=False, default=512)

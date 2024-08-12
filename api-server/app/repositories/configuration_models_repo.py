@@ -5,10 +5,19 @@ from app.models import Config_Models
 
 # create configuration
 def create_config_models(
-    db: Session, models: str, max_tokens: int, temperature: float, key: str
+    db: Session,
+    config_id: int,
+    secret_key: str,
+    models: str,
+    max_tokens: int,
+    temperature: float,
 ):
     db_config_model = Config_Models(
-        models=models, max_tokens=max_tokens, temperature=temperature, key=key
+        config_id=config_id,
+        secret_key=secret_key,
+        models=models,
+        max_tokens=max_tokens,
+        temperature=temperature,
     )
     db.add(db_config_model)
     db.commit()
