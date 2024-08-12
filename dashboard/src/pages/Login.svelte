@@ -104,6 +104,8 @@
     if (response.ok) {
       alert("Registration successful");
       showRegister = false;
+      form.usernameOrEmail = username;
+      login();
     } else {
       errors.form = "Registration failed";
     }
@@ -157,15 +159,15 @@
           {#if errors.confirmPassword}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.confirmPassword}</p>{/if}
         </div>
         <div class="flex justify-center items-center">
-          <button
+          <Button
             on:click={register}
-            class="mt-4 px-4 py-4 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
+            class="mt-4 px-4 py-8 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
           >
             Register
-          </button>
+          </Button>
         </div>
         <div class="text-center mt-8">
-          <button type="button" class="cursor-pointer text-blue-500 hover:underline" on:click={registerLoginSwitch}>Already have an account? Login here</button>
+          <Button type="button" class="cursor-pointer text-blue-500 bg-white hover:bg-white hover:underline" on:click={registerLoginSwitch}>Already have an account? Login here</Button>
         </div>
       {:else}
         <div class="mb-4">
@@ -185,15 +187,15 @@
           {#if errors.password}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-1">{errors.password}</p>{/if}
         </div>
         <div class="flex justify-center items-center">
-          <button
+          <Button
             on:click={login}
-            class="mt-8 px-4 py-4 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
+            class="mt-8 px-4 py-8 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
           >
             Login
-          </button>
+          </Button>
         </div>
         <div class="text-center mt-8">
-          <button type="button" class="cursor-pointer text-blue-500 hover:underline" on:click={registerLoginSwitch}>Don't have an account? Register here</button>
+          <Button type="button" class="cursor-pointer text-blue-500 bg-white hover:bg-white hover:underline" on:click={registerLoginSwitch}>Don't have an account? Register here</Button>
         </div>
       {/if}
       {#if errors.form}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-4">{errors.form}</p>{/if}
