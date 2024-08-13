@@ -53,16 +53,8 @@ def get_configuration_model_by_id(db: Session, config_model_id: int):
 
 
 # get all configuration model by configuration id
-def get_configuration_model_by_config_id(
-    db: Session, config_id: int, skip: int = 0, limit: int = 10
-):
-    data = (
-        db.query(Config_Model)
-        .filter(Config_Model.config_id == config_id)
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
+def get_configuration_model_by_config_id(db: Session, config_id: int):
+    data = db.query(Config_Model).filter(Config_Model.config_id == config_id).all()
     return data
 
 
