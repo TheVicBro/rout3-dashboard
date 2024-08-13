@@ -1,5 +1,4 @@
 from typing import Annotated
-import os
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Header, Depends, HTTPException, status
 

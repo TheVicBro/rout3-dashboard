@@ -1,20 +1,21 @@
 <script lang="ts">
   import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
   import { Router, Route, navigate } from 'svelte-routing';
-  import Sidebar from './components/Sidebar.svelte';
-  import Secrets from './components/Secrets.svelte';
-  import Analytics from './components/Analytics.svelte';
-  import Billing from './components/Billing.svelte';
-  import Settings from './components/Settings.svelte';
-  import Account from './components/Account.svelte';
-  import Login from './components/Login.svelte';
-  import Configuration from './components/Configuration.svelte';
-  import MyAPI from './components/MyAPI.svelte';
-  import { isAuthenticated } from './stores/auth';
   import { onMount } from 'svelte';
+  import { isAuthenticated } from './stores/auth';
+  import Sidebar from './components/Sidebar.svelte';
+  import Secrets from './pages/Secrets.svelte';
+  import Analytics from './pages/Analytics.svelte';
+  import Billing from './pages/Billing.svelte';
+  import Settings from './pages/Settings.svelte';
+  import Account from './pages/Account.svelte';
+  import Login from './pages/Login.svelte';
+  import Configuration from './pages/Configuration.svelte';
+  import MyAPI from './pages/MyAPI.svelte';
+
+  const queryClient = new QueryClient()
 
   onMount(() => {
-    // Check if the user is already authenticated on load
     if (localStorage.getItem("authToken")) {
       isAuthenticated.set(true);
     }
@@ -22,10 +23,8 @@
 
   function handleLoginSuccess() {
     isAuthenticated.set(true);
-    navigate('/secrets');
+    navigate('/myapi');
   }
-
-  const queryClient = new QueryClient()
 </script>
 
 <QueryClientProvider client={queryClient}>

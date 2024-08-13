@@ -28,6 +28,11 @@ def get_secrets_by_user_id(db: Session, user_id: int, skip: int = 0, limit: int 
     return data
 
 
+def get_secret_by_id(db: Session, id: int):
+    data = db.query(Secret).filter(Secret.id == id).first()
+    return data
+
+
 def delete_secrets_by_id(db: Session, id: int):
     to_be_deleted = db.get(Secret, id)
 

@@ -1,20 +1,20 @@
 <script lang="ts">
   import { createQuery, useQueryClient } from '@tanstack/svelte-query';
   import { DateTime } from 'luxon';
-  import * as Dialog from "$lib/components/ui/dialog";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Dialog as DialogPrimitive } from "bits-ui";
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
   import { z } from 'zod';
-  import * as Command from "$lib/components/ui/command/index.js";
-  import * as Popover from "$lib/components/ui/popover/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import { cn } from "$lib/utils.js";
-  import Check from "lucide-svelte/icons/check";
-  import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
+  import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
   import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
+  import * as Dialog from "$lib/components/ui/dialog";
+  import * as Command from "$lib/components/ui/command/index.js";
+  import * as Popover from "$lib/components/ui/popover/index.js";
+  import Skeleton from "../components/Skeleton.svelte"
 
   const token = localStorage.getItem("authToken");
   const queryClient = useQueryClient();
@@ -42,6 +42,9 @@
   type NewSecret = z.infer<typeof NewSecretSchema>;
 
   let selectedSecret: SecretOption | null = null;
+  let newName = '';
+  let newKey = '';
+  let open = false;
 
   const addNewKey = async () => {
     const current_date = DateTime.utc();
@@ -68,7 +71,7 @@
         throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
       }
       const undoSecret = SecretSchema.parse(await response.json());
-      queryClient.invalidateQueries({ queryKey: ['secretData'] });
+      await queryClient.invalidateQueries({ queryKey: ['secretData'] });
       toast.success(`${newName} has been added.`, {
         description: `${formatted_date}`,
         action: {
@@ -80,15 +83,7 @@
         }
       })
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast.error("Validation error", {
-          description: error.errors.map(e => e.message).join(", ")
-        });
-      } else {
-        toast.error("An error occurred", {
-          description: error instanceof Error ? error.message : "Unknown error"
-        });
-      }
+      handleError(error);
     }
     newName = '';
     newKey = '';
@@ -114,14 +109,12 @@
         const errorData = await response.json();
         throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
       }
-      queryClient.invalidateQueries({ queryKey: ['secretData'] });
+      await queryClient.invalidateQueries({ queryKey: ['secretData'] });
       toast.success(`${selectedSecret.name} has been removed.`, {
         description: `${formatted_date}`,
       });
     } catch (error) {
-      toast.error("An error occurred", {
-        description: error instanceof Error ? error.message : "Unknown error"
-      });
+      handleError(error);
     }
     selectedSecret = null;
   }
@@ -146,15 +139,23 @@
     queryKey: ['secretData'],
     queryFn: fetchSecrets,
   });
+
+  const handleError = (error: unknown) => {
+    if (error instanceof z.ZodError) {
+      toast.error("Validation error", {
+        description: error.errors.map(e => e.message).join(", ")
+      });
+    } else {
+      toast.error("An error occurred", {
+        description: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  };
  
-  let open = false;
   $: selectedValue = availableModelProviders.find((f) => f === newName) ?? "Select a provider...";
   $: selectedRemoveValue = selectedSecret 
     ? `${selectedSecret.name} (ID: ${selectedSecret.id})` 
     : "Select a key to remove...";
-
-  let newName = '';
-  let newKey = '';
 </script>
 
 <div>
@@ -164,15 +165,15 @@
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
     <div class="p-10">
       {#if $query.isPending}
-        Loading...
-      {/if}
-      {#if $query.error}
-        An error has occurred: {$query.error.message}
-      {/if}
-      {#if $query.isSuccess}
-        {#if $query.data.length === 0}
-          <div class="mb-4 text-red-600">No secrets found. Click "Add key" to add a new key.</div>
-        {/if}
+        <Skeleton />
+      {:else if $query.error}
+        <p class="text-red-600">An error has occurred: {$query.error.message}</p>
+      {:else if $query.data.length === 0}
+        <div class="flex flex-col items-center">
+          <CirclePlus class="w-12 h-12 mb-4 text-gray-400" />
+          <p>No secrets found. Click "Add key" to add a new key.</p>
+        </div>
+      {:else}
         <table class="w-full">
           <thead>
             <tr>
@@ -189,7 +190,8 @@
                 <td class="p-2">
                   {secret.last_used 
                     ? DateTime.fromISO(secret.last_used).toRelative() 
-                    : "Never Used"}</td>
+                    : "Never Used"}
+                </td>
               </tr>
             {/each}
           </tbody>
@@ -200,7 +202,9 @@
 
   <!-- Add Key Button -->
   <Dialog.Root>
-    <Dialog.Trigger class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Add a new key</Dialog.Trigger>
+    <Dialog.Trigger>
+      <Button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Add a new key</Button>
+    </Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Add New Key</Dialog.Title>
@@ -260,7 +264,7 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</button>
+            <Button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
@@ -269,7 +273,9 @@
 
   <!-- Remove Key Button -->
   <Dialog.Root>
-    <Dialog.Trigger class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Remove a key</Dialog.Trigger>
+    <Dialog.Trigger>
+      <Button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Remove a key</Button>
+    </Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Remove Key</Dialog.Title>
@@ -327,7 +333,7 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</button>
+            <Button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
