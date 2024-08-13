@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Security, status
+from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
 
 from app.api.deps import SessionDep, UserDep
@@ -10,10 +10,8 @@ from app.repositories import (
 from app.schemas import (
     Configuration,
     ConfigBase,
-    ConfigBase,
     ConfigModel,
     ConfigModelBase,
-    ConfigModelKey,
 )
 from app.core import security
 
@@ -40,7 +38,7 @@ def create_configuration(config_data: ConfigBase, db: SessionDep, user: UserDep)
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
             detail="Failed to create configuration record",
-        )
+        ) from e
 
 
 @router.post("/edit", response_model=ConfigBase)
@@ -61,7 +59,7 @@ def edit_configuration(config_update_data: ConfigBase, db: SessionDep, user: Use
         raise HTTPException(
             status_code=status.HTTP_417_EXPECTATION_FAILED,
             detail="Failed to reset configuration record",
-        )
+        ) from e
 
 
 @router.patch("/reset", response_model=ConfigBase)
@@ -81,7 +79,7 @@ def reset_configuration(db: SessionDep, user: UserDep):
         raise HTTPException(
             status_code=status.HTTP_417_EXPECTATION_FAILED,
             detail="Failed to reset configuration record",
-        )
+        ) from e
 
 
 @router.get("/", response_model=Configuration)
@@ -96,10 +94,10 @@ def get_configuration(db: SessionDep, user: UserDep):
         raise HTTPException(
             status_code=status.HTTP_417_EXPECTATION_FAILED,
             detail="Failed to get current user's configuration record",
-        )
+        ) from e
 
 
-"""Configuration Models"""
+# Configuration Model
 
 
 @router.post("/model", response_model=ConfigModel)
@@ -113,11 +111,11 @@ def create_configuration_model(
     try:
         secret = secrets_repo.get_secret_by_id(db, secret_id)
         config = configurations_repo.get_configuration_by_user_id(db, user.id)
-        config_model = configuration_models_repo.create_config_models(
+        config_model = configuration_models_repo.create_config_model(
             db=db,
             config_id=config.id,
             secret_key=secret.key,
-            models=config_model_data.models,
+            model=config_model_data.model,
             max_tokens=config_model_data.max_tokens,
             temperature=config_model_data.temperature,
         )
@@ -126,7 +124,7 @@ def create_configuration_model(
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
             detail="Failed to create configuration model record",
-        )
+        ) from e
 
 
 @router.post("/model/edit", response_model=ConfigModelBase)
@@ -137,13 +135,13 @@ def edit_configuration_model(
 ):
     """
     Edit existing configurations.
-    Can only edit models, max tokens, and temperature parameters.
+    Can only edit model, max tokens, and temperature parameters.
     """
     try:
-        config_model_updated = configuration_models_repo.update_config_models(
+        config_model_updated = configuration_models_repo.update_config_model(
             db=db,
             config_model_id=config_model_id,
-            models=config_model_data.models,
+            model=config_model_data.model,
             max_tokens=config_model_data.max_tokens,
             temperature=config_model_data.temperature,
         )
@@ -152,7 +150,7 @@ def edit_configuration_model(
         raise HTTPException(
             status_code=status.HTTP_417_EXPECTATION_FAILED,
             detail="Failed to reset configuration model record",
-        )
+        ) from e
 
 
 @router.patch("/model/reset", response_model=ConfigModelBase)
@@ -164,10 +162,10 @@ def reset_configuration_model(
     Reset configuration model to default values
     """
     try:
-        config_model_updated = configuration_models_repo.update_config_models(
+        config_model_updated = configuration_models_repo.update_config_model(
             db=db,
             config_model_id=config_model_id,
-            models=None,
+            model=None,
             max_tokens=512,
             temperature=0.75,
         )
@@ -176,57 +174,57 @@ def reset_configuration_model(
         raise HTTPException(
             status_code=status.HTTP_417_EXPECTATION_FAILED,
             detail="Failed to reset configuration model record",
-        )
+        ) from e
 
 
 @router.get("/model/", response_model=ConfigModel)
 def get_configuration_model_by_id(
     db: SessionDep,
-    config_models_id: int,
+    config_model_id: int,
 ):
     """
     Get configuration model setup by id
     """
     try:
-        config_model = configuration_models_repo.get_configuration_models_by_id(
-            db, config_models_id=config_models_id
+        config_model = configuration_models_repo.get_configuration_model_by_id(
+            db, config_model_id=config_model_id
         )
         return config_model
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_417_EXPECTATION_FAILED,
             detail="Failed to get a configuration model record",
-        )
+        ) from e
 
 
 @router.get("/model/{config_id}/", response_model=list[ConfigModel])
-def get_configuratio_model_by_config_id(
+def get_configuration_model_by_config_id(
     config_id: int,
     db: SessionDep,
 ):
     """
-    Get all configuration models from the current user's configuration
+    Get all configuration model from the current user's configuration
     """
     try:
-        config_model = configuration_models_repo.get_configuration_models_by_config_id(
+        config_model = configuration_models_repo.get_configuration_model_by_config_id(
             db, config_id=config_id
         )
         return config_model
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_417_EXPECTATION_FAILED,
-            detail="Failed to get all configuration models",
-        )
+            detail="Failed to get all configuration model",
+        ) from e
 
 
 @router.get("/key/{config_id}")
-def get_configuration_by_id(db: SessionDep, config_models_id: int):
+def get_configuration_by_id(db: SessionDep, config_model_id: int):
     """
     Get model secret key and decrypt it
     """
     try:
-        config_model = configuration_models_repo.get_configuration_models_by_id(
-            db, config_models_id=config_models_id
+        config_model = configuration_models_repo.get_configuration_model_by_id(
+            db, config_model_id=config_model_id
         )
         key = security.fernet_decrypt_data(config_model.secret_key)
         return key
@@ -234,27 +232,27 @@ def get_configuration_by_id(db: SessionDep, config_models_id: int):
         raise HTTPException(
             status_code=status.HTTP_417_EXPECTATION_FAILED,
             detail="Failed to get a secret key",
-        )
+        ) from e
 
 
 @router.delete("/model/{config_model_id}")
-def remove_config_model_record(config_models_id: int, db: SessionDep):
+def remove_config_model_record(config_model_id: int, db: SessionDep):
     """
     Delete a configuration model record
     """
     try:
         config_model = configuration_models_repo.delete_config_model(
-            db, config_models_id=config_models_id
+            db, config_model_id
         )
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
                 "message": "Configuration Model successfully deleted",
-                "model": config_model.models,
+                "model": config_model,
             },
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_417_EXPECTATION_FAILED,
             detail="Failed to delete configuration model",
-        )
+        ) from e

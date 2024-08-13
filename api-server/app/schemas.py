@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Dict
+from typing import List, Dict, Literal
 
 from pydantic import BaseModel, EmailStr
 
@@ -93,7 +93,7 @@ class RouteRequest(BaseModel):
 
 class ConfigBase(BaseModel):
     timeout: int
-    route_type: str
+    route_type: Literal["cost"]
 
 
 class Configuration(ConfigBase):
@@ -109,7 +109,7 @@ class Configuration(ConfigBase):
 
 
 class ConfigModelBase(BaseModel):
-    models: str
+    model: str
     max_tokens: int
     temperature: float
 

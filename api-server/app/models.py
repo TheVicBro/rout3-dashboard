@@ -53,20 +53,18 @@ class Config(Base):
         ForeignKey("users.id"),
         unique=True,  # allow only one record per user to exist in the database
     )
-    # max_retries = Column(Integer, nullable=True)
-
     user = relationship("User", back_populates="configuration")
-    config_models = relationship("Config_Models", back_populates="configuration")
+    config_model = relationship("Config_Model", back_populates="configuration")
 
 
-class Config_Models(Base):
-    __tablename__ = "config_models"
+class Config_Model(Base):
+    __tablename__ = "config_model"
 
     id = Column(Integer, primary_key=True)
     config_id = Column(Integer, ForeignKey("configuration.id"))
     secret_key = Column(String, ForeignKey("secrets.key"))
-    models = Column(String)  # enums
+    model = Column(String)
     max_tokens = Column(Integer, nullable=False, default=512)
     temperature = Column(Float, nullable=False, default=0.75)
 
-    configuration = relationship("Config", back_populates="config_models")
+    configuration = relationship("Config", back_populates="config_model")
