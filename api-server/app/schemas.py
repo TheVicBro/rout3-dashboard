@@ -86,17 +86,38 @@ class User(UserBase):
 
 class RouteRequest(BaseModel):
     chat_history: List[Dict[str, str]]
+
+
+# Configuration Schemas
+
+
+class ConfigBase(BaseModel):
+    timeout: int
+    route_type: Literal["cost"]
+
+
+class Configuration(ConfigBase):
+    id: int
     router_name: str
-
-
-class CompletionResponse(BaseModel):
-    model: str
-    prompt: str
-    response: str
-    chat_history: List[Dict[str, str]]
-    prompt_cost: float
-    response_cost: float
-    prompt_tokens: int
-    response_tokens: int
-    date_time: datetime
     user_id: int
+
+    class Config:
+        orm_mode = True
+
+
+# Configuration Model Schemas
+
+
+class ConfigModelBase(BaseModel):
+    model: str
+    max_tokens: int
+    temperature: float
+
+
+class ConfigModel(ConfigModelBase):
+    id: int
+    config_id: int
+
+
+class ConfigModelKey(ConfigModelBase):
+    key: str
