@@ -167,7 +167,7 @@
           </Button>
         </div>
         <div class="text-center mt-8">
-          <Button type="button" class="cursor-pointer text-blue-500 bg-white hover:bg-white hover:underline" on:click={registerLoginSwitch}>Already have an account? Login here</Button>
+          <Button type="button" class="cursor-pointer text-blue-500 bg-white dark:bg-slate-900 hover:bg-white hover:underline" on:click={registerLoginSwitch}>Already have an account? Login here</Button>
         </div>
       {:else}
         <div class="mb-4">
@@ -195,7 +195,7 @@
           </Button>
         </div>
         <div class="text-center mt-8">
-          <Button type="button" class="cursor-pointer text-blue-500 bg-white hover:bg-white hover:underline" on:click={registerLoginSwitch}>Don't have an account? Register here</Button>
+          <Button type="button" class="cursor-pointer text-blue-500 bg-white dark:bg-slate-900 hover:bg-white hover:underline" on:click={registerLoginSwitch}>Don't have an account? Register here</Button>
         </div>
       {/if}
       {#if errors.form}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-4">{errors.form}</p>{/if}
