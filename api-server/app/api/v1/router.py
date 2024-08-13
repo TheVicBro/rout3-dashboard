@@ -2,10 +2,13 @@ from typing import Annotated
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Header, Depends, HTTPException, status
 
-# from models.schemas.schemas import CompletionResponse, RouteRequest
 from app.repositories.myapi_repo import get_user_id_by_myapi
 
 # from app.repositories.usages_repo import create_usage_entry
+from app.repositories.configurations_repo import get_configuration_by_user_id
+from app.repositories.configuration_models_repo import (
+    get_configuration_model_by_config_id,
+)
 from app.api.deps import get_db
 from app.services import myapi, router as litellm_router
 from app.schemas import RouteRequest, CompletionResponse
@@ -86,7 +89,7 @@ async def chat_completion(
                 user_settings, data, user_id
             )
             # Store data to analytics table
-            create_usage_entry(db=db, usage=completion_response)
+            # create_usage_entry(db=db, usage=completion_response)
             return completion_response
         except APITimeoutError as e:
             raise HTTPException(
@@ -115,7 +118,7 @@ def get_user_settings(db: Session, user_id: int):
     # Query DB for the config entry based on user_id AND GRAB the config_id, route_type, time_out and router_name
     configuration = get_configuration_by_user_id(db, user_id)
     # Query DB for the models associated with the config entry based on its id AND GRAB models, secret_key, max_tokens and temperature
-    model_configuration = get_configuration_models_by_config_id(
+    model_configuration = get_configuration_model_by_config_id(
         db, config_id=configuration.id
     )
     # set up the settings into the format that LiteLLM needs:
@@ -126,9 +129,9 @@ def get_user_settings(db: Session, user_id: int):
             {
                 "model_name": configuration.router_name,
                 "litellm_params": {
-                    "model": model_entry.models,
+                    "model": model_entry.model,
                     "api_key": model_entry.secret_key,
-                    "timeout": configuration.time_out,
+                    "timeout": configuration.timeout,
                     "max_tokens": model_entry.max_tokens,
                     "temperature": model_entry.temperature,
                 },
