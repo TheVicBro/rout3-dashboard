@@ -13,9 +13,7 @@ def create_myapi(db: Session, myapi_key: str, user_id: int, name: str):
 
 
 def get_myapi(db: Session, key: str):
-    print(f'''API KEY: \n\n'{key}'\n\n''')
     myapi_key = db.query(Myapi).filter(Myapi.key == key).first()
-    print(f'''RETURNED KEY: \n\n'{myapi_key}'\n\n''')
     return myapi_key
 
 

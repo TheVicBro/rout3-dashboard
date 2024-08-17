@@ -1,6 +1,6 @@
 import secrets
 
-from fastapi import HTTPException, Security, status
+from fastapi import Security
 from fastapi.security import APIKeyHeader
 from sqlalchemy.orm import Session
 
@@ -16,15 +16,11 @@ def generate_api_key():
 
 # Security used instead of Depends(), for context and openapi docs? Maybe more?
 def get_api_key_from_header(api_key_header: str = Security(api_key_header)):
-   return api_key_header
+    return api_key_header
 
 
 def verify_api_key(db: Session, api_key_string):
     api_key = myapi_repo.get_myapi(db, api_key_string)
     if api_key is None:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials",
-        )
-
-    return api_key
+        return False
+    return True

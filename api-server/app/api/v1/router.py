@@ -1,90 +1,102 @@
-from typing import List, Dict, Annotated
-import os
+from typing import Annotated
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Header, Depends, HTTPException, status
-# from models.schemas.schemas import CompletionResponse, RouteRequest
+
 from app.repositories.myapi_repo import get_user_id_by_myapi
+from app.core.security import fernet_decrypt_data, hash_api_key
+
+# from app.repositories.usages_repo import create_usage_entry
+from app.repositories.configurations_repo import get_configuration_by_user_id
+from app.repositories.configuration_models_repo import (
+    get_configuration_model_by_config_id,
+)
 from app.api.deps import get_db
 from app.services import myapi, router as litellm_router
-from app.schemas import RouteRequest
+from app.schemas import RouteRequest, CompletionResponse
+from openai import (
+    APIConnectionError,
+    UnprocessableEntityError,
+    APIStatusError,
+    APITimeoutError,
+)
 
 router = APIRouter()
 
-@router.post('/completion')  # response_model=CompletionResponse)
-def chat_completion(
-    data: RouteRequest, 
-    myapi_key: str = Header(None), db: Session = Depends(get_db)):
+
+@router.post("/completion")
+async def chat_completion(
+    data: RouteRequest,
+    myapi_key: Annotated[str | None, Header()] = None,
+    db: Session = Depends(get_db),
+) -> CompletionResponse:
     # grab the API key from the auth header of the request
-    # if authorization is None:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_403_FORBIDDEN, 
-    #         detail="API key not provided. Can not access router."
-    #     )
-    # else:
-    api_key = myapi_key
-    # verify API key -> will need to wait on the merge
-    verified = myapi.verify_api_key(db=db, api_key_string=api_key)
-    if verified:
-        # make GET request to the endpoint 'api/v1/configuration' and grab the user settings
-        # and to make that call, we'd need to query by user_id. How would we grab the user_id?
-        # We could just grab the id based on the Rout3 API Key passed in
+    if myapi_key is None:
+        raise HTTPException(
+            detail="API key not provided. Can not access router.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
 
-        # 1) FETCH user_id USING API KEY -> GET 'api/v1/myapi/userid'
-        user_id = get_user_id_by_myapi(db=db, myapi_key=api_key)
-        # 2) get user_settings using user_id -> from config
-        user_settings = [
-            {
-                "model_name": "router",  # model alias for routing/load balancing
-                "litellm_params": {
-                    "model": "command",
-                    "api_key": os.getenv("COHERE_API_KEY"),
-                    "timeout": 1,
-                    "max_tokens": 200
-                }
-            },
-            {
-                "model_name": "router",
-                "litellm_params": {
-                    "model": "command-nightly",
-                    "api_key": os.getenv("COHERE_API_KEY"),
-                    "timeout": 1,
-                    "max_tokens": 200
-                }
-            },
-            {
-                "model_name": "router", 
-                "litellm_params": { 
-                    "model": "command-r", 
-                    "api_key": os.getenv("COHERE_API_KEY"),
-                    "timeout": 1,
-                    "max_tokens": 200
-                }
-            },
-            {
-                "model_name": "router",
-                "litellm_params": {
-                    "model": "command-r-plus",
-                    "api_key": os.getenv("COHERE_API_KEY"),
-                    "timeout": 1,
-                    "max_tokens": 200
-                }
-            }
-        ]
-        analytics_data = litellm_router.get_completion(user_settings, data, user_id)
-        print(analytics_data)
-        # make any API calls to grab data like: user_id, 
-        
-        # make a POST request to 'api/v1/analytics/record' to send the data in 'body' and pass in the API key into the header for auth
-        
-        # if data was successfully sent to 'record' endpoint
-            # return the CompletionResponse
+    myapi_key = hash_api_key(myapi_key)
+    # verify API key
+    verified_rout3_key = myapi.verify_api_key(
+        db=db, api_key_string=myapi_key
+    )
 
-        # if request to 'record' endpoint errored out
-            # raise the error
+    if verified_rout3_key:
+        # We grab the user id based on the Rout3 API Key passed in and then grab the user_settings
+        user_id = get_user_id_by_myapi(db=db, myapi_key=myapi_key)
+        user_settings = get_user_settings(db, user_id)
+        try:
+            completion_response = await litellm_router.get_completion(
+                user_settings, data, user_id
+            )
+            # Store data to analytics table
+            # create_usage_entry(db=db, usage=completion_response)
+            return completion_response
+        except APITimeoutError as e:
+            raise HTTPException(
+                detail=e.message, status_code=status.HTTP_504_GATEWAY_TIMEOUT
+            ) from e
+
+        except APIConnectionError as e:
+            raise HTTPException(
+                detail=e.message, status_code=status.HTTP_503_SERVICE_UNAVAILABLE
+            ) from e
+
+        except UnprocessableEntityError as e:
+            raise HTTPException(detail=e.message, status_code=e.status_code) from e
+
+        except APIStatusError as e:
+            raise HTTPException(detail=e.message, status_code=e.status_code) from e
+
     else:
-        # raise invalid API key exception with error code 401 and message "Invalid API key. Ensure the correct API key and requesting 
-        # organization are being used."
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key. Ensure the correct API key and requesting organization are being used.", 
+            detail="Could not validate credentials",
         )
+
+
+def get_user_settings(db: Session, user_id: int):
+    # Query DB for the config entry based on user_id AND GRAB the config_id, route_type, time_out and router_name
+    configuration = get_configuration_by_user_id(db, user_id)
+    # Query DB for the models associated with the config entry based on its id AND GRAB models, secret_key, max_tokens and temperature
+    model_configuration = get_configuration_model_by_config_id(
+        db, config_id=configuration.id
+    )
+    # set up the settings into the format that LiteLLM needs:
+
+    user_settings = []
+    for model_entry in model_configuration:
+        user_settings.append(
+            {
+                "model_name": configuration.router_name,
+                "litellm_params": {
+                    "model": model_entry.model,
+                    "api_key": fernet_decrypt_data(model_entry.secret_key),
+                    "timeout": configuration.timeout,
+                    "max_tokens": model_entry.max_tokens,
+                    "temperature": model_entry.temperature,
+                },
+            }
+        )
+    return user_settings
