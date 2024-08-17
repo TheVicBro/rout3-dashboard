@@ -1,21 +1,26 @@
 <script lang="ts">
   import { Link, useLocation } from 'svelte-routing';
-  import logo from '/llmproxyTransparent.png';
   import { isAuthenticated } from '../stores/auth';
-  import LogOutLogo from '../../public/log-out.svelte';
-  import SettingsLogo from '../../public/settings.svelte';
-  import AccountLogo from '../../public/account.svelte';
-  import SecretsLogo from '../../public/secrets.svelte';
-  import AnalyticsLogo from '../../public/analytics.svelte';
-  import BillingLogo from '../../public/billing.svelte';
-  import MyAILogo from '../../public/myai.svelte';
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { Bot, FileSliders, KeyRound, BarChart3, Wallet, UserRound, Settings, LogOut } from 'lucide-svelte';
+  import Logo from './Logo.svelte';
 
-  
-  // Get the current location
   const location = useLocation();
-
-  // Reactive statement to track the current path
   $: currentPath = $location.pathname;
+
+  const topMenuItems = [
+    { path: '/myapi', label: 'MyAPI', icon: Bot },
+    { path: '/configuration', label: 'Configuration', icon: FileSliders },
+    { path: '/secrets', label: 'Secrets', icon: KeyRound },
+    { path: '/analytics', label: 'Analytics', icon: BarChart3 },
+    { path: '/billing', label: 'Billing', icon: Wallet },
+  ];
+
+  const bottomMenuItems = [
+    { path: '/account', label: 'Account', icon: UserRound },
+    { path: '/settings', label: 'Settings', icon: Settings },
+    { path: '/login', label: 'Logout', icon: LogOut, onClick: logout },
+  ];
 
   function logout() {
     localStorage.clear();
@@ -23,102 +28,42 @@
   }
 </script>
 
-<div class="w-64 bg-white p-4 flex flex-col items-start border-r-2">
+<div class="w-64 bg-white dark:bg-slate-900 p-4 flex flex-col items-start border-r-2 dark:border-black">
   <div class="w-full flex justify-center mb-6">
-    <img src={logo} alt="Logo" class="w-28 h-28" />
+    <Logo className="w-28 h-28"/>
   </div>
-  <div class="font-semibold p-4 text-gray-400">MENU</div>
+  <div class="font-semibold p-4 text-gray-400 dark:text-slate-400">MENU</div>
   <div class="flex flex-col justify-between space-y-2 w-full h-full">
     <div>
-      <Link to="/myapi" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/myapi' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <MyAILogo />
-          <span class="font-semibold">MyAPI</span>
-        </button>
-      </Link>
-      <Link to="/configuration" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/configuration' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <MyAILogo />
-          <span class="font-semibold">Configuration</span>
-        </button>
-      </Link>
-      <Link to="/secrets" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/secrets' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <SecretsLogo />
-          <span class="font-semibold">Secrets</span>
-        </button>
-      </Link>
-      <Link to="/analytics" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/analytics' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <AnalyticsLogo />
-          <span class="font-semibold">Analytics</span>
-        </button>
-      </Link>
-      <Link to="/billing" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/billing' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <BillingLogo />
-          <span class="font-semibold">Billing</span>
-        </button>
-      </Link>
+      {#each topMenuItems as { path, label, icon }}
+        <Link to={path} class="w-full">
+          <Button
+            class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900 ${
+              currentPath === path ? 'bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 hover:dark:bg-blue-800 text-blue-800 dark:text-blue-100' : 'text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white'
+            }`}
+            type="button"
+          >
+            <svelte:component this={icon} />
+            <span class="font-semibold">{label}</span>
+          </Button>
+        </Link>
+      {/each}
     </div>
-    <div class="pb-8 pt-8 border-t-2">
-      <Link to="/account" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/account' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <AccountLogo />
-          <span class="font-semibold">Account</span>
-        </button>
-      </Link>
-      <Link to="/settings" class="w-full">
-        <button
-          class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition ${
-            currentPath === '/settings' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-          }`}
-          type="button"
-        >
-          <SettingsLogo />
-          <span class="font-semibold">Settings</span>
-        </button>
-      </Link>
-      <Link to="/login" class="w-full">
-        <button
-          class="menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition text-gray-500 hover:bg-gray-200 hover:text-gray-700"
-          type="button"
-          on:click={logout}
-        >
-          <LogOutLogo />
-          <span class="font-semibold">Logout</span>
-        </button>
-      </Link>
+    <div class="pb-8 pt-8 border-t-2 dark:border-black">
+      {#each bottomMenuItems as { path, label, icon, onClick }}
+        <Link to={path} class="w-full">
+          <Button
+            class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900 ${
+              currentPath === path ? 'bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 hover:dark:bg-blue-800 text-blue-800 dark:text-blue-100' : 'text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white'
+            }`}
+            type="button"
+            on:click={onClick}
+          >
+            <svelte:component this={icon} />
+            <span class="font-semibold">{label}</span>
+          </Button>
+        </Link>
+      {/each}
     </div>
   </div>
 </div>

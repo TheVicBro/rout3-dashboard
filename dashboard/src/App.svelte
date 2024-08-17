@@ -1,20 +1,28 @@
 <script lang="ts">
   import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
   import { Router, Route, navigate } from 'svelte-routing';
-  import Sidebar from './components/Sidebar.svelte';
-  import Secrets from './components/Secrets.svelte';
-  import Analytics from './components/Analytics.svelte';
-  import Billing from './components/Billing.svelte';
-  import Settings from './components/Settings.svelte';
-  import Account from './components/Account.svelte';
-  import Login from './components/Login.svelte';
-  import Configuration from './components/Configuration.svelte';
-  import MyAPI from './components/MyAPI.svelte';
-  import { isAuthenticated } from './stores/auth';
   import { onMount } from 'svelte';
+  import { isAuthenticated } from './stores/auth';
+  import { ModeWatcher } from "mode-watcher";
+  import Layout from './components/Layout.svelte';
+  import Secrets from './pages/Secrets.svelte';
+  import Analytics from './pages/Analytics.svelte';
+  import Billing from './pages/Billing.svelte';
+  import Settings from './pages/Settings.svelte';
+  import Account from './pages/Account.svelte';
+  import Login from './pages/Login.svelte';
+  import Configuration from './pages/Configuration.svelte';
+  import MyAPI from './pages/MyAPI.svelte';
+
+  import Sun from "lucide-svelte/icons/sun";
+  import Moon from "lucide-svelte/icons/moon";
+ 
+  import { toggleMode } from "mode-watcher";
+  import { Button } from "$lib/components/ui/button/index.js";
+
+  const queryClient = new QueryClient()
 
   onMount(() => {
-    // Check if the user is already authenticated on load
     if (localStorage.getItem("authToken")) {
       isAuthenticated.set(true);
     }
@@ -22,32 +30,34 @@
 
   function handleLoginSuccess() {
     isAuthenticated.set(true);
-    navigate('/secrets');
+    navigate('/myapi');
   }
-
-  const queryClient = new QueryClient()
 </script>
 
 <QueryClientProvider client={queryClient}>
+  <ModeWatcher />
+  <div class="absolute top-6 right-10">
+    <Button on:click={toggleMode} variant="outline" size="icon">
+      <Sun class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"/>
+      <Moon class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+    </Button>
+  </div>
   {#if $isAuthenticated}
     <Router>
-      <div class="flex h-screen bg-slate-100">
-        <Sidebar />
-        <div class="flex-1 flex flex-col overflow-hidden">
-          <Route path="/myapi" component={MyAPI} />
-          <Route path="/configuration" component={Configuration} />
-          <Route path="/secrets" component={Secrets} />
-          <Route path="/analytics" component={Analytics} />
-          <Route path="/billing" component={Billing} />
-          <Route path="/account" component={Account} />
-          <Route path="/settings" component={Settings} />
-          <Route path="/" component={Secrets} />
-        </div>
-      </div>
+      <Layout>
+        <Route path="/myapi" component={MyAPI} />
+        <Route path="/configuration" component={Configuration} />
+        <Route path="/secrets" component={Secrets} />
+        <Route path="/analytics" component={Analytics} />
+        <Route path="/billing" component={Billing} />
+        <Route path="/account" component={Account} />
+        <Route path="/settings" component={Settings} />
+        <Route path="/" component={Secrets} />
+      </Layout>
     </Router>
   {:else}
-    <div class="min-h-screen flex items-center justify-center bg-slate-100">
-      <div class="w-full max-w-md px-6 py-8">
+    <div class="h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+      <div class="w-full px-6 py-8">
         <Login on:loginSuccess={handleLoginSuccess} />
       </div>
     </div>
