@@ -32,9 +32,9 @@
 </script>
 
 <div class="flex flex-col min-h-screen">
-  <h1 class="p-8 pl-20 text-3xl font-bold bg-white border-b-2">Billing</h1>
-  <div class="m-10 border rounded-lg bg-white shadow flex-1 overflow-hidden">
-    <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
+  <h1 class="p-8 pl-20 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">Billing</h1>
+  <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow flex-1 overflow-hidden">
+    <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
     <div class="p-4 pt-8 flex-1 flex justify-center items-center">
       <div class="relative w-full max-w-4xl" style="height: calc(50vh - 100px);"> 
           <canvas bind:this={chartCanvas} id="myChart" class="absolute top-0 left-0 w-full h-full"></canvas>

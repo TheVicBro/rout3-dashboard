@@ -51,10 +51,10 @@
 
 <div class="flex flex-col h-screen">
   <Toaster />
-  <h1 class="p-8 pl-20 text-3xl font-bold bg-white border-b-2">Configuration</h1>
+  <h1 class="p-8 pl-20 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">Configuration</h1>
   <div class="flex-1 overflow-auto">
-    <div class="m-10 border rounded-lg bg-white shadow">
-      <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2">Overview</h2>
+    <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
+      <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
       <div class="p-20 px-64">
         <h3 class="text-xl font-semibold mb-2">Select a Model Provider</h3>
         <Popover.Root bind:open let:ids>

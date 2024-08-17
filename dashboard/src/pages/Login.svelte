@@ -4,7 +4,7 @@
   import { Input } from "$lib/components/ui/input";
   import { Button } from "$lib/components/ui/button";
   import { UserRound, Mail, Lock } from 'lucide-svelte';
-  import Logo from '/llmproxyTransparent.png';
+  import Logo from "../components/Logo.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -118,11 +118,11 @@
   }
 </script>
 
-<div class="flex items-center justify-center bg-gray-100">
-  <div class="flex bg-white rounded-lg shadow-lg w-full max-w-4xl">
+<div class="flex items-center justify-center bg-gray-100 dark:bg-slate-800">
+  <div class="flex bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-4xl">
     <div class="flex flex-col p-12 pt-8 w-1/2 justify-center">
       <div class="flex justify-center mb-4">
-        <img src={Logo} alt="Logo" class="w-2/5 object-cover object-center rounded-r-lg" />
+        <Logo className="w-2/5 object-cover object-center rounded-r-lg text-black dark:text-white"/>
       </div>
       <h1 class="text-3xl font-bold mb-8 text-center">{showRegister ? 'Register' : 'Login'}</h1>
       {#if showRegister}
@@ -167,7 +167,7 @@
           </Button>
         </div>
         <div class="text-center mt-8">
-          <Button type="button" class="cursor-pointer text-blue-500 bg-white hover:bg-white hover:underline" on:click={registerLoginSwitch}>Already have an account? Login here</Button>
+          <Button type="button" class="cursor-pointer text-blue-500 bg-white dark:bg-slate-900 hover:bg-white hover:underline" on:click={registerLoginSwitch}>Already have an account? Login here</Button>
         </div>
       {:else}
         <div class="mb-4">
@@ -195,7 +195,7 @@
           </Button>
         </div>
         <div class="text-center mt-8">
-          <Button type="button" class="cursor-pointer text-blue-500 bg-white hover:bg-white hover:underline" on:click={registerLoginSwitch}>Don't have an account? Register here</Button>
+          <Button type="button" class="cursor-pointer text-blue-500 bg-white dark:bg-slate-900 hover:bg-white hover:underline" on:click={registerLoginSwitch}>Don't have an account? Register here</Button>
         </div>
       {/if}
       {#if errors.form}<p class="text-center text-red-600 bg-red-200 rounded-lg py-1 text-sm mt-4">{errors.form}</p>{/if}
