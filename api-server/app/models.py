@@ -1,4 +1,13 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Float
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Float,
+    JSON,
+)
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -39,6 +48,7 @@ class User(Base):
     secrets = relationship("Secret", back_populates="user")
     myapi = relationship("Myapi", back_populates="user")
     configuration = relationship("Config", back_populates="user")
+    usages = relationship("Usage", back_populates="user")
 
 
 class Config(Base):
@@ -68,3 +78,21 @@ class Config_Model(Base):
     temperature = Column(Float, nullable=False, default=0.75)
 
     configuration = relationship("Config", back_populates="config_model")
+
+
+class Usage(Base):
+    __tablename__ = "usages"
+
+    id = Column(Integer, primary_key=True)
+    model = Column(String, nullable=False)
+    chat_history = Column(JSON, nullable=False)
+    prompt = Column(String, nullable=False)
+    response = Column(String, nullable=False)
+    prompt_cost = Column(Float, nullable=False)
+    response_cost = Column(Float, nullable=False)
+    prompt_tokens = Column(Integer, nullable=False)
+    response_tokens = Column(Integer, nullable=False)
+    date_time = Column(DateTime, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    user = relationship("User", back_populates="usages")
