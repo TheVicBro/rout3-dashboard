@@ -84,10 +84,6 @@ def get_user_settings(db: Session, user_id: int):
 
     user_settings = []
     for model_entry in model_configuration:
-        print(
-            "------------------------------------------------------------------------"
-        )
-        print(fernet_decrypt_data(model_entry.secret_key))
         user_settings.append(
             {
                 "model_name": configuration.router_name,
