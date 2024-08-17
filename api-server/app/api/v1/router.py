@@ -5,14 +5,14 @@ from fastapi import APIRouter, Header, Depends, HTTPException, status
 from app.repositories.myapi_repo import get_user_id_by_myapi
 from app.core.security import fernet_decrypt_data, hash_api_key
 
-# from app.repositories.usages_repo import create_usage_entry
+from app.repositories.usage_repo import create_usage_entry
 from app.repositories.configurations_repo import get_configuration_by_user_id
 from app.repositories.configuration_models_repo import (
     get_configuration_model_by_config_id,
 )
 from app.api.deps import get_db
 from app.services import myapi, router as litellm_router
-from app.schemas import RouteRequest, CompletionResponse
+from app.schemas import RouteRequest, UsageBase
 from openai import (
     APIConnectionError,
     UnprocessableEntityError,
@@ -28,7 +28,7 @@ async def chat_completion(
     data: RouteRequest,
     myapi_key: Annotated[str | None, Header()] = None,
     db: Session = Depends(get_db),
-) -> CompletionResponse:
+) -> UsageBase:
     # grab the API key from the auth header of the request
     if myapi_key is None:
         raise HTTPException(
@@ -38,9 +38,7 @@ async def chat_completion(
 
     myapi_key = hash_api_key(myapi_key)
     # verify API key
-    verified_rout3_key = myapi.verify_api_key(
-        db=db, api_key_string=myapi_key
-    )
+    verified_rout3_key = myapi.verify_api_key(db=db, api_key_string=myapi_key)
 
     if verified_rout3_key:
         # We grab the user id based on the Rout3 API Key passed in and then grab the user_settings
@@ -51,8 +49,8 @@ async def chat_completion(
                 user_settings, data, user_id
             )
             # Store data to analytics table
-            # create_usage_entry(db=db, usage=completion_response)
-            return completion_response
+            db_response = create_usage_entry(db=db, usage=completion_response)
+            return db_response
         except APITimeoutError as e:
             raise HTTPException(
                 detail=e.message, status_code=status.HTTP_504_GATEWAY_TIMEOUT
@@ -91,7 +89,7 @@ def get_user_settings(db: Session, user_id: int):
             {
                 "model_name": configuration.router_name,
                 "litellm_params": {
-                    "model": model_entry.model,
+                    "model": "command-r",
                     "api_key": fernet_decrypt_data(model_entry.secret_key),
                     "timeout": configuration.timeout,
                     "max_tokens": model_entry.max_tokens,

@@ -1,13 +1,12 @@
-from typing import Coroutine, List, Dict, Any
-import asyncio
+from typing import List, Dict, Any
 from datetime import datetime
 from litellm import Router, cost_per_token, ModelResponse
-from app.schemas import RouteRequest, CompletionResponse
+from app.schemas import RouteRequest, UsageBase
 
 
 async def get_completion(
     user_settings: List[Dict[str, Any]], data: RouteRequest, user_id
-) -> CompletionResponse:
+) -> UsageBase:
 
     llm_router = Router(model_list=user_settings, routing_strategy="cost-based-routing")
     response = await async_route_completion(
@@ -25,7 +24,7 @@ async def async_route_completion(
 
 def process_response(
     response: ModelResponse, data: RouteRequest, user_id: str
-) -> Dict[str, Any]:
+) -> UsageBase:
     model = response.model
     prompt_content = data.chat_history[-1]["content"]
     response_content = response.choices[0].message.content
@@ -39,16 +38,16 @@ def process_response(
     date_time = datetime.now()
     data.chat_history.append({"role": "assistant", "content": response_content})
 
-    body = {
-        "model": response.model,
-        "prompt": prompt_content,
-        "response": response_content,
-        "chat_history": data.chat_history,
-        "prompt_cost": prompt_tokens_cost_usd_dollar,
-        "response_cost": completion_tokens_cost_usd_dollar,
-        "prompt_tokens": prompt_tokens,
-        "response_tokens": response_tokens,
-        "date_time": date_time,
-        "user_id": user_id,
-    }
+    body = UsageBase(
+        model=response.model,
+        prompt=prompt_content,
+        response=response_content,
+        chat_history=data.chat_history,
+        prompt_cost=prompt_tokens_cost_usd_dollar,
+        response_cost=completion_tokens_cost_usd_dollar,
+        prompt_tokens=prompt_tokens,
+        response_tokens=response_tokens,
+        date_time=date_time,
+        user_id=user_id,
+    )
     return body
