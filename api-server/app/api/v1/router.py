@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import APIRouter, Header, Depends, HTTPException, status
 
 from app.repositories.myapi_repo import get_user_id_by_myapi
+from app.core.security import fernet_decrypt_data
 
 # from app.repositories.usages_repo import create_usage_entry
 from app.repositories.configurations_repo import get_configuration_by_user_id
@@ -42,48 +43,6 @@ async def chat_completion(
         # We grab the user id based on the Rout3 API Key passed in and then grab the user_settings
         user_id = get_user_id_by_myapi(db=db, myapi_key=myapi_key)
         user_settings = get_user_settings(db, user_id)
-        # user_settings = [
-        #     {
-        #         "model_name": "router",  # model alias for routing/load balancing
-        #         "litellm_params": {
-        #             "model": "command",
-        #             "api_key": os.getenv("COHERE_API_KEY"),  # PUT SECRET HERE
-        #             "timeout": 1,
-        #             "max_tokens": 200,
-        #             "temperature": 0.98,
-        #         },
-        #     },
-        #     {
-        #         "model_name": "router",
-        #         "litellm_params": {
-        #             "model": "command-nightly",
-        #             "api_key": os.getenv("COHERE_API_KEY"),
-        #             "timeout": 1,
-        #             "max_tokens": 200,
-        #             "temperature": 0.98,
-        #         },
-        #     },
-        #     {
-        #         "model_name": "router",
-        #         "litellm_params": {
-        #             "model": "command-r",
-        #             "api_key": os.getenv("COHERE_API_KEY"),
-        #             "timeout": 1,
-        #             "max_tokens": 200,
-        #             "temperature": 0.98,
-        #         },
-        #     },
-        #     {
-        #         "model_name": "router",
-        #         "litellm_params": {
-        #             "model": "command-r-plus",
-        #             "api_key": os.getenv("COHERE_API_KEY"),
-        #             "timeout": 1,
-        #             "max_tokens": 200,
-        #             "temperature": 0.98,
-        #         },
-        #     },
-        # ]
         try:
             completion_response = await litellm_router.get_completion(
                 user_settings, data, user_id
@@ -125,12 +84,16 @@ def get_user_settings(db: Session, user_id: int):
 
     user_settings = []
     for model_entry in model_configuration:
+        print(
+            "------------------------------------------------------------------------"
+        )
+        print(fernet_decrypt_data(model_entry.secret_key))
         user_settings.append(
             {
                 "model_name": configuration.router_name,
                 "litellm_params": {
                     "model": model_entry.model,
-                    "api_key": model_entry.secret_key,
+                    "api_key": fernet_decrypt_data(model_entry.secret_key),
                     "timeout": configuration.timeout,
                     "max_tokens": model_entry.max_tokens,
                     "temperature": model_entry.temperature,

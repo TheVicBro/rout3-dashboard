@@ -11,7 +11,7 @@ async def get_completion(
 
     llm_router = Router(model_list=user_settings, routing_strategy="cost-based-routing")
     response = await async_route_completion(
-        llm_router, data.chat_history, data.router_name
+        llm_router, data.chat_history, user_settings[0]["model_name"]
     )
     return process_response(response, data, user_id)
 
