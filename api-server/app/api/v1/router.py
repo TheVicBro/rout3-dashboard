@@ -37,7 +37,9 @@ async def chat_completion(
         )
 
     # verify API key
-    verified_rout3_key = myapi.verify_api_key(db=db, api_key_string=myapi_key)
+    verified_rout3_key = myapi.verify_api_key(
+        db=db, api_key_string=fernet_decrypt_data(myapi_key)
+    )
 
     if verified_rout3_key:
         # We grab the user id based on the Rout3 API Key passed in and then grab the user_settings
