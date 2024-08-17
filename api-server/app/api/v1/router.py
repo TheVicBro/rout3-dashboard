@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import APIRouter, Header, Depends, HTTPException, status
 
 from app.repositories.myapi_repo import get_user_id_by_myapi
-from app.core.security import fernet_encrypt_data
+from app.core.security import fernet_decrypt_data, hash_api_key
 
 # from app.repositories.usages_repo import create_usage_entry
 from app.repositories.configurations_repo import get_configuration_by_user_id
@@ -36,9 +36,10 @@ async def chat_completion(
             status_code=status.HTTP_403_FORBIDDEN,
         )
 
+    myapi_key = hash_api_key(myapi_key)
     # verify API key
     verified_rout3_key = myapi.verify_api_key(
-        db=db, api_key_string=fernet_encrypt_data(myapi_key)
+        db=db, api_key_string=myapi_key
     )
 
     if verified_rout3_key:

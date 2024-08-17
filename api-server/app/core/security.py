@@ -3,6 +3,7 @@ from typing import Any
 from cryptography.fernet import Fernet, MultiFernet
 
 import jwt
+import hashlib
 from passlib.context import CryptContext
 
 from app.core.config import settings
@@ -38,6 +39,10 @@ def create_access_token(sub: str, expires_delta: timedelta) -> Token:
     )
 
     return Token(access_token=encoded_jwt_token, token_type="Bearer")
+
+
+def hash_api_key(key: str) -> str:
+    return hashlib.sha256(key.encode()).hexdigest()
 
 
 def fernet_encrypt_data(data: str) -> str:
