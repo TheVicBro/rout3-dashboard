@@ -6,8 +6,9 @@
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
   import { Card } from "$lib/components/ui/card/index.js";
-  import { writable } from "svelte/store";
+  import { get, writable } from "svelte/store";
   import { Loader2 } from 'lucide-svelte';
+  import { onMount } from 'svelte';
 
   interface ChatMessage {
     role: "user" | "bot";
@@ -34,10 +35,36 @@
   }
 
   let message = '';
-  let myAPI = '';
   let chatHistory: ChatMessage[] = [];
   let isLoading = false;
+  const myAPI = writable('');
   const messages = writable<DisplayMessage[]>([]);
+
+  onMount(() => {
+    const savedMessages = localStorage.getItem('chatMessages');
+    if (savedMessages) {
+      messages.set(JSON.parse(savedMessages));
+    }
+    
+    const savedChatHistory = localStorage.getItem('chatHistory');
+    if (savedChatHistory) {
+      chatHistory = JSON.parse(savedChatHistory);
+    }
+
+    const savedAPIKey = localStorage.getItem('myAPIKey');
+    if (savedAPIKey) {
+      myAPI.set(savedAPIKey);
+    }
+
+    // Subscribe to changes in messages store and save to localStorage
+    messages.subscribe(value => {
+      localStorage.setItem('chatMessages', JSON.stringify(value));
+    });
+
+    myAPI.subscribe(value => {
+      localStorage.setItem('myAPIKey', value);
+    });
+  });
 
   const sendMessage = async () => {
     if (message.trim() === "") return;
@@ -46,14 +73,18 @@
     // Add user message to chat history
     chatHistory.push({ role: "user", content: message });
     messages.update((msgs) => [...msgs, { sender: "user", text: message }]);
+    const currentAPIKey = get(myAPI); // Get current API key
     message = "";
+
+    // Save updated chat history to localStorage
+    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
 
     try {
       const response = await fetch("http://127.0.0.1:8000/api/v1/router/completion", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "myapi-key": myAPI,
+          "myapi-key": currentAPIKey,
         },
         body: JSON.stringify({
           chat_history: chatHistory
@@ -63,6 +94,14 @@
       const responseText = await response.text();
 
       if (!response.ok) {
+        chatHistory.pop();
+        messages.update((msgs) => msgs.slice(0, -1));
+        if (response.status === 401) {
+          throw new Error("Could not validate MyAPI or Secret key");
+        } else
+        if (response.status === 404) {
+          throw new Error("No model configurations added.");
+        }
         throw new Error(`HTTP error! status: ${response.status}, message: ${responseText}`);
       }
 
@@ -80,15 +119,11 @@
         throw new Error("Unexpected response format");
       }
     } catch (error) {
-      console.error("Error fetching response:", error);
-      let errorMessage = "Something went wrong. Please try again.";
-      if (error instanceof Error) {
-        errorMessage += ` Error details: ${error.message}`;
-      }
-      messages.update((msgs) => [...msgs, { sender: "assistant", text: errorMessage, model: "Error" }]);
+      let errorMessage = error instanceof Error ? error.message : "An error occurred";
       toast.error(errorMessage);
+    } finally {
+      isLoading = false;
     }
-    isLoading = false;
   };
 </script>
 
@@ -100,7 +135,7 @@
       <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
       <div class="h-full p-10 px-20 space-y-8">
         <h3 class="text-2xl text-bold">Test your Rout3 here</h3>
-        <Input type="text" bind:value={myAPI} placeholder="Enter your MyAPI key here..." />
+        <Input type="text" bind:value={$myAPI} placeholder="Enter your MyAPI key here..." />
         <div class="mt-64">
           <Card class="p-4 space-y-4">
             <div class="overflow-y-auto max-h-[400px]">
