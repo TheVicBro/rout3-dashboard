@@ -12,5 +12,5 @@ api_router.include_router(myapi.router, prefix="/myapi", tags=["myapi"])
 api_router.include_router(utils.router, prefix="/utils", tags=["utils"])
 api_router.include_router(router.router, prefix="/router", tags=["router"])
 api_router.include_router(
-    configurations.router, prefix="/config", tags=["coniguration"]
+    configurations.router, prefix="/config", tags=["configuration"]
 )
