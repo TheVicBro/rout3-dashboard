@@ -197,7 +197,7 @@ def get_configuration_model_by_id(
         ) from e
 
 
-@router.get("/model/{config_id}/", response_model=list[ConfigModel])
+@router.get("/model/{config_id}", response_model=list[ConfigModel])
 def get_configuration_model_by_config_id(
     config_id: int,
     db: SessionDep,

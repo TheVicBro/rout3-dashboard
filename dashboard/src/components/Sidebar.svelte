@@ -2,13 +2,14 @@
   import { Link, useLocation } from 'svelte-routing';
   import { isAuthenticated } from '../stores/auth';
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Bot, FileSliders, KeyRound, BarChart3, Wallet, UserRound, Settings, LogOut } from 'lucide-svelte';
+  import { MessageSquare, Bot, FileSliders, KeyRound, BarChart3, Wallet, UserRound, Settings, LogOut } from 'lucide-svelte';
   import Logo from './Logo.svelte';
 
   const location = useLocation();
   $: currentPath = $location.pathname;
 
   const topMenuItems = [
+    { path: '/chat', label: 'Chat', icon: MessageSquare },
     { path: '/myapi', label: 'MyAPI', icon: Bot },
     { path: '/configuration', label: 'Configuration', icon: FileSliders },
     { path: '/secrets', label: 'Secrets', icon: KeyRound },

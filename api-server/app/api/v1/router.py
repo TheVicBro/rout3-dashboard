@@ -84,6 +84,12 @@ def get_user_settings(db: Session, user_id: int):
     # set up the settings into the format that LiteLLM needs:
 
     user_settings = []
+    if not model_configuration:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No models found for this configuration",
+        )
+    
     for model_entry in model_configuration:
         user_settings.append(
             {

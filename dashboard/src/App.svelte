@@ -13,6 +13,7 @@
   import Login from './pages/Login.svelte';
   import Configuration from './pages/Configuration.svelte';
   import MyAPI from './pages/MyAPI.svelte';
+  import Chat from './pages/Chat.svelte';
 
   import Sun from "lucide-svelte/icons/sun";
   import Moon from "lucide-svelte/icons/moon";
@@ -45,6 +46,7 @@
   {#if $isAuthenticated}
     <Router>
       <Layout>
+        <Route path="/chat" component={Chat} />
         <Route path="/myapi" component={MyAPI} />
         <Route path="/configuration" component={Configuration} />
         <Route path="/secrets" component={Secrets} />
