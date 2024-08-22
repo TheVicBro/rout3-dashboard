@@ -17,6 +17,7 @@ python-dotenv = "^1.0.1"
 sqlalchemy-libsql = "^0.1.0"
 pydantic-settings = "^2.4.0"
 cryptography = "^43.0.0"
+litellm = "^1.44.1"
 
 
 [build-system]

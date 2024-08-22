@@ -4,6 +4,8 @@
   import { DateTime } from 'luxon';
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
+  import { Dialog as DialogPrimitive } from "bits-ui";
+  import * as Dialog from "$lib/components/ui/dialog";
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -12,7 +14,7 @@
   import { Slider } from "$lib/components/ui/slider/index.js";
   import { cn } from "$lib/utils.js";
   import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
-  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
+  import { closeAndFocusTrigger } from "../utils/utils"; 
 	import { onMount } from 'svelte';
   import Skeleton from "../components/Skeleton.svelte"
   import { z } from 'zod';
@@ -176,6 +178,36 @@
     }
   }
 
+  const removeModel = async () => {
+    const current_date = DateTime.now();
+    const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
+    modelName = selectedModel?.model || '';
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/config/model/${selectedModel?.id}`, {
+        method: 'DELETE',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
+      }
+      await queryClient.invalidateQueries({ queryKey: ['apiData'] });
+      toast.success(`${modelName} has been removed.`, {
+        description: `${formatted_date}`,
+      })
+      modelName = '';
+    } catch (error) {
+      toast.error('Failed to remove model', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+
   const modelConfigQuery = createQuery<ModelConfig[]>({
     queryKey: ['apiData'],
     queryFn: fetchModelConfig,
@@ -187,8 +219,12 @@
   });
 
   let open = false;
-  $: selectedValue = selectedSecret?.name || "Select a secret...";
+  let addDialogOpen = false;
+  let removeDialogOpen = false;
+  $: selectedAddValue = selectedSecret?.name || "Select a secret...";
+  $: selectedRemoveValue = selectedModel?.model || "Select a model...";
   let selectedSecret: Secret | null = null;
+  let selectedModel: ModelConfig | null = null;
 </script>
 
 <div class="flex flex-col h-screen">
@@ -209,83 +245,168 @@
             <p>No Models added yet. Click "Add model" to add a new model.</p>
           </div>
         {:else}
-          <table class="w-full">
-            <tbody>
-              {#each $modelConfigQuery.data as model}
-                <tr>
-                  <td class="p-2 flex items-center gap-x-2">{model.model}<p class="text-xs text-gray-400">(ID: {model.id})</p></td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
+          <div class="flex flex-wrap gap-4 mt-8">
+            {#each $modelConfigQuery.data as model}
+              <div class="flex items-center justify-center px-4 py-2 border-2 border-gray-300 rounded-full hover:border-blue-500 transition-colors cursor:pointer">
+                <span class="font-medium select-none">{model.model}</span>
+                <span class="ml-2 text-xs text-gray-400 select-none">(ID: {model.id})</span>
+              </div>
+            {/each}
+          </div>
         {/if}
-        <h3 class="text-xl font-semibold mt-8 mb-2">Select a Provider Secret</h3>
-        <Popover.Root bind:open let:ids>
-          <Popover.Trigger asChild let:builder>
-            <Button
-              builders={[builder]}
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              class="w-[200px] justify-between"
-            >
-              {selectedValue}
-              <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </Popover.Trigger>
-          <Popover.Content class="w-[200px] p-0">
-            <Command.Root>
-              <Command.Input placeholder="Search provider..." />
-              <Command.Empty>No provider found.</Command.Empty>
-              <Command.Group>
-                {#if $secretQuery.isPending}
-                  <Command.Item>Loading secrets...</Command.Item>
-                {:else if $secretQuery.error}
-                  <Command.Item>Error loading secrets: {$secretQuery.error.message}</Command.Item>
-                {:else if $secretQuery.data.length === 0}
-                  <Command.Item>No secrets available</Command.Item>
-                {:else}
-                  {#each $secretQuery.data as secret}
-                    <Command.Item
-                      value={secret.name}
-                      onSelect={() => {
-                        selectedSecret = secret;
-                        closeAndFocusTrigger(ids.trigger);
-                        open = false;
-                      }}
-                    >
-                      <Check
-                        class={cn(
-                          "mr-2 h-4 w-4",
-                          selectedSecret?.id !== secret.id && "text-transparent"
-                        )}
-                      />
-                      {secret.name} (ID: {secret.id})
-                    </Command.Item>
-                  {/each}
-                {/if}
-              </Command.Group>
-            </Command.Root>
-          </Popover.Content>
-        </Popover.Root>
-
-        <h3 class="text-xl font-semibold my-4">Model Settings</h3>
-        <div class="mb-4">
-          <Label for="modelName" class="block font-semibold mb-1">Model Name</Label>
-          <Input id="modelName" bind:value={modelName} class="mt-4" />
-        </div>
-        <div class="mb-4">
-          <Label for="temperature">Temperature: {temperature[0].toFixed(2)}</Label>
-          <Slider id="temperature" bind:value={temperature} min={0} max={1} step={0.01} class="mt-4" />
-        </div>
-        <div class="mb-4">
-          <Label for="maxTokens" class="block font-semibold mb-1">Max Tokens</Label>
-          <Input id="maxTokens" type="number" min="1" max="1000" bind:value={$maxTokens} class="mt-2" />
-        </div>
-        <div>
-          <Button on:click={addModel} class="px-4 py-2 text-white rounded-lg bg-blue-800 hover:bg-blue-700 transition">Add Model</Button>
-        </div>
       </div>
     </div>
+
+    <!-- Add Model Dialog -->
+    <Dialog.Root bind:open={addDialogOpen}>
+      <Dialog.Trigger>
+        <Button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">Add Model</Button>
+      </Dialog.Trigger>
+      <Dialog.Content>
+        <Dialog.Header>
+          <Dialog.Title>Add Model</Dialog.Title>
+          <Dialog.Description>
+            Fill in the details below to add a new model.
+          </Dialog.Description>
+          <h3 class="text-lg font-semibold mt-8 mb-2">Select a Provider Secret</h3>
+          <Popover.Root bind:open let:ids>
+            <Popover.Trigger asChild let:builder>
+              <Button
+                builders={[builder]}
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                class="w-[200px] justify-between"
+              >
+                {selectedAddValue}
+                <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </Popover.Trigger>
+            <Popover.Content class="w-[200px] p-0">
+              <Command.Root>
+                <Command.Input placeholder="Search provider..." />
+                <Command.Empty>No provider found.</Command.Empty>
+                <Command.Group>
+                  {#if $secretQuery.isPending}
+                    <Command.Item>Loading secrets...</Command.Item>
+                  {:else if $secretQuery.error}
+                    <Command.Item>Error loading secrets: {$secretQuery.error.message}</Command.Item>
+                  {:else if $secretQuery.data.length === 0}
+                    <Command.Item>No secrets available</Command.Item>
+                  {:else}
+                    {#each $secretQuery.data as secret}
+                      <Command.Item
+                        value={secret.name}
+                        onSelect={() => {
+                          selectedSecret = secret;
+                          closeAndFocusTrigger(ids.trigger);
+                          open = false;
+                        }}
+                      >
+                        <Check
+                          class={cn(
+                            "mr-2 h-4 w-4",
+                            selectedSecret?.id !== secret.id && "text-transparent"
+                          )}
+                        />
+                        {secret.name} (ID: {secret.id})
+                      </Command.Item>
+                    {/each}
+                  {/if}
+                </Command.Group>
+              </Command.Root>
+            </Popover.Content>
+          </Popover.Root>
+          <div class="grid gap-4 py-4">
+            <h3 class="text-lg font-semibold">Model Settings</h3>
+            <div class="grid grid-cols-5 items-center gap-4">
+              <Label for="modelName" class="text-center">Model Name</Label>
+              <Input id="modelName" bind:value={modelName} class="col-span-4" />
+            </div>
+            <div class="grid grid-cols-5 items-center gap-4">
+              <Label for="temperature" class="text-center text-sm">Temperature: {temperature[0].toFixed(2)}</Label>
+              <Slider id="temperature" bind:value={temperature} min={0} max={1} step={0.01} class="col-span-4" />
+            </div>
+            <div class="grid grid-cols-5 items-center gap-4">
+              <Label for="maxTokens" class="text-center">Max Tokens</Label>
+              <Input id="maxTokens" type="number" min="1" max="1000" bind:value={$maxTokens} class="col-span-4" />
+            </div>
+          </div>
+          <Dialog.Footer>
+            <DialogPrimitive.Close>
+              <Button on:click={addModel} class="px-4 py-2 text-white rounded-lg bg-blue-800 hover:bg-blue-700 transition">Add Model</Button>
+            </DialogPrimitive.Close>
+          </Dialog.Footer>
+        </Dialog.Header>
+      </Dialog.Content>
+    </Dialog.Root>
+
+    <!-- Remove Model Dialog -->
+    <Dialog.Root bind:open={removeDialogOpen}>
+      <Dialog.Trigger>
+        <Button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">Remove Model</Button>
+      </Dialog.Trigger>
+      <Dialog.Content>
+        <Dialog.Header>
+          <Dialog.Title>Remove Model</Dialog.Title>
+          <Dialog.Description>
+            Select a model to remove.
+          </Dialog.Description>
+          <Popover.Root bind:open let:ids>
+            <Popover.Trigger asChild let:builder>
+              <Button
+                builders={[builder]}
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                class="w-[200px] justify-between"
+              >
+                {selectedRemoveValue}
+                <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </Popover.Trigger>
+            <Popover.Content class="w-[200px] p-0">
+              <Command.Root>
+                <Command.Input placeholder="Search provider..." />
+                <Command.Empty>No provider found.</Command.Empty>
+                <Command.Group>
+                  {#if $modelConfigQuery.isPending}
+                    <Command.Item>Loading models...</Command.Item>
+                  {:else if $modelConfigQuery.error}
+                    <Command.Item>Error loading models: {$modelConfigQuery.error.message}</Command.Item>
+                  {:else if $modelConfigQuery.data.length === 0}
+                    <Command.Item>No models available</Command.Item>
+                  {:else}
+                    {#each $modelConfigQuery.data as models}
+                      <Command.Item
+                        value={models.model}
+                        onSelect={() => {
+                          selectedModel = models;
+                          closeAndFocusTrigger(ids.trigger);
+                          open = false;
+                        }}
+                      >
+                        <Check
+                          class={cn(
+                            "mr-2 h-4 w-4",
+                            selectedModel?.id !== models.id && "text-transparent"
+                          )}
+                        />
+                        {models.model} (ID: {models.id})
+                      </Command.Item>
+                    {/each}
+                  {/if}
+                </Command.Group>
+              </Command.Root>
+            </Popover.Content>
+          </Popover.Root>
+          <Dialog.Footer>
+            <DialogPrimitive.Close>
+              <Button on:click={removeModel} class="px-4 py-2 text-white rounded-lg bg-red-800 hover:bg-red-700 transition">Remove Model</Button>
+            </DialogPrimitive.Close>
+          </Dialog.Footer>
+        </Dialog.Header>
+      </Dialog.Content>
+    </Dialog.Root>
   </div>
 </div>
