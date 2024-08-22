@@ -175,6 +175,9 @@
       toast.error('Failed to add model', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });
+    } finally {
+      localStorage.removeItem('chatHistory');
+      localStorage.removeItem('chatMessages');
     }
   }
 
@@ -205,6 +208,9 @@
       toast.error('Failed to remove model', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });
+    } finally {
+      localStorage.removeItem('chatHistory');
+      localStorage.removeItem('chatMessages');
     }
   }
 
@@ -234,7 +240,6 @@
     <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
       <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
       <div class="p-20 px-64">
-        <h3 class="text-xl font-semibold mb-2">Currently Selected Models</h3>
         {#if $modelConfigQuery.isPending}
           <Skeleton />
         {:else if $modelConfigQuery.error}
@@ -245,6 +250,7 @@
             <p>No Models added yet. Click "Add model" to add a new model.</p>
           </div>
         {:else}
+          <h3 class="text-xl font-semibold mb-2">Currently Selected Models</h3>
           <div class="flex flex-wrap gap-4 mt-8">
             {#each $modelConfigQuery.data as model}
               <div class="flex items-center justify-center px-4 py-2 border-2 border-gray-300 rounded-full hover:border-blue-500 transition-colors cursor:pointer">

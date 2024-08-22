@@ -94,6 +94,14 @@
       const responseText = await response.text();
 
       if (!response.ok) {
+        chatHistory.pop();
+        messages.update((msgs) => msgs.slice(0, -1));
+        if (response.status === 401) {
+          throw new Error("Could not validate MyAPI or Secret key");
+        } else
+        if (response.status === 404) {
+          throw new Error("No model configurations added.");
+        }
         throw new Error(`HTTP error! status: ${response.status}, message: ${responseText}`);
       }
 
@@ -111,15 +119,11 @@
         throw new Error("Unexpected response format");
       }
     } catch (error) {
-      console.error("Error fetching response:", error);
-      let errorMessage = "Something went wrong. Please try again.";
-      if (error instanceof Error) {
-        errorMessage += ` Error details: ${error.message}`;
-      }
-      messages.update((msgs) => [...msgs, { sender: "assistant", text: errorMessage, model: "Error" }]);
+      let errorMessage = error instanceof Error ? error.message : "An error occurred";
       toast.error(errorMessage);
+    } finally {
+      isLoading = false;
     }
-    isLoading = false;
   };
 </script>
 
