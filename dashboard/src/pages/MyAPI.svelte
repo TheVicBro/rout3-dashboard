@@ -188,10 +188,15 @@
           </thead>
           <tbody>
             {#each $query.data as api}
-              <tr>
-                <td class="p-2 flex items-center gap-x-2">{api.name}<p class="text-xs text-gray-400">(ID: {api.id})</p></td>
+              {#if api.name === undefined}
+                <td class="p-2 flex items-center gap-x-2">Loading</td>
                 <td class="p-2">**********</td>
-              </tr>
+              {:else}
+                <tr>
+                  <td class="p-2 flex items-center gap-x-2">{api.name}<p class="text-xs text-gray-400">(ID: {api.id})</p></td>
+                  <td class="p-2">**********</td>
+                </tr>
+              {/if}
             {/each}
           </tbody>
         </table>

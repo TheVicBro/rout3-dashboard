@@ -175,9 +175,6 @@
       toast.error('Failed to add model', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });
-    } finally {
-      localStorage.removeItem('chatHistory');
-      localStorage.removeItem('chatMessages');
     }
   }
 
@@ -208,9 +205,6 @@
       toast.error('Failed to remove model', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });
-    } finally {
-      localStorage.removeItem('chatHistory');
-      localStorage.removeItem('chatMessages');
     }
   }
 
@@ -253,10 +247,14 @@
           <h3 class="text-xl font-semibold mb-2">Currently Selected Models</h3>
           <div class="flex flex-wrap gap-4 mt-8">
             {#each $modelConfigQuery.data as model}
-              <div class="flex items-center justify-center px-4 py-2 border-2 border-gray-300 rounded-full hover:border-blue-500 transition-colors cursor:pointer">
-                <span class="font-medium select-none">{model.model}</span>
-                <span class="ml-2 text-xs text-gray-400 select-none">(ID: {model.id})</span>
-              </div>
+              {#if model.model == null}
+                <Skeleton />
+              {:else}
+                <div class="flex items-center justify-center px-4 py-2 border-2 border-gray-300 rounded-full hover:border-blue-500 transition-colors cursor:pointer">
+                  <span class="font-medium select-none">{model.model}</span>
+                  <span class="ml-2 text-xs text-gray-400 select-none">(ID: {model.id})</span>
+                </div>
+              {/if}
             {/each}
           </div>
         {/if}
