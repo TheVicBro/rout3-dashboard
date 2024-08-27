@@ -19,16 +19,23 @@ app = FastAPI(
 
 # Set all CORS enabled origins
 
+allowed_origins = [
+    "https://rout3.vercel.app"
+]
+
+# If there are additional origins in settings.BACKEND_CORS_ORIGINS, include them as well
 if settings.BACKEND_CORS_ORIGINS:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[
-            str(origin).strip("/") for origin in settings.BACKEND_CORS_ORIGINS
-        ],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+    allowed_origins.extend(
+        [str(origin).strip("/") for origin in settings.BACKEND_CORS_ORIGINS]
     )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
