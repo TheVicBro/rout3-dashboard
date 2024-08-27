@@ -240,10 +240,8 @@
     <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
       <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
       <div class="p-20 px-64">
-        {#if $modelConfigQuery.isPending}
+        {#if $modelConfigQuery.isPending || $modelConfigQuery.error}
           <Skeleton />
-        {:else if $modelConfigQuery.error}
-          <p class="text-red-600">An error has occurred: {$modelConfigQuery.error.message}</p>
         {:else if $modelConfigQuery.data.length === 0}
           <div class="flex flex-col items-center">
             <CirclePlus class="w-12 h-12 mb-4 text-gray-400" />
@@ -253,10 +251,16 @@
           <h3 class="text-xl font-semibold mb-2">Currently Selected Models</h3>
           <div class="flex flex-wrap gap-4 mt-8">
             {#each $modelConfigQuery.data as model}
-              <div class="flex items-center justify-center px-4 py-2 border-2 border-gray-300 rounded-full hover:border-blue-500 transition-colors cursor:pointer">
-                <span class="font-medium select-none">{model.model}</span>
-                <span class="ml-2 text-xs text-gray-400 select-none">(ID: {model.id})</span>
-              </div>
+              {#if model && model.model}
+                <div class="flex items-center justify-center px-4 py-2 border-2 border-gray-300 rounded-full hover:border-blue-500 transition-colors cursor:pointer">
+                  <span class="font-medium select-none">{model.model}</span>
+                  <span class="ml-2 text-xs text-gray-400 select-none">(ID: {model.id})</span>
+                </div>
+              {:else}
+                <div class="flex items-center justify-center px-4 py-2 border-2 border-gray-300 rounded-full">
+                  <span class="font-medium select-none">Loading...</span>
+                </div>
+              {/if}
             {/each}
           </div>
         {/if}
