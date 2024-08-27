@@ -6,4 +6,4 @@ export async function closeAndFocusTrigger(triggerId: string) {
   });
 }
 
-export const availableModelProviders = ['OpenAI', 'Hugging Face', 'Google', 'Azure', 'Cohere', 'Mistral'];
+export const availableModelProviders = ['Anthropic', 'Azure', 'Cohere', 'Google', 'Groq', 'Hugging Face', 'Mistral', 'OpenAI'];
