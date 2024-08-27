@@ -58,7 +58,7 @@
         key: newKey,
       });
 
-      const response = await fetch('http://127.0.0.1:8000/api/v1/secrets', {
+      const response = await fetch('https://rout3-backend.vercel.app/api/v1/secrets', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,7 +98,7 @@
       }
       const validatedSecret = SecretOptionSchema.parse(selectedSecret);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/secrets/${validatedSecret.id}`, {
+      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/secrets/${validatedSecret.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +120,7 @@
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
-    const response = await fetch(`http://127.0.0.1:8000/api/v1/secrets`, {
+    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/secrets`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -44,7 +44,7 @@
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/v1/myapi', {
+      const response = await fetch('https://rout3-backend.vercel.app/api/v1/myapi', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,7 @@
 
     try {
       const validatedAPI = APIOptionSchema.parse(selectedAPItoDelete);
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/myapi/${validatedAPI.id}`, {
+      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/myapi/${validatedAPI.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -109,7 +109,7 @@
   }
 
   const fetchAPI = async (): Promise<API[]> => {
-    const response = await fetch('http://127.0.0.1:8000/api/v1/myapi', {
+    const response = await fetch('https://rout3-backend.vercel.app/api/v1/myapi', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

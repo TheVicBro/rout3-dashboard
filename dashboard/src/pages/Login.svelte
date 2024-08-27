@@ -65,7 +65,7 @@
     }
 
     const { usernameOrEmail, password } = result.data;
-    const response = await fetch(`http://127.0.0.1:8000/api/v1/login/token`, {
+    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/login/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -93,7 +93,7 @@
     }
 
     const { username, email, password } = result.data;
-    const response = await fetch(`http://127.0.0.1:8000/api/v1/user`, {
+    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

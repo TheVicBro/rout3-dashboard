@@ -80,7 +80,7 @@
     localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/v1/router/completion", {
+      const response = await fetch("https://rout3-backend.vercel.app/api/v1/router/completion", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

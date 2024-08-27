@@ -79,7 +79,7 @@
   });
 
   async function fetchModelConfig(): Promise<ModelConfig[]> {
-    const response = await fetch(`http://127.0.0.1:8000/api/v1/config/model/${config?.id}`, {
+    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/config/model/${config?.id}`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -90,7 +90,7 @@
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
-    const response = await fetch(`http://127.0.0.1:8000/api/v1/secrets`, {
+    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/secrets`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -106,7 +106,7 @@
   };
 
   async function getConfig(): Promise<Config> {
-    const response = await fetch('http://127.0.0.1:8000/api/v1/config/', {
+    const response = await fetch('https://rout3-backend.vercel.app/api/v1/config/', {
       method: 'GET',
       headers: {
         'accept': 'application/json',
@@ -122,7 +122,7 @@
   }
 
   async function createConfig(newConfig: { timeout: number; route_type: string }): Promise<Config> {
-    const response = await fetch('http://127.0.0.1:8000/api/v1/config/', {
+    const response = await fetch('https://rout3-backend.vercel.app/api/v1/config/', {
       method: 'POST',
       headers: {
         'accept': 'application/json',
@@ -149,7 +149,7 @@
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/config/model?secret_id=${selectedSecret?.id}`, {
+      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/config/model?secret_id=${selectedSecret?.id}`, {
         method: 'POST',
         headers: {
           'accept': 'application/json',
@@ -187,7 +187,7 @@
     modelName = selectedModel?.model || '';
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/config/model/${selectedModel?.id}`, {
+      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/config/model/${selectedModel?.id}`, {
         method: 'DELETE',
         headers: {
           'accept': 'application/json',
