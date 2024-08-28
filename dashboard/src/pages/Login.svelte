@@ -38,6 +38,7 @@
   let errors: FormErrors = {};
 
   let showRegister = false;
+  let isLoading = false;
 
   function registerLoginSwitch() {
     showRegister = !showRegister;
@@ -56,6 +57,7 @@
   }
 
   async function login() {
+    isLoading = true;
     errors = {};
     const result = LoginSchema.safeParse(form);
 
@@ -81,9 +83,11 @@
     } else {
       errors.form = "Login failed";
     }
+    isLoading = false;
   }
 
   async function register() {
+    isLoading = true;
     errors = {};
     const result = RegisterSchema.safeParse(form);
 
@@ -109,6 +113,7 @@
     } else {
       errors.form = "Registration failed";
     }
+    isLoading = false;
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -161,9 +166,10 @@
         <div class="flex justify-center items-center">
           <Button
             on:click={register}
+            disabled={isLoading}
             class="mt-4 px-4 py-8 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
           >
-            Register
+            {isLoading ? 'Registering' : 'Register'}
           </Button>
         </div>
         <div class="text-center mt-8">
@@ -189,9 +195,10 @@
         <div class="flex justify-center items-center">
           <Button
             on:click={login}
+            disabled={isLoading}
             class="mt-8 px-4 py-8 text-xl text-white font-semibold rounded-full w-1/2 hover:opacity-80 transition bg-gradient-to-tr from-[#020024] via-[#0000d5] to-[#6a00ff]"
           >
-            Login
+            {isLoading ? 'Logging in' : 'Login'}
           </Button>
         </div>
         <div class="text-center mt-8">
