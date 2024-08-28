@@ -47,7 +47,7 @@
   let open = false;
 
   const addNewKey = async () => {
-    const current_date = DateTime.utc();
+    const current_date = DateTime.local();
     const turso_date = current_date.toISO();
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
@@ -189,7 +189,7 @@
                 <td class="p-2">**********</td>
                 <td class="p-2">
                   {secret.last_used 
-                    ? DateTime.fromISO(secret.last_used).toRelative() 
+                    ? DateTime.fromISO(secret.last_used).setZone(DateTime.local().zoneName).toRelative()
                     : "Never Used"}
                 </td>
               </tr>
