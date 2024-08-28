@@ -175,9 +175,6 @@
       toast.error('Failed to add model', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });
-    } finally {
-      localStorage.removeItem('chatHistory');
-      localStorage.removeItem('chatMessages');
     }
   }
 
@@ -208,9 +205,6 @@
       toast.error('Failed to remove model', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });
-    } finally {
-      localStorage.removeItem('chatHistory');
-      localStorage.removeItem('chatMessages');
     }
   }
 

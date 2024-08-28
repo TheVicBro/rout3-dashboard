@@ -40,6 +40,7 @@
   let open = false;
 
   const createAPI = async () => {
+    creatingAPI = true;
     const current_date = DateTime.now();
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
@@ -74,6 +75,7 @@
         });
       }
     }
+    creatingAPI = false;
   }
 
   const deleteAPI = async () => {
@@ -141,6 +143,7 @@
   let dialogOpen = false;
   let newApiKey = '';
   let copiedText = 'Copy';
+  let creatingAPI = false;
 
   const handleDialogClose = () => {
     dialogOpen = false;
@@ -231,7 +234,9 @@
           </div>
         </div>
         <Dialog.Footer>
-          <Button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI}>Create API</Button>
+          <Button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI} disabled={creatingAPI}>
+            {creatingAPI ? "Creating" : "Create API"}
+          </Button>
         </Dialog.Footer>
         {/if}
       </Dialog.Header>

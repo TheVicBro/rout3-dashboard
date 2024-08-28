@@ -37,6 +37,7 @@
   let message = '';
   let chatHistory: ChatMessage[] = [];
   let isLoading = false;
+  let clearText = "Clear Chat";
   const myAPI = writable('');
   const messages = writable<DisplayMessage[]>([]);
 
@@ -125,6 +126,17 @@
       isLoading = false;
     }
   };
+
+  const clearChat = () => {
+    chatHistory = [];
+    messages.set([]);
+    localStorage.removeItem('chatHistory');
+    localStorage.removeItem('chatMessages');
+    clearText = 'Cleared!';
+    setTimeout(() => {
+      clearText = 'Clear Chat';
+    }, 2000);
+  };
 </script>
 
 <div class="flex flex-col h-screen">
@@ -164,6 +176,7 @@
             </div>
           </Card>
         </div>
+        <Button on:click={clearChat} class="w-24 text-white rounded-lg bg-blue-800 hover:bg-blue-700 transition">{clearText}</Button>
       </div>
     </div>
   </div>
