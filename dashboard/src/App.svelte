@@ -54,7 +54,8 @@
         <Route path="/billing" component={Billing} />
         <Route path="/account" component={Account} />
         <Route path="/settings" component={Settings} />
-        <Route path="/" component={Secrets} />
+        <Route path="/login" component={MyAPI} />
+        <Route path="/" component={MyAPI} />
       </Layout>
     </Router>
   {:else}
