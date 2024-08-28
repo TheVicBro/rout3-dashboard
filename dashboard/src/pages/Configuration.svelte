@@ -42,6 +42,11 @@
     config_id: z.number(),
   });
 
+  const PartialModelConfigSchema = z.object({
+    model: z.string(),
+    id: z.number(),
+  });
+
   const SecretSchema = z.object({
     name: z.string(),
     last_used: z.string().nullable(),
@@ -50,6 +55,7 @@
   });
 
   type ModelConfig = z.infer<typeof ModelConfigSchema>;
+  type PartialModelConfig = z.infer<typeof PartialModelConfigSchema>;
   type Secret = z.infer<typeof SecretSchema>;
 
   onMount(async () => {
@@ -57,7 +63,7 @@
       toast.success('Configuration already loaded');
     } else {
       try {
-        config = await getConfig();
+        config = await getCostConfig();
         toast.success('Configuration loaded successfully');
       } catch (error) {
         toast.error('Failed to fetch config', {
@@ -78,7 +84,7 @@
     }
   });
 
-  async function fetchModelConfig(): Promise<ModelConfig[]> {
+  async function fetchModelConfig(): Promise<PartialModelConfig[]> {
     const response = await fetch(`https://rout3-backend.vercel.app/api/v1/config/model/${config?.id}`, {
       method: 'GET',
       headers: {
@@ -86,7 +92,7 @@
       }
     });
     const data = await response.json();
-    return z.array(ModelConfigSchema).parse(data);
+    return PartialModelConfigSchema.array().parse(data);
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
@@ -105,7 +111,7 @@
     return z.array(SecretSchema).parse(data);
   };
 
-  async function getConfig(): Promise<Config> {
+  async function getCostConfig(): Promise<Config> {
     const response = await fetch('https://rout3-backend.vercel.app/api/v1/config/', {
       method: 'GET',
       headers: {
@@ -113,11 +119,9 @@
         'Authorization': `Bearer ${token}`
       }
     });
-
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-
     return await response.json();
   }
 
@@ -208,7 +212,7 @@
     }
   }
 
-  const modelConfigQuery = createQuery<ModelConfig[]>({
+  const modelConfigQuery = createQuery<PartialModelConfig[]>({
     queryKey: ['apiData'],
     queryFn: fetchModelConfig,
   });
@@ -224,7 +228,7 @@
   $: selectedAddValue = selectedSecret?.name || "Select a secret...";
   $: selectedRemoveValue = selectedModel?.model || "Select a model...";
   let selectedSecret: Secret | null = null;
-  let selectedModel: ModelConfig | null = null;
+  let selectedModel: PartialModelConfig | null = null;
 </script>
 
 <div class="flex flex-col h-screen">
