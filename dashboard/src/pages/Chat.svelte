@@ -139,20 +139,20 @@
   };
 </script>
 
-<div class="flex flex-col h-screen">
+<div class="flex flex-col min-h-screen">
   <Toaster />
   <h1 class="p-8 pl-20 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">Chat</h1>
-  <div class="flex-1 overflow-auto">
-    <div class="h-full m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
+    <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow flex-1 overflow-hidden">
       <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
-      <div class="h-full p-10 px-20 space-y-8">
-        <h3 class="text-2xl text-bold">Test your Rout3 here</h3>
+      <div class="flex-1 p-10 px-20 space-y-4 flex flex-col">
+        <h3 class="text-2xl font-bold">Test your Rout3 here</h3>
         <Input type="text" bind:value={$myAPI} placeholder="Enter your MyAPI key here..." />
-        <div class="mt-64">
-          <Card class="p-4 space-y-4">
-            <div class="overflow-y-auto max-h-[400px]">
+        
+        <div class="flex-1 mt-0">
+          <Card class="p-4 h-full flex flex-col">
+            <div class="overflow-y-auto max-h-40">
               {#each $messages as msg (msg.text)}
-                <div class="mb-2">
+                <div class="mb-1">
                   <strong>{msg.sender === "user" ? "You" : msg.model}:</strong> {msg.text}
                 </div>
               {/each}
@@ -164,7 +164,7 @@
               {/if}
             </div>
 
-            <div class="flex space-x-2">
+            <div class="flex space-x-2 mt-4">
               <Input
                 type="text"
                 bind:value={message}
@@ -176,8 +176,8 @@
             </div>
           </Card>
         </div>
+        
         <Button on:click={clearChat} class="w-24 text-white rounded-lg bg-blue-800 hover:bg-blue-700 transition">{clearText}</Button>
       </div>
     </div>
-  </div>
 </div>
