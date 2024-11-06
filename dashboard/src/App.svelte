@@ -14,10 +14,12 @@
   import Configuration from './pages/Configuration.svelte';
   import MyAPI from './pages/MyAPI.svelte';
   import Chat from './pages/Chat.svelte';
+  import Landing from './pages/Landing.svelte';
+  import NotFound from './pages/404.svelte';
 
   import Sun from "lucide-svelte/icons/sun";
   import Moon from "lucide-svelte/icons/moon";
- 
+  
   import { toggleMode } from "mode-watcher";
   import { Button } from "$lib/components/ui/button/index.js";
 
@@ -43,8 +45,9 @@
       <Moon class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
     </Button>
   </div>
-  {#if $isAuthenticated}
-    <Router>
+
+  <Router>
+    {#if $isAuthenticated}
       <Layout>
         <Route path="/chat" component={Chat} />
         <Route path="/myapi" component={MyAPI} />
@@ -54,14 +57,18 @@
         <Route path="/billing" component={Billing} />
         <Route path="/account" component={Account} />
         <Route path="/settings" component={Settings} />
-        <Route path="*" component={MyAPI} />
+        <Route path="*" component={NotFound} />
       </Layout>
-    </Router>
-  {:else}
-    <div class="h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-800">
-      <div class="w-full px-6 py-8">
-        <Login on:loginSuccess={handleLoginSuccess} />
-      </div>
-    </div>
-  {/if}
+    {:else}
+      <Route path="/login">
+        <div class="h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+          <div class="w-full px-6 py-8">
+            <Login on:loginSuccess={handleLoginSuccess} />
+          </div>
+        </div>
+      </Route>
+      <Route path="/" component={Landing} />
+      <Route path="*" component={NotFound} />
+    {/if}
+  </Router>
 </QueryClientProvider>
