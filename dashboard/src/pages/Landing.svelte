@@ -37,7 +37,7 @@
   ];
 </script>
 
-<div class="min-h-screen flex flex-col bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+<div class="min-h-screen flex flex-col bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 overflow-x-hidden">
   <!-- Navigation -->
   <nav class="fixed w-full p-4 flex justify-between items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm z-10">
     <div class="text-2xl font-bold text-slate-800 dark:text-slate-100">Rout3</div>
@@ -78,15 +78,15 @@
     <div class="container mx-auto px-4">
       <div class="text-center grid md:grid-cols-3 gap-8 py-20">
         <div class="p-8 rounded-xl bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow">
-          <h3 class="text-3xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Maintenance</h3>
+          <h3 class="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Maintenance</h3>
           <p class="text-xl text-slate-600 dark:text-slate-300">Thousands of models, dozens of APIs drains developer time.</p>
         </div>
         <div class="p-8 rounded-xl bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow">
-          <h3 class="text-3xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Reliability</h3>
+          <h3 class="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Reliability</h3>
           <p class="text-xl text-slate-600 dark:text-slate-300">When one provider goes down, what next?</p>
         </div>
         <div class="p-8 rounded-xl bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow">
-          <h3 class="text-3xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Cost</h3>
+          <h3 class="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Cost</h3>
           <p class="text-xl text-slate-600 dark:text-slate-300">Cost differences of more than 70 times, which model is best for its price?</p>
         </div>
       </div>
