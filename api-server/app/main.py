@@ -21,7 +21,8 @@ app = FastAPI(
 
 allowed_origins = [
     "https://rout3.vercel.app",
-    "https://rout3.com"
+    "https://rout3.com",
+    "https://www.rout3.com",
 ]
 
 # If there are additional origins in settings.BACKEND_CORS_ORIGINS, include them as well
@@ -36,6 +37,8 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=3600,
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
