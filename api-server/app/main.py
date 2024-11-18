@@ -20,7 +20,8 @@ app = FastAPI(
 # Set all CORS enabled origins
 
 allowed_origins = [
-    "https://rout3.vercel.app"
+    "https://rout3.vercel.app",
+    "https://rout3.com"
 ]
 
 # If there are additional origins in settings.BACKEND_CORS_ORIGINS, include them as well
