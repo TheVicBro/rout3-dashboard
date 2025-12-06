@@ -4,8 +4,6 @@ from app.api.deps import SessionDep, UserDep
 from app.repositories import secrets_repo
 from app.core.security import fernet_decrypt_data
 import requests
-import cohere
-import os
 
 router = APIRouter()
 
