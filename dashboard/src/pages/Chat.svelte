@@ -84,8 +84,10 @@
     // Save updated chat history to localStorage
     localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
 
+    const API_BASE_URL = import.meta.env.VITE_API_URL || "https://rout3-backend-dev.vercel.app/api/v1";
+
     try {
-      const response = await fetch("https://rout3-backend.vercel.app/api/v1/router/completion", {
+      const response = await fetch(`${API_BASE_URL}/router/completion`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

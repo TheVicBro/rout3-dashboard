@@ -1,6 +1,6 @@
 import { isAuthenticated } from '../stores/auth';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://rout3-backend.vercel.app/api/v1';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://rout3-backend-dev.vercel.app/api/v1';
 
 async function request<T>(
   endpoint: string,
