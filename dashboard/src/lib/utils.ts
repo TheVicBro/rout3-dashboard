@@ -70,3 +70,29 @@ export async function closeAndFocusTrigger(triggerId: string) {
 }
 
 export const availableModelProviders = ['Anthropic', 'Azure', 'Cohere', 'Google', 'Groq', 'Hugging Face', 'Mistral', 'OpenAI'];
+
+export const commonModels: Record<string, string[]> = {
+  'OpenAI': [
+    'gpt-5', 'gpt-5.1', 'gpt-5-mini', 'gpt-5-nano', 
+    'gpt-4o', 'gpt-4o-mini', 
+    'o1', 'o1-mini', 'o3', 'o3-mini'
+  ],
+  'Anthropic': [
+    'claude-sonnet-4-5', 'claude-haiku-4-5', 'claude-opus-4-5',
+    'claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307'
+  ],
+  'Google': [
+    'gemini-3-pro-preview',
+    'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-pro',
+    'gemini-2.0-flash', 'gemini-2.0-flash-lite'
+  ],
+  'Mistral': ['mistral-large-latest', 'mistral-small-latest', 'open-mixtral-8x7b'],
+  'Cohere': [
+    'command-a-03-2025', 'command-r7b-12-2024', 
+    'command-a-translate-08-2025', 'command-a-reasoning-08-2025', 'command-a-vision-07-2025',
+    'command-r-plus-08-2024', 'command-r-08-2024'
+  ],
+  'Groq': ['llama3-70b-8192', 'llama3-8b-8192', 'mixtral-8x7b-32768'],
+  'Azure': ['gpt-4', 'gpt-35-turbo'], 
+  'Hugging Face': ['meta-llama/Meta-Llama-3-70B', 'mistralai/Mixtral-8x7B-Instruct-v0.1']
+};

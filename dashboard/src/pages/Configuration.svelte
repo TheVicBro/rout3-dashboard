@@ -13,7 +13,7 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { Slider } from "$lib/components/ui/slider/index.js";
   import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
-  import { cn, closeAndFocusTrigger } from "$lib/utils"; 
+  import { cn, closeAndFocusTrigger, commonModels } from "$lib/utils"; 
 	import { onMount } from 'svelte';
   import Skeleton from "../components/Skeleton.svelte"
   import { z } from 'zod';
@@ -156,6 +156,7 @@
   });
 
   let open = false;
+  let modelOpen = false;
   let addDialogOpen = false;
   let removeDialogOpen = false;
   $: selectedAddValue = selectedSecret?.name || "Select a secret...";
@@ -262,7 +263,48 @@
             <h3 class="text-lg font-semibold">Model Settings</h3>
             <div class="grid grid-cols-5 items-center gap-4">
               <Label for="modelName" class="text-center">Model Name</Label>
-              <Input id="modelName" bind:value={modelName} class="col-span-4" />
+              <div class="col-span-4 flex gap-2">
+                <Input id="modelName" bind:value={modelName} class="flex-1" placeholder="e.g. gpt-4" />
+                <Popover.Root bind:open={modelOpen}>
+                  <Popover.Trigger asChild let:builder>
+                    <Button builders={[builder]} variant="outline" size="icon" title="Select common model">
+                      <ChevronsUpDown class="h-4 w-4" />
+                    </Button>
+                  </Popover.Trigger>
+                  <Popover.Content class="w-[200px] p-0" align="end">
+                    <Command.Root>
+                      <Command.Input placeholder="Search models..." />
+                      <Command.Empty>No models found.</Command.Empty>
+                      <Command.Group>
+                        {#if selectedSecret}
+                          {#each (commonModels[selectedSecret.name] || []) as model}
+                            <Command.Item
+                              value={model}
+                              onSelect={() => {
+                                modelName = model;
+                                modelOpen = false;
+                              }}
+                            >
+                              <Check
+                                class={cn(
+                                  "mr-2 h-4 w-4",
+                                  modelName !== model && "text-transparent"
+                                )}
+                              />
+                              {model}
+                            </Command.Item>
+                          {/each}
+                          {#if !(commonModels[selectedSecret.name] || []).length}
+                             <div class="p-2 text-sm text-muted-foreground text-center">No common models known for {selectedSecret.name}</div>
+                          {/if}
+                        {:else}
+                          <div class="p-2 text-sm text-muted-foreground text-center">Select a provider first</div>
+                        {/if}
+                      </Command.Group>
+                    </Command.Root>
+                  </Popover.Content>
+                </Popover.Root>
+              </div>
             </div>
             <div class="grid grid-cols-5 items-center gap-4">
               <Label for="temperature" class="text-center text-sm">Temperature: {temperature[0].toFixed(2)}</Label>

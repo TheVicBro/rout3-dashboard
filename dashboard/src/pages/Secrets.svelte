@@ -128,34 +128,40 @@
 
 <div>
   <Toaster />
-  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">Secrets</h1>
-  <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
-    <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
-    <div class="p-10">
+  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b dark:border-slate-800">Secrets</h1>
+  <div class="m-10">
+    <div class="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm overflow-hidden">
       {#if $query.isPending}
-        <Skeleton />
+        <div class="p-10">
+          <Skeleton />
+        </div>
       {:else if $query.error}
-        <p class="text-red-600">An error has occurred: {$query.error.message}</p>
+        <div class="p-10">
+          <p class="text-red-600">An error has occurred: {$query.error.message}</p>
+        </div>
       {:else if $query.data.length === 0}
-        <div class="flex flex-col items-center">
+        <div class="flex flex-col items-center p-10">
           <CirclePlus class="w-12 h-12 mb-4 text-gray-400" />
           <p>No secrets found. Click "Add key" to add a new key.</p>
         </div>
       {:else}
-        <table class="w-full">
-          <thead>
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-slate-800 dark:text-gray-400">
             <tr>
-              <th class="text-left p-2">Provider</th>
-              <th class="text-left p-2">Key</th>
-              <th class="text-left p-2">Last Used</th>
+              <th class="px-6 py-3">Provider</th>
+              <th class="px-6 py-3">Key</th>
+              <th class="px-6 py-3">Last Used</th>
             </tr>
           </thead>
           <tbody>
             {#each $query.data as secret}
-              <tr>
-                <td class="p-2 flex items-center gap-x-2">{secret.name} <p class="text-xs text-gray-400">(ID: {secret.id})</p></td>
-                <td class="p-2">**********</td>
-                <td class="p-2">
+              <tr class="bg-white border-b dark:bg-slate-900 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap flex items-center gap-x-2">
+                  {secret.name}
+                  <span class="text-xs text-gray-400 font-normal">(ID: {secret.id})</span>
+                </td>
+                <td class="px-6 py-4 font-mono">**********</td>
+                <td class="px-6 py-4">
                   {secret.last_used 
                     ? DateTime.fromISO(secret.last_used).setZone(DateTime.local().zoneName).toRelative()
                     : "Never Used"}

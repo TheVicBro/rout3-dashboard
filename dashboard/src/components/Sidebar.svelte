@@ -74,15 +74,6 @@
       <Button
         class="menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white"
         type="button"
-        on:click={logout}
-      >
-        <LogOut />
-        <span class="font-semibold">Logout</span>
-      </Button>
-      
-      <Button
-        class="menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white"
-        type="button"
         on:click={toggleMode}
       >
         <div class="relative w-[1.2rem] h-[1.2rem]">
@@ -90,6 +81,15 @@
           <Moon class="absolute top-0 left-0 h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
         </div>
         <span class="font-semibold">Theme</span>
+      </Button>
+
+      <Button
+        class="menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white"
+        type="button"
+        on:click={logout}
+      >
+        <LogOut />
+        <span class="font-semibold">Logout</span>
       </Button>
     </div>
   </div>
