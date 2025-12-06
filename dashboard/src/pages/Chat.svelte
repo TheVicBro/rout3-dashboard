@@ -11,7 +11,7 @@
   import { onMount } from 'svelte';
 
   interface ChatMessage {
-    role: "user" | "bot";
+    role: "user" | "assistant";
     content: string;
   }
 
@@ -49,7 +49,11 @@
     
     const savedChatHistory = localStorage.getItem('chatHistory');
     if (savedChatHistory) {
-      chatHistory = JSON.parse(savedChatHistory);
+      const parsedHistory = JSON.parse(savedChatHistory);
+      chatHistory = parsedHistory.map((msg: any) => ({
+        ...msg,
+        role: msg.role === 'bot' ? 'assistant' : msg.role
+      }));
     }
 
     const savedAPIKey = localStorage.getItem('myAPIKey');
