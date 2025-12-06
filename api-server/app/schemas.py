@@ -24,7 +24,7 @@ class Secret(SecretBase):
     user_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # My API Schemas
@@ -81,7 +81,7 @@ class User(UserBase):
     myapi: List[Myapi]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class RouteRequest(BaseModel):
@@ -115,7 +115,7 @@ class Configuration(ConfigBase):
     user_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # Configuration Model Schemas

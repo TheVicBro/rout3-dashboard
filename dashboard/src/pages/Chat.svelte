@@ -78,7 +78,7 @@
     // Add user message to chat history
     chatHistory.push({ role: "user", content: message });
     messages.update((msgs) => [...msgs, { sender: "user", text: message }]);
-    const currentAPIKey = get(myAPI); // Get current API key
+    const currentAPIKey = get(myAPI).trim(); // Get current API key and trim whitespace
     message = "";
 
     // Save updated chat history to localStorage
