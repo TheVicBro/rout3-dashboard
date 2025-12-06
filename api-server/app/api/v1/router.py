@@ -26,7 +26,7 @@ router = APIRouter()
 @router.post("/completion")
 async def chat_completion(
     data: RouteRequest,
-    myapi_key: Annotated[str | None, Header()] = None,
+    myapi_key: Annotated[str | None, Header(alias="myapi-key")] = None,
     db: Session = Depends(get_db),
 ) -> CompletionResponse:
     # grab the API key from the auth header of the request
