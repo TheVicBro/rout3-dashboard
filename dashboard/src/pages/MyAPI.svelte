@@ -11,8 +11,6 @@
   import { z } from 'zod';
   import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
   import { closeAndFocusTrigger } from "$lib/utils"; 
-  import { isAuthenticated } from '../stores/auth';
-  import { navigate } from 'svelte-routing';
   import * as Dialog from "$lib/components/ui/dialog";
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
