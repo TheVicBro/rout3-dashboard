@@ -211,9 +211,10 @@
           </div>
         {/if}
       </div>
+    </div>
 
-      <div class="flex gap-4">
-        <!-- Add Model Dialog -->
+    <div class="flex gap-4">
+      <!-- Add Model Dialog -->
         <Dialog.Root bind:open={addDialogOpen}>
           <Dialog.Trigger>
             <Button class="px-8 py-2">Add Model</Button>
