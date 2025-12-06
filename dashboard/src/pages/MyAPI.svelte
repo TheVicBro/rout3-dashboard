@@ -130,7 +130,7 @@
 <div>
   <Toaster />
   <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b dark:border-slate-800">MyAPI</h1>
-  <div class="m-10">
+  <div class="m-10 space-y-6">
     <div class="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm overflow-hidden">
       {#if $query.isPending}
         <div class="p-10">
@@ -167,13 +167,13 @@
         </table>
       {/if}
     </div>
-  </div>
 
-  <!-- Create API Button -->
-  <Dialog.Root bind:open={dialogOpen}>
-    <Dialog.Trigger>
-      <Button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Create API</Button>
-    </Dialog.Trigger>
+    <div class="flex gap-4">
+      <!-- Create API Button -->
+      <Dialog.Root bind:open={dialogOpen}>
+        <Dialog.Trigger>
+          <Button class="px-8 py-2">+ Create API</Button>
+        </Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Create API Key</Dialog.Title>
@@ -185,7 +185,7 @@
               <Input id="new-api-key" value={newApiKey} readonly class="flex-grow" />
               <Button 
                 variant="outline"
-                class="ml-2 px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 hover:text-white focus:outline-none"
+                class="ml-2 px-4 py-2"
                 on:click={copyToClipboard}
               >
                 {copiedText}
@@ -203,7 +203,7 @@
           </div>
         </div>
         <Dialog.Footer>
-          <Button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI} disabled={creatingAPI}>
+          <Button class="px-4 py-2" on:click={createAPI} disabled={creatingAPI}>
             {creatingAPI ? "Creating" : "Create API"}
           </Button>
         </Dialog.Footer>
@@ -212,11 +212,12 @@
     </Dialog.Content>
   </Dialog.Root>
 
-  <!-- Delete API Button -->
-  <Dialog.Root>
-    <Dialog.Trigger>
-      <Button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Delete API</Button></Dialog.Trigger>
-    <Dialog.Content>
+      <!-- Delete API Button -->
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <Button variant="destructive" class="px-8 py-2">- Delete API</Button>
+        </Dialog.Trigger>
+        <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Delete API</Dialog.Title>
         <Dialog.Description>
@@ -273,10 +274,12 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <Button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={deleteAPI}>Remove Key</Button>
+            <Button variant="destructive" class="px-4 py-2" on:click={deleteAPI}>Remove Key</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>
   </Dialog.Root>
+    </div>
+  </div>
 </div>

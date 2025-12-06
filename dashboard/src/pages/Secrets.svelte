@@ -129,7 +129,7 @@
 <div>
   <Toaster />
   <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b dark:border-slate-800">Secrets</h1>
-  <div class="m-10">
+  <div class="m-10 space-y-6">
     <div class="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm overflow-hidden">
       {#if $query.isPending}
         <div class="p-10">
@@ -172,13 +172,13 @@
         </table>
       {/if}
     </div>
-  </div>
 
-  <!-- Add Key Button -->
-  <Dialog.Root>
-    <Dialog.Trigger>
-      <Button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Add a new key</Button>
-    </Dialog.Trigger>
+    <div class="flex gap-4">
+      <!-- Add Key Button -->
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <Button class="px-8 py-2">+ Add a new key</Button>
+        </Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Add New Key</Dialog.Title>
@@ -238,19 +238,19 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <Button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</Button>
+            <Button class="px-4 py-2" on:click={addNewKey}>Add Key</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>
   </Dialog.Root>
 
-  <!-- Remove Key Button -->
-  <Dialog.Root>
-    <Dialog.Trigger>
-      <Button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Remove a key</Button>
-    </Dialog.Trigger>
-    <Dialog.Content>
+      <!-- Remove Key Button -->
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <Button variant="destructive" class="px-8 py-2">- Remove a key</Button>
+        </Dialog.Trigger>
+        <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Remove Key</Dialog.Title>
         <Dialog.Description>
@@ -307,10 +307,12 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <Button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</Button>
+            <Button variant="destructive" class="px-4 py-2" on:click={removeKey}>Remove Key</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>
   </Dialog.Root>
+    </div>
+  </div>
 </div>

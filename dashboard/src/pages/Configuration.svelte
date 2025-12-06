@@ -182,7 +182,8 @@
   <Toaster />
   <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b dark:border-slate-800">Configuration</h1>
   <div class="flex-1 overflow-auto">
-    <div class="m-10 bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm overflow-hidden">
+    <div class="m-10 space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm overflow-hidden">
       <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b dark:border-slate-800">Overview</h2>
       <div class="p-20 px-64">
         {#if $modelConfigQuery.isPending || $modelConfigQuery.error}
@@ -210,13 +211,13 @@
           </div>
         {/if}
       </div>
-    </div>
 
-    <!-- Add Model Dialog -->
-    <Dialog.Root bind:open={addDialogOpen}>
-      <Dialog.Trigger>
-        <Button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">Add Model</Button>
-      </Dialog.Trigger>
+      <div class="flex gap-4">
+        <!-- Add Model Dialog -->
+        <Dialog.Root bind:open={addDialogOpen}>
+          <Dialog.Trigger>
+            <Button class="px-8 py-2">Add Model</Button>
+          </Dialog.Trigger>
       <Dialog.Content>
         <Dialog.Header>
           <Dialog.Title>Add Model</Dialog.Title>
@@ -307,39 +308,42 @@
                   <Popover.Content class="w-[200px] p-0" align="end">
                     <Command.Root>
                       <Command.Input placeholder="Search models..." />
-                      <Command.Empty>No models found.</Command.Empty>
-                      <Command.Group>
-                        {#if selectedSecret}
-                          {#await fetchProviderModels(selectedSecret.name)}
-                            <div class="p-2 text-sm text-muted-foreground text-center">Loading models...</div>
-                          {:then models} 
-                            {#each models as model}
-                              <Command.Item
-                                value={model}
-                                onSelect={() => {
-                                  modelName = model;
-                                  modelOpen = false;
-                                }}
-                              >
-                                <Check
-                                  class={cn(
-                                    "mr-2 h-4 w-4",
-                                    modelName !== model && "text-transparent"
-                                  )}
-                                />
-                                {model}
-                              </Command.Item>
-                            {/each}
-                            {#if models.length === 0}
-                               <div class="p-2 text-sm text-muted-foreground text-center">No models found for {selectedSecret.name}</div>
-                            {/if}
-                          {:catch error}
-                             <div class="p-2 text-sm text-red-500 text-center">Error loading models</div>
-                          {/await}
-                        {:else}
-                          <div class="p-2 text-sm text-muted-foreground text-center">Select a provider first</div>
-                        {/if}
-                      </Command.Group>
+                      <Command.List>
+                        <Command.Empty>No models found.</Command.Empty>
+                        <Command.Group>
+                          {#if selectedSecret}
+                            {#await fetchProviderModels(selectedSecret.name)}
+                              <div class="p-2 text-sm text-muted-foreground text-center">Loading models...</div>
+                            {:then models} 
+                              {@const filteredModels = models.filter(m => !['embedding', 'audio', 'tts', 'whisper', 'dall-e'].some(x => m.toLowerCase().includes(x)))}
+                              {#each filteredModels as model}
+                                <Command.Item
+                                  value={model}
+                                  onSelect={() => {
+                                    modelName = model;
+                                    modelOpen = false;
+                                  }}
+                                >
+                                  <Check
+                                    class={cn(
+                                      "mr-2 h-4 w-4",
+                                      modelName !== model && "text-transparent"
+                                    )}
+                                  />
+                                  {model}
+                                </Command.Item>
+                              {/each}
+                              {#if filteredModels.length === 0}
+                                <div class="p-2 text-sm text-muted-foreground text-center">No chat models found for {selectedSecret.name}</div>
+                              {/if}
+                            {:catch error}
+                              <div class="p-2 text-sm text-red-500 text-center">Error loading models</div>
+                            {/await}
+                          {:else}
+                            <div class="p-2 text-sm text-muted-foreground text-center">Select a provider first</div>
+                          {/if}
+                        </Command.Group>
+                      </Command.List>
                     </Command.Root>
                   </Popover.Content>
                 </Popover.Root>
@@ -356,19 +360,19 @@
           </div>
           <Dialog.Footer>
             <DialogPrimitive.Close>
-              <Button on:click={addModel} class="px-4 py-2 text-white rounded-lg bg-blue-800 hover:bg-blue-700 transition">Add Model</Button>
+              <Button class="px-4 py-2" on:click={addModel}>Add Model</Button>
             </DialogPrimitive.Close>
           </Dialog.Footer>
         </Dialog.Header>
       </Dialog.Content>
     </Dialog.Root>
 
-    <!-- Remove Model Dialog -->
-    <Dialog.Root bind:open={removeDialogOpen}>
-      <Dialog.Trigger>
-        <Button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">Remove Model</Button>
-      </Dialog.Trigger>
-      <Dialog.Content>
+        <!-- Remove Model Dialog -->
+        <Dialog.Root bind:open={removeDialogOpen}>
+          <Dialog.Trigger>
+            <Button variant="destructive" class="px-8 py-2">Remove Model</Button>
+          </Dialog.Trigger>
+          <Dialog.Content>
         <Dialog.Header>
           <Dialog.Title>Remove Model</Dialog.Title>
           <Dialog.Description>
@@ -424,11 +428,13 @@
           </Popover.Root>
           <Dialog.Footer>
             <DialogPrimitive.Close>
-              <Button on:click={removeModel} class="px-4 py-2 text-white rounded-lg bg-red-800 hover:bg-red-700 transition">Remove Model</Button>
+              <Button variant="destructive" class="px-4 py-2" on:click={removeModel}>Remove Model</Button>
             </DialogPrimitive.Close>
           </Dialog.Footer>
         </Dialog.Header>
       </Dialog.Content>
     </Dialog.Root>
+      </div>
+    </div>
   </div>
 </div>

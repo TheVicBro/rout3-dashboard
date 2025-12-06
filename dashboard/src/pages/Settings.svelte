@@ -25,9 +25,9 @@
 
 <div class="flex flex-col flex-1">
   <Toaster />
-  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">Settings</h1>
-  <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow flex-1 overflow-auto">
-    <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
+  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b dark:border-slate-800">Settings</h1>
+  <div class="m-10 bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm flex-1 overflow-auto">
+    <h2 class="p-8 text-xl font-semibold border-b dark:border-slate-800">Overview</h2>
     <div class="p-20 px-64">
       <div>
         <h3 class="text-xl font-semibold mb-4">General Settings</h3>
@@ -43,7 +43,7 @@
         </div>
       </div>
       <div class="pt-6">
-        <Button on:click={save} class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none">Save Changes</Button>
+        <Button on:click={save} class="px-4 py-2">Save Changes</Button>
       </div>
     </div>
   </div>

@@ -112,7 +112,7 @@
   }
 </script>
 
-<div class="flex items-center justify-center bg-gray-100 dark:bg-slate-800">
+<div class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-800">
   <div class="flex bg-white dark:bg-slate-900 rounded-lg shadow-lg w-full max-w-4xl">
     <div class="flex flex-col p-12 pt-8 w-1/2 justify-center">
       <div class="flex justify-center mb-4">
