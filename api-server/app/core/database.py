@@ -14,14 +14,14 @@ load_dotenv()
 TURSO_DATABASE_URL = os.environ.get("TURSO_DATABASE_URL")
 TURSO_AUTH_TOKEN = os.environ.get("TURSO_AUTH_TOKEN")
 
-sqlite_url = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"
+sqlite_url = f"sqlite+{TURSO_DATABASE_URL}?secure=true"
 # Local
 # sqlite_url = "sqlite:///./sql_app.db"
 
 engine = create_engine(
     # connect_args only needed for SQLite
     sqlite_url,
-    connect_args={"check_same_thread": False},
+    connect_args={"check_same_thread": False, "auth_token": TURSO_AUTH_TOKEN},
     echo=True,
 )
 
