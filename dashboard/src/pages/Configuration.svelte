@@ -12,18 +12,17 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Slider } from "$lib/components/ui/slider/index.js";
-  import { cn } from "$lib/utils.js";
   import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
-  import { closeAndFocusTrigger } from "../utils/utils"; 
+  import { cn, closeAndFocusTrigger, commonModels, availableModelProviders } from "$lib/utils"; 
 	import { onMount } from 'svelte';
   import Skeleton from "../components/Skeleton.svelte"
   import { z } from 'zod';
+  import { api } from "$lib/api";
 
   let temperature = [0.7];
   let config: Config | null = null;
   let modelName = '';
   const maxTokens = writable(100);
-  const token = localStorage.getItem("authToken");
   const queryClient = useQueryClient();
 
   interface Config {
@@ -85,66 +84,33 @@
   });
 
   async function fetchModelConfig(): Promise<PartialModelConfig[]> {
-    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/config/model/${config?.id}`, {
-      method: 'GET',
-      headers: {
-        'accept': 'application/json',
-      }
-    });
-    const data = await response.json();
+    if (!config?.id) return [];
+    const data = await api.get<unknown>(`/config/model/${config.id}`);
     return PartialModelConfigSchema.array().parse(data);
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
-    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/secrets`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      }
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-    }
-    const data = await response.json();
+    const data = await api.get<unknown>('/secrets');
     return z.array(SecretSchema).parse(data);
   };
 
-  async function getCostConfig(): Promise<Config> {
-    const response = await fetch('https://rout3-backend.vercel.app/api/v1/config/', {
-      method: 'GET',
-      headers: {
-        'accept': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  const fetchProviderModels = async (provider: string): Promise<string[]> => {
+    try {
+      const data = await api.get<string[]>(`/models/${provider}`);
+      return data;
+    } catch (e) {
+      console.error(`Failed to fetch models for ${provider}`, e);
+      // Fallback to common models if API fails
+      return commonModels[provider] || [];
     }
-    return await response.json();
+  };
+
+  async function getCostConfig(): Promise<Config> {
+    return await api.get<Config>('/config/');
   }
 
   async function createConfig(newConfig: { timeout: number; route_type: string }): Promise<Config> {
-    const response = await fetch('https://rout3-backend.vercel.app/api/v1/config/', {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(newConfig)
-    });
-
-    if (!response.ok) {
-      if (response.status === 422) {
-        const errorData = await response.json();
-        throw new Error(`Validation Error: ${JSON.stringify(errorData.detail)}`);
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
+    return await api.post<Config>('/config/', newConfig);
   }
 
   const addModel = async () => {
@@ -153,23 +119,12 @@
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
     try {
-      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/config/model?secret_id=${selectedSecret?.id}`, {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          model: modelName,
+      await api.post(`/config/model?secret_id=${selectedSecret?.id}`, {
+          model: modelName.trim(),
           max_tokens: maxTokenCount,
           temperature: temperature[0],
-        })
       });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
+
       await queryClient.invalidateQueries({ queryKey: ['apiData'] });
       toast.success(`${modelName} has been added.`, {
         description: `${formatted_date}`,
@@ -188,18 +143,8 @@
     modelName = selectedModel?.model || '';
 
     try {
-      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/config/model/${selectedModel?.id}`, {
-        method: 'DELETE',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
+      await api.delete(`/config/model/${selectedModel?.id}`);
+
       await queryClient.invalidateQueries({ queryKey: ['apiData'] });
       toast.success(`${modelName} has been removed.`, {
         description: `${formatted_date}`,
@@ -212,9 +157,10 @@
     }
   }
 
-  const modelConfigQuery = createQuery<PartialModelConfig[]>({
-    queryKey: ['apiData'],
+  $: modelConfigQuery = createQuery<PartialModelConfig[]>({
+    queryKey: ['apiData', config?.id],
     queryFn: fetchModelConfig,
+    enabled: !!config?.id
   });
 
   const secretQuery = createQuery<Secret[]>({
@@ -223,6 +169,7 @@
   });
 
   let open = false;
+  let modelOpen = false;
   let addDialogOpen = false;
   let removeDialogOpen = false;
   $: selectedAddValue = selectedSecret?.name || "Select a secret...";
@@ -233,10 +180,11 @@
 
 <div class="flex flex-col h-screen">
   <Toaster />
-  <h1 class="p-8 pl-20 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">Configuration</h1>
+  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b dark:border-slate-800">Configuration</h1>
   <div class="flex-1 overflow-auto">
-    <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
-      <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
+    <div class="m-10 space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm overflow-hidden">
+      <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b dark:border-slate-800">Overview</h2>
       <div class="p-20 px-64">
         {#if $modelConfigQuery.isPending || $modelConfigQuery.error}
           <Skeleton />
@@ -265,11 +213,12 @@
       </div>
     </div>
 
-    <!-- Add Model Dialog -->
-    <Dialog.Root bind:open={addDialogOpen}>
-      <Dialog.Trigger>
-        <Button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">Add Model</Button>
-      </Dialog.Trigger>
+    <div class="flex gap-4">
+      <!-- Add Model Dialog -->
+        <Dialog.Root bind:open={addDialogOpen}>
+          <Dialog.Trigger>
+            <Button class="px-8 py-2">Add Model</Button>
+          </Dialog.Trigger>
       <Dialog.Content>
         <Dialog.Header>
           <Dialog.Title>Add Model</Dialog.Title>
@@ -299,26 +248,46 @@
                     <Command.Item>Loading secrets...</Command.Item>
                   {:else if $secretQuery.error}
                     <Command.Item>Error loading secrets: {$secretQuery.error.message}</Command.Item>
-                  {:else if $secretQuery.data.length === 0}
-                    <Command.Item>No secrets available</Command.Item>
                   {:else}
-                    {#each $secretQuery.data as secret}
-                      <Command.Item
-                        value={secret.name}
-                        onSelect={() => {
-                          selectedSecret = secret;
-                          closeAndFocusTrigger(ids.trigger);
-                          open = false;
-                        }}
-                      >
-                        <Check
-                          class={cn(
-                            "mr-2 h-4 w-4",
-                            selectedSecret?.id !== secret.id && "text-transparent"
-                          )}
-                        />
-                        {secret.name} (ID: {secret.id})
-                      </Command.Item>
+                    {#each availableModelProviders as provider}
+                      {@const providerSecrets = $secretQuery.data.filter(s => s.name === provider)}
+                      {#if providerSecrets.length > 0}
+                        {#each providerSecrets as secret}
+                          <Command.Item
+                            value={secret.name}
+                            onSelect={() => {
+                              selectedSecret = secret;
+                              closeAndFocusTrigger(ids.trigger);
+                              open = false;
+                            }}
+                          >
+                            <Check
+                              class={cn(
+                                "mr-2 h-4 w-4",
+                                selectedSecret?.id !== secret.id && "text-transparent"
+                              )}
+                            />
+                            {secret.name} (ID: {secret.id})
+                          </Command.Item>
+                        {/each}
+                      {:else}
+                        <Command.Item
+                          value={provider}
+                          class="opacity-50 cursor-not-allowed"
+                          onSelect={() => {
+                            toast.error(`No API Key found for ${provider}`, {
+                              description: "Please add a key in the Secrets page first.",
+                              action: {
+                                label: "Go to Secrets",
+                                onClick: () => window.location.href = '/secrets'
+                              }
+                            });
+                          }}
+                        >
+                          <Check class="mr-2 h-4 w-4 text-transparent" />
+                          {provider} (No Key)
+                        </Command.Item>
+                      {/if}
                     {/each}
                   {/if}
                 </Command.Group>
@@ -329,7 +298,57 @@
             <h3 class="text-lg font-semibold">Model Settings</h3>
             <div class="grid grid-cols-5 items-center gap-4">
               <Label for="modelName" class="text-center">Model Name</Label>
-              <Input id="modelName" bind:value={modelName} class="col-span-4" />
+              <div class="col-span-4 flex gap-2">
+                <Input id="modelName" bind:value={modelName} class="flex-1" placeholder="e.g. gpt-4" />
+                <Popover.Root bind:open={modelOpen}>
+                  <Popover.Trigger asChild let:builder>
+                    <Button builders={[builder]} variant="outline" size="icon" title="Select common model">
+                      <ChevronsUpDown class="h-4 w-4" />
+                    </Button>
+                  </Popover.Trigger>
+                  <Popover.Content class="w-[200px] p-0" align="end">
+                    <Command.Root>
+                      <Command.Input placeholder="Search models..." />
+                      <Command.List>
+                        <Command.Empty>No models found.</Command.Empty>
+                        <Command.Group>
+                          {#if selectedSecret}
+                            {#await fetchProviderModels(selectedSecret.name)}
+                              <div class="p-2 text-sm text-muted-foreground text-center">Loading models...</div>
+                            {:then models} 
+                              {@const filteredModels = models.filter(m => !['embedding', 'audio', 'tts', 'whisper', 'dall-e'].some(x => m.toLowerCase().includes(x)))}
+                              {#each filteredModels as model}
+                                <Command.Item
+                                  value={model}
+                                  onSelect={() => {
+                                    modelName = model;
+                                    modelOpen = false;
+                                  }}
+                                >
+                                  <Check
+                                    class={cn(
+                                      "mr-2 h-4 w-4",
+                                      modelName !== model && "text-transparent"
+                                    )}
+                                  />
+                                  {model}
+                                </Command.Item>
+                              {/each}
+                              {#if filteredModels.length === 0}
+                                <div class="p-2 text-sm text-muted-foreground text-center">No chat models found for {selectedSecret.name}</div>
+                              {/if}
+                            {:catch error}
+                              <div class="p-2 text-sm text-red-500 text-center">Error loading models</div>
+                            {/await}
+                          {:else}
+                            <div class="p-2 text-sm text-muted-foreground text-center">Select a provider first</div>
+                          {/if}
+                        </Command.Group>
+                      </Command.List>
+                    </Command.Root>
+                  </Popover.Content>
+                </Popover.Root>
+              </div>
             </div>
             <div class="grid grid-cols-5 items-center gap-4">
               <Label for="temperature" class="text-center text-sm">Temperature: {temperature[0].toFixed(2)}</Label>
@@ -342,19 +361,19 @@
           </div>
           <Dialog.Footer>
             <DialogPrimitive.Close>
-              <Button on:click={addModel} class="px-4 py-2 text-white rounded-lg bg-blue-800 hover:bg-blue-700 transition">Add Model</Button>
+              <Button class="px-4 py-2" on:click={addModel}>Add Model</Button>
             </DialogPrimitive.Close>
           </Dialog.Footer>
         </Dialog.Header>
       </Dialog.Content>
     </Dialog.Root>
 
-    <!-- Remove Model Dialog -->
-    <Dialog.Root bind:open={removeDialogOpen}>
-      <Dialog.Trigger>
-        <Button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">Remove Model</Button>
-      </Dialog.Trigger>
-      <Dialog.Content>
+        <!-- Remove Model Dialog -->
+        <Dialog.Root bind:open={removeDialogOpen}>
+          <Dialog.Trigger>
+            <Button variant="destructive" class="px-8 py-2">Remove Model</Button>
+          </Dialog.Trigger>
+          <Dialog.Content>
         <Dialog.Header>
           <Dialog.Title>Remove Model</Dialog.Title>
           <Dialog.Description>
@@ -410,11 +429,13 @@
           </Popover.Root>
           <Dialog.Footer>
             <DialogPrimitive.Close>
-              <Button on:click={removeModel} class="px-4 py-2 text-white rounded-lg bg-red-800 hover:bg-red-700 transition">Remove Model</Button>
+              <Button variant="destructive" class="px-4 py-2" on:click={removeModel}>Remove Model</Button>
             </DialogPrimitive.Close>
           </Dialog.Footer>
         </Dialog.Header>
       </Dialog.Content>
     </Dialog.Root>
+      </div>
+    </div>
   </div>
 </div>

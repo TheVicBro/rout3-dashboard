@@ -8,15 +8,14 @@
   import { toast } from "svelte-sonner";
   import { z } from 'zod';
   import { Button } from "$lib/components/ui/button/index.js";
-  import { cn } from "$lib/utils.js";
   import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
-  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
+  import { cn, availableModelProviders, closeAndFocusTrigger } from "$lib/utils"; 
   import * as Dialog from "$lib/components/ui/dialog";
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import Skeleton from "../components/Skeleton.svelte"
+  import { api } from "$lib/api";
 
-  const token = localStorage.getItem("authToken");
   const queryClient = useQueryClient();
 
   const SecretSchema = z.object({
@@ -58,19 +57,8 @@
         key: newKey,
       });
 
-      const response = await fetch('https://rout3-backend.vercel.app/api/v1/secrets', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(newSecretData),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
-      const undoSecret = SecretSchema.parse(await response.json());
+      const undoSecret = await api.post<Secret>('/secrets', newSecretData);
+      
       await queryClient.invalidateQueries({ queryKey: ['secretData'] });
       toast.success(`${newName} has been added.`, {
         description: `${formatted_date}`,
@@ -98,17 +86,8 @@
       }
       const validatedSecret = SecretOptionSchema.parse(selectedSecret);
 
-      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/secrets/${validatedSecret.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
+      await api.delete(`/secrets/${validatedSecret.id}`);
+
       await queryClient.invalidateQueries({ queryKey: ['secretData'] });
       toast.success(`${selectedSecret.name} has been removed.`, {
         description: `${formatted_date}`,
@@ -120,18 +99,7 @@
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
-    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/secrets`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      }
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-    }
-    const data = await response.json();
+    const data = await api.get<unknown>('/secrets');
     return z.array(SecretSchema).parse(data);
   };
 
@@ -160,34 +128,40 @@
 
 <div>
   <Toaster />
-  <h1 class="p-8 pl-20 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">Secrets</h1>
-  <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
-    <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
-    <div class="p-10">
+  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b dark:border-slate-800">Secrets</h1>
+  <div class="m-10 space-y-6">
+    <div class="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm overflow-hidden">
       {#if $query.isPending}
-        <Skeleton />
+        <div class="p-10">
+          <Skeleton />
+        </div>
       {:else if $query.error}
-        <p class="text-red-600">An error has occurred: {$query.error.message}</p>
+        <div class="p-10">
+          <p class="text-red-600">An error has occurred: {$query.error.message}</p>
+        </div>
       {:else if $query.data.length === 0}
-        <div class="flex flex-col items-center">
+        <div class="flex flex-col items-center p-10">
           <CirclePlus class="w-12 h-12 mb-4 text-gray-400" />
           <p>No secrets found. Click "Add key" to add a new key.</p>
         </div>
       {:else}
-        <table class="w-full">
-          <thead>
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-slate-800 dark:text-gray-400">
             <tr>
-              <th class="text-left p-2">Provider</th>
-              <th class="text-left p-2">Key</th>
-              <th class="text-left p-2">Last Used</th>
+              <th class="px-6 py-3">Provider</th>
+              <th class="px-6 py-3">Key</th>
+              <th class="px-6 py-3">Last Used</th>
             </tr>
           </thead>
           <tbody>
             {#each $query.data as secret}
-              <tr>
-                <td class="p-2 flex items-center gap-x-2">{secret.name} <p class="text-xs text-gray-400">(ID: {secret.id})</p></td>
-                <td class="p-2">**********</td>
-                <td class="p-2">
+              <tr class="bg-white border-b dark:bg-slate-900 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap flex items-center gap-x-2">
+                  {secret.name}
+                  <span class="text-xs text-gray-400 font-normal">(ID: {secret.id})</span>
+                </td>
+                <td class="px-6 py-4 font-mono">**********</td>
+                <td class="px-6 py-4">
                   {secret.last_used 
                     ? DateTime.fromISO(secret.last_used).setZone(DateTime.local().zoneName).toRelative()
                     : "Never Used"}
@@ -198,13 +172,13 @@
         </table>
       {/if}
     </div>
-  </div>
 
-  <!-- Add Key Button -->
-  <Dialog.Root>
-    <Dialog.Trigger>
-      <Button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Add a new key</Button>
-    </Dialog.Trigger>
+    <div class="flex gap-4">
+      <!-- Add Key Button -->
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <Button class="px-8 py-2">+ Add a new key</Button>
+        </Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Add New Key</Dialog.Title>
@@ -264,19 +238,19 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <Button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={addNewKey}>Add Key</Button>
+            <Button class="px-4 py-2" on:click={addNewKey}>Add Key</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>
   </Dialog.Root>
 
-  <!-- Remove Key Button -->
-  <Dialog.Root>
-    <Dialog.Trigger>
-      <Button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Remove a key</Button>
-    </Dialog.Trigger>
-    <Dialog.Content>
+      <!-- Remove Key Button -->
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <Button variant="destructive" class="px-8 py-2">- Remove a key</Button>
+        </Dialog.Trigger>
+        <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Remove Key</Dialog.Title>
         <Dialog.Description>
@@ -333,10 +307,12 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <Button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={removeKey}>Remove Key</Button>
+            <Button variant="destructive" class="px-4 py-2" on:click={removeKey}>Remove Key</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>
   </Dialog.Root>
+    </div>
+  </div>
 </div>

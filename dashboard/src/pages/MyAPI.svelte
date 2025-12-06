@@ -7,18 +7,15 @@
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { cn } from "$lib/utils.js";
   import { z } from 'zod';
   import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
-  import { closeAndFocusTrigger } from "../utils/utils"; 
-  import { isAuthenticated } from '../stores/auth';
-  import { navigate } from 'svelte-routing';
+  import { cn, closeAndFocusTrigger } from "$lib/utils"; 
   import * as Dialog from "$lib/components/ui/dialog";
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import Skeleton from "../components/Skeleton.svelte"
+  import { api } from "$lib/api";
 
-  const token = localStorage.getItem("authToken");
   const queryClient = useQueryClient();
 
   const APISchema = z.object({
@@ -45,19 +42,7 @@
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
     try {
-      const response = await fetch('https://rout3-backend.vercel.app/api/v1/myapi', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: newName }),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
-      const data = await response.json();
+      const data = await api.post<{ key: string }>('/myapi', { name: newName });
       newApiKey = data.key;
       await queryClient.invalidateQueries({ queryKey: ['apiData'] });
       toast.success(`${newName} has been added.`, {
@@ -87,17 +72,8 @@
 
     try {
       const validatedAPI = APIOptionSchema.parse(selectedAPItoDelete);
-      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/myapi/${validatedAPI.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
+      await api.delete(`/myapi/${validatedAPI.id}`);
+
       await queryClient.invalidateQueries({ queryKey: ['apiData'] });
       toast.success(`${selectedAPItoDelete.name} has been removed.`, {
         description: `${formatted_date}`,
@@ -111,22 +87,7 @@
   }
 
   const fetchAPI = async (): Promise<API[]> => {
-    const response = await fetch('https://rout3-backend.vercel.app/api/v1/myapi', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      }
-    });
-    if (!response.ok) {
-      if (response.status === 403) {
-        isAuthenticated.set(false);
-        navigate('/login');
-      }
-      const errorData = await response.json();
-      throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-    }
-    const data = await response.json();
+    const data = await api.get<unknown>('/myapi');
     return z.array(APISchema).parse(data);
   };
 
@@ -168,43 +129,51 @@
 
 <div>
   <Toaster />
-  <h1 class="p-8 pl-20 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">MyAPI</h1>
-  <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
-    <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
-    <div class="p-10">
-      {#if $query.isPending || $query.error}
-        <Skeleton />
+  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b dark:border-slate-800">MyAPI</h1>
+  <div class="m-10 space-y-6">
+    <div class="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm overflow-hidden">
+      {#if $query.isPending}
+        <div class="p-10">
+          <Skeleton />
+        </div>
+      {:else if $query.error}
+        <div class="p-10">
+          <p class="text-red-600">An error has occurred: {$query.error.message}</p>
+        </div>
       {:else if $query.data.length === 0}
-        <div class="flex flex-col items-center">
+        <div class="flex flex-col items-center p-10">
           <CirclePlus class="w-12 h-12 mb-4 text-gray-400" />
           <p>No APIs found. Click "Create API" to add a new API.</p>
         </div>
       {:else}
-        <table class="w-full">
-          <thead>
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-slate-800 dark:text-gray-400">
             <tr>
-              <th class="text-left p-2">Name</th>
-              <th class="text-left p-2">Key</th>
+              <th class="px-6 py-3">Name</th>
+              <th class="px-6 py-3">Key</th>
             </tr>
           </thead>
           <tbody>
             {#each $query.data as api}
-              <tr>
-                <td class="p-2 flex items-center gap-x-2">{api.name}<p class="text-xs text-gray-400">(ID: {api.id})</p></td>
-                <td class="p-2">**********</td>
+              <tr class="bg-white border-b dark:bg-slate-900 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap flex items-center gap-x-2">
+                  {api.name}
+                  <span class="text-xs text-gray-400 font-normal">(ID: {api.id})</span>
+                </td>
+                <td class="px-6 py-4 font-mono">**********</td>
               </tr>
             {/each}
           </tbody>
         </table>
       {/if}
     </div>
-  </div>
 
-  <!-- Create API Button -->
-  <Dialog.Root bind:open={dialogOpen}>
-    <Dialog.Trigger>
-      <Button class="ml-10 px-8 py-2 bg-blue-800 transition hover:bg-blue-700 hover:transition text-white rounded-lg">+ Create API</Button>
-    </Dialog.Trigger>
+    <div class="flex gap-4">
+      <!-- Create API Button -->
+      <Dialog.Root bind:open={dialogOpen}>
+        <Dialog.Trigger>
+          <Button class="px-8 py-2">+ Create API</Button>
+        </Dialog.Trigger>
     <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Create API Key</Dialog.Title>
@@ -216,7 +185,7 @@
               <Input id="new-api-key" value={newApiKey} readonly class="flex-grow" />
               <Button 
                 variant="outline"
-                class="ml-2 px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 hover:text-white focus:outline-none"
+                class="ml-2 px-4 py-2"
                 on:click={copyToClipboard}
               >
                 {copiedText}
@@ -234,7 +203,7 @@
           </div>
         </div>
         <Dialog.Footer>
-          <Button class="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-700 focus:outline-none" on:click={createAPI} disabled={creatingAPI}>
+          <Button class="px-4 py-2" on:click={createAPI} disabled={creatingAPI}>
             {creatingAPI ? "Creating" : "Create API"}
           </Button>
         </Dialog.Footer>
@@ -243,11 +212,12 @@
     </Dialog.Content>
   </Dialog.Root>
 
-  <!-- Delete API Button -->
-  <Dialog.Root>
-    <Dialog.Trigger>
-      <Button class="ml-10 px-8 py-2 bg-red-800 transition hover:bg-red-700 hover:transition text-white rounded-lg">- Delete API</Button></Dialog.Trigger>
-    <Dialog.Content>
+      <!-- Delete API Button -->
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <Button variant="destructive" class="px-8 py-2">- Delete API</Button>
+        </Dialog.Trigger>
+        <Dialog.Content>
       <Dialog.Header>
         <Dialog.Title>Delete API</Dialog.Title>
         <Dialog.Description>
@@ -304,10 +274,12 @@
         </div>
         <Dialog.Footer>
           <DialogPrimitive.Close>
-            <Button class="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 focus:outline-none" on:click={deleteAPI}>Remove Key</Button>
+            <Button variant="destructive" class="px-4 py-2" on:click={deleteAPI}>Remove Key</Button>
           </DialogPrimitive.Close>
         </Dialog.Footer>
       </Dialog.Header>
     </Dialog.Content>
   </Dialog.Root>
+    </div>
+  </div>
 </div>

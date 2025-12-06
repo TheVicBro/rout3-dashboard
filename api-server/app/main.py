@@ -24,6 +24,7 @@ allowed_origins = [
     "https://rout3.vercel.app",
     "https://rout3.com",
     "https://www.rout3.com",
+    "https://rout3-dev.vercel.app",
 ]
 
 # If there are additional origins in settings.BACKEND_CORS_ORIGINS, include them as well

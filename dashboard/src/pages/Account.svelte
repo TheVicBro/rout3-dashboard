@@ -36,10 +36,10 @@
 
 <div class="flex flex-col h-screen">
   <Toaster />
-  <h1 class="p-8 pl-20 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">Account</h1>
+  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b dark:border-slate-800">Account</h1>
   <div class="flex-1 overflow-auto">
-    <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
-      <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
+    <div class="m-10 bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm">
+      <h2 class="p-8 text-xl font-semibold border-b dark:border-slate-800">Overview</h2>
       <div class="p-10 px-20 space-y-8">
         <div>
           <h3 class="text-xl font-semibold mb-4">Account Information</h3>
@@ -63,7 +63,7 @@
               <Input id="email" type="email" bind:value={accountInfo.email} class="mt-2" />
             </div>
             <div class="pt-2">
-              <Button type="submit" class="px-4 py-2 bg-blue-800 transition text-white rounded-lg hover:bg-blue-700 hover:transition focus:outline-none">Save Account Settings</Button>
+              <Button type="submit" class="px-4 py-2">Save Account Settings</Button>
             </div>
           </form>
         </div>
@@ -84,7 +84,7 @@
               <Input id="confirmNewPassword" type="confirmNewPassword" bind:value={passwordInfo.confirmNewPassword} class="mt-2" />
             </div>
             <div class="pt-2">
-              <Button type="submit" class="px-4 py-2 bg-blue-800 transition text-white rounded-lg hover:bg-blue-700 hover:transition focus:outline-none">Change Password</Button>
+              <Button type="submit" class="px-4 py-2">Change Password</Button>
             </div>
           </form>
         </div>

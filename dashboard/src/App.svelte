@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
+  import { QueryClientProvider } from '@tanstack/svelte-query'
+  import { queryClient } from '$lib/queryClient';
   import { Router, Route, navigate } from 'svelte-routing';
-  import { onMount } from 'svelte';
   import { isAuthenticated } from './stores/auth';
   import { ModeWatcher } from "mode-watcher";
   import Layout from './components/Layout.svelte';
@@ -16,35 +16,16 @@
   import Chat from './pages/Chat.svelte';
   import Landing from './pages/Landing.svelte';
   import NotFound from './pages/404.svelte';
-
-  import Sun from "lucide-svelte/icons/sun";
-  import Moon from "lucide-svelte/icons/moon";
   
-  import { toggleMode } from "mode-watcher";
   import { Button } from "$lib/components/ui/button/index.js";
 
-  const queryClient = new QueryClient()
-
-  onMount(() => {
-    if (localStorage.getItem("authToken")) {
-      isAuthenticated.set(true);
-    }
-  });
-
   function handleLoginSuccess() {
-    isAuthenticated.set(true);
     navigate('/myapi');
   }
 </script>
 
 <QueryClientProvider client={queryClient}>
   <ModeWatcher />
-  <div class="absolute top-6 right-10">
-    <Button on:click={toggleMode} variant="outline" size="icon">
-      <Sun class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"/>
-      <Moon class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-    </Button>
-  </div>
 
   <Router>
     {#if $isAuthenticated}

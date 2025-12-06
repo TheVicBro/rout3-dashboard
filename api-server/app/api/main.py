@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1 import login, myapi, secrets, user, utils, router, configurations
+from app.api.v1 import login, myapi, secrets, user, utils, router, configurations, models_fetch
 
 
 api_router = APIRouter()
@@ -14,3 +14,4 @@ api_router.include_router(router.router, prefix="/router", tags=["router"])
 api_router.include_router(
     configurations.router, prefix="/config", tags=["configuration"]
 )
+api_router.include_router(models_fetch.router, prefix="/models", tags=["models"])
