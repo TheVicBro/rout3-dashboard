@@ -132,9 +132,13 @@
   <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b dark:border-slate-800">MyAPI</h1>
   <div class="m-10">
     <div class="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm overflow-hidden">
-      {#if $query.isPending || $query.error}
+      {#if $query.isPending}
         <div class="p-10">
           <Skeleton />
+        </div>
+      {:else if $query.error}
+        <div class="p-10">
+          <p class="text-red-600">An error has occurred: {$query.error.message}</p>
         </div>
       {:else if $query.data.length === 0}
         <div class="flex flex-col items-center p-10">

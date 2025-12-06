@@ -13,7 +13,7 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { Slider } from "$lib/components/ui/slider/index.js";
   import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
-  import { cn, closeAndFocusTrigger, commonModels } from "$lib/utils"; 
+  import { cn, closeAndFocusTrigger, commonModels, availableModelProviders } from "$lib/utils"; 
 	import { onMount } from 'svelte';
   import Skeleton from "../components/Skeleton.svelte"
   import { z } from 'zod';
@@ -84,13 +84,25 @@
   });
 
   async function fetchModelConfig(): Promise<PartialModelConfig[]> {
-    const data = await api.get<unknown>(`/config/model/${config?.id}`);
+    if (!config?.id) return [];
+    const data = await api.get<unknown>(`/config/model/${config.id}`);
     return PartialModelConfigSchema.array().parse(data);
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
     const data = await api.get<unknown>('/secrets');
     return z.array(SecretSchema).parse(data);
+  };
+
+  const fetchProviderModels = async (provider: string): Promise<string[]> => {
+    try {
+      const data = await api.get<string[]>(`/models/${provider}`);
+      return data;
+    } catch (e) {
+      console.error(`Failed to fetch models for ${provider}`, e);
+      // Fallback to common models if API fails
+      return commonModels[provider] || [];
+    }
   };
 
   async function getCostConfig(): Promise<Config> {
@@ -145,9 +157,10 @@
     }
   }
 
-  const modelConfigQuery = createQuery<PartialModelConfig[]>({
-    queryKey: ['apiData'],
+  $: modelConfigQuery = createQuery<PartialModelConfig[]>({
+    queryKey: ['apiData', config?.id],
     queryFn: fetchModelConfig,
+    enabled: !!config?.id
   });
 
   const secretQuery = createQuery<Secret[]>({
@@ -167,10 +180,10 @@
 
 <div class="flex flex-col h-screen">
   <Toaster />
-  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">Configuration</h1>
+  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b dark:border-slate-800">Configuration</h1>
   <div class="flex-1 overflow-auto">
-    <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
-      <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
+    <div class="m-10 bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 shadow-sm overflow-hidden">
+      <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b dark:border-slate-800">Overview</h2>
       <div class="p-20 px-64">
         {#if $modelConfigQuery.isPending || $modelConfigQuery.error}
           <Skeleton />
@@ -233,26 +246,46 @@
                     <Command.Item>Loading secrets...</Command.Item>
                   {:else if $secretQuery.error}
                     <Command.Item>Error loading secrets: {$secretQuery.error.message}</Command.Item>
-                  {:else if $secretQuery.data.length === 0}
-                    <Command.Item>No secrets available</Command.Item>
                   {:else}
-                    {#each $secretQuery.data as secret}
-                      <Command.Item
-                        value={secret.name}
-                        onSelect={() => {
-                          selectedSecret = secret;
-                          closeAndFocusTrigger(ids.trigger);
-                          open = false;
-                        }}
-                      >
-                        <Check
-                          class={cn(
-                            "mr-2 h-4 w-4",
-                            selectedSecret?.id !== secret.id && "text-transparent"
-                          )}
-                        />
-                        {secret.name} (ID: {secret.id})
-                      </Command.Item>
+                    {#each availableModelProviders as provider}
+                      {@const providerSecrets = $secretQuery.data.filter(s => s.name === provider)}
+                      {#if providerSecrets.length > 0}
+                        {#each providerSecrets as secret}
+                          <Command.Item
+                            value={secret.name}
+                            onSelect={() => {
+                              selectedSecret = secret;
+                              closeAndFocusTrigger(ids.trigger);
+                              open = false;
+                            }}
+                          >
+                            <Check
+                              class={cn(
+                                "mr-2 h-4 w-4",
+                                selectedSecret?.id !== secret.id && "text-transparent"
+                              )}
+                            />
+                            {secret.name} (ID: {secret.id})
+                          </Command.Item>
+                        {/each}
+                      {:else}
+                        <Command.Item
+                          value={provider}
+                          class="opacity-50 cursor-not-allowed"
+                          onSelect={() => {
+                            toast.error(`No API Key found for ${provider}`, {
+                              description: "Please add a key in the Secrets page first.",
+                              action: {
+                                label: "Go to Secrets",
+                                onClick: () => window.location.href = '/secrets'
+                              }
+                            });
+                          }}
+                        >
+                          <Check class="mr-2 h-4 w-4 text-transparent" />
+                          {provider} (No Key)
+                        </Command.Item>
+                      {/if}
                     {/each}
                   {/if}
                 </Command.Group>
@@ -277,26 +310,32 @@
                       <Command.Empty>No models found.</Command.Empty>
                       <Command.Group>
                         {#if selectedSecret}
-                          {#each (commonModels[selectedSecret.name] || []) as model}
-                            <Command.Item
-                              value={model}
-                              onSelect={() => {
-                                modelName = model;
-                                modelOpen = false;
-                              }}
-                            >
-                              <Check
-                                class={cn(
-                                  "mr-2 h-4 w-4",
-                                  modelName !== model && "text-transparent"
-                                )}
-                              />
-                              {model}
-                            </Command.Item>
-                          {/each}
-                          {#if !(commonModels[selectedSecret.name] || []).length}
-                             <div class="p-2 text-sm text-muted-foreground text-center">No common models known for {selectedSecret.name}</div>
-                          {/if}
+                          {#await fetchProviderModels(selectedSecret.name)}
+                            <div class="p-2 text-sm text-muted-foreground text-center">Loading models...</div>
+                          {:then models} 
+                            {#each models as model}
+                              <Command.Item
+                                value={model}
+                                onSelect={() => {
+                                  modelName = model;
+                                  modelOpen = false;
+                                }}
+                              >
+                                <Check
+                                  class={cn(
+                                    "mr-2 h-4 w-4",
+                                    modelName !== model && "text-transparent"
+                                  )}
+                                />
+                                {model}
+                              </Command.Item>
+                            {/each}
+                            {#if models.length === 0}
+                               <div class="p-2 text-sm text-muted-foreground text-center">No models found for {selectedSecret.name}</div>
+                            {/if}
+                          {:catch error}
+                             <div class="p-2 text-sm text-red-500 text-center">Error loading models</div>
+                          {/await}
                         {:else}
                           <div class="p-2 text-sm text-muted-foreground text-center">Select a provider first</div>
                         {/if}
