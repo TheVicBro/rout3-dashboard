@@ -36,7 +36,7 @@
 
 <div class="flex flex-col h-screen">
   <Toaster />
-  <h1 class="p-8 pl-20 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">Account</h1>
+  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">Account</h1>
   <div class="flex-1 overflow-auto">
     <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
       <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>

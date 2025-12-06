@@ -7,10 +7,9 @@
   import { Toaster } from "$lib/components/ui/sonner";
   import { toast } from "svelte-sonner";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { cn } from "$lib/utils.js";
   import { z } from 'zod';
   import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
-  import { closeAndFocusTrigger } from "$lib/utils"; 
+  import { cn, closeAndFocusTrigger } from "$lib/utils"; 
   import * as Dialog from "$lib/components/ui/dialog";
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
@@ -130,7 +129,7 @@
 
 <div>
   <Toaster />
-  <h1 class="p-8 pl-20 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">MyAPI</h1>
+  <h1 class="p-8 text-3xl font-bold bg-white dark:bg-slate-900 border-b-2 dark:border-black">MyAPI</h1>
   <div class="m-10 border dark:border-black rounded-lg bg-white dark:bg-slate-900 shadow">
     <h2 class="p-10 pb-4 leading-none text-2xl font-semibold border-b-2 dark:border-black">Overview</h2>
     <div class="p-10">

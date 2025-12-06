@@ -1,9 +1,11 @@
 <script lang="ts">
   import { navigate, Link, useLocation } from 'svelte-routing';
-  import { isAuthenticated } from '../stores/auth';
+  import { auth } from '../stores/auth';
   import { Button } from "$lib/components/ui/button/index.js";
-  import { MessageSquare, Bot, FileSliders, KeyRound, BarChart3, Wallet, UserRound, Settings, LogOut } from 'lucide-svelte';
+  import { MessageSquare, Bot, FileSliders, KeyRound, BarChart3, Wallet, UserRound, Settings, LogOut, Sun, Moon } from 'lucide-svelte';
   import Logo from './Logo.svelte';
+  import { cn } from "$lib/utils";
+  import { toggleMode } from "mode-watcher";
 
   const location = useLocation();
   $: currentPath = $location.pathname;
@@ -23,8 +25,7 @@
   ];
 
   function logout() {
-    localStorage.clear();
-    isAuthenticated.set(false);
+    auth.logout();
     navigate('/login', { replace: true });
   }
 </script>
@@ -39,9 +40,12 @@
       {#each topMenuItems as { path, label, icon }}
         <Link to={path} class="w-full">
           <Button
-            class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900 ${
-              currentPath === path ? 'bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 hover:dark:bg-blue-800 text-blue-800 dark:text-blue-100' : 'text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white'
-            }`}
+            class={cn(
+              "menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900",
+              currentPath === path 
+                ? 'bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 hover:dark:bg-blue-800 text-blue-800 dark:text-blue-100' 
+                : 'text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white'
+            )}
             type="button"
           >
             <svelte:component this={icon} />
@@ -54,9 +58,12 @@
       {#each bottomMenuItems as { path, label, icon }}
         <Link to={path} class="w-full">
           <Button
-            class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900 ${
-              currentPath === path ? 'bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 hover:dark:bg-blue-800 text-blue-800 dark:text-blue-100' : 'text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white'
-            }`}
+            class={cn(
+              "menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900",
+              currentPath === path 
+                ? 'bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 hover:dark:bg-blue-800 text-blue-800 dark:text-blue-100' 
+                : 'text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white'
+            )}
             type="button"
           >
             <svelte:component this={icon} />
@@ -65,12 +72,24 @@
         </Link>
       {/each}
       <Button
-        class={`menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white`}
+        class="menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white"
         type="button"
         on:click={logout}
       >
-        <svelte:component this={LogOut} />
+        <LogOut />
         <span class="font-semibold">Logout</span>
+      </Button>
+      
+      <Button
+        class="menu-item w-full h-12 p-2 rounded-lg flex items-center justify-start space-x-2 transition bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-200 hover:bg-gray-200 hover:dark:bg-slate-800 hover:text-gray-700 hover:dark:text-white"
+        type="button"
+        on:click={toggleMode}
+      >
+        <div class="relative w-[1.2rem] h-[1.2rem]">
+          <Sun class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon class="absolute top-0 left-0 h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+        </div>
+        <span class="font-semibold">Theme</span>
       </Button>
     </div>
   </div>
