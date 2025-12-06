@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query'
+  import { QueryClientProvider } from '@tanstack/svelte-query'
+  import { queryClient } from '$lib/queryClient';
   import { Router, Route, navigate } from 'svelte-routing';
-  import { onMount } from 'svelte';
   import { isAuthenticated } from './stores/auth';
   import { ModeWatcher } from "mode-watcher";
   import Layout from './components/Layout.svelte';
@@ -23,16 +23,7 @@
   import { toggleMode } from "mode-watcher";
   import { Button } from "$lib/components/ui/button/index.js";
 
-  const queryClient = new QueryClient()
-
-  onMount(() => {
-    if (localStorage.getItem("authToken")) {
-      isAuthenticated.set(true);
-    }
-  });
-
   function handleLoginSuccess() {
-    isAuthenticated.set(true);
     navigate('/myapi');
   }
 </script>

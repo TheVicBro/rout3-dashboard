@@ -14,16 +14,16 @@
   import { Slider } from "$lib/components/ui/slider/index.js";
   import { cn } from "$lib/utils.js";
   import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
-  import { closeAndFocusTrigger } from "../utils/utils"; 
+  import { closeAndFocusTrigger } from "$lib/utils"; 
 	import { onMount } from 'svelte';
   import Skeleton from "../components/Skeleton.svelte"
   import { z } from 'zod';
+  import { api } from "$lib/api";
 
   let temperature = [0.7];
   let config: Config | null = null;
   let modelName = '';
   const maxTokens = writable(100);
-  const token = localStorage.getItem("authToken");
   const queryClient = useQueryClient();
 
   interface Config {
@@ -85,66 +85,21 @@
   });
 
   async function fetchModelConfig(): Promise<PartialModelConfig[]> {
-    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/config/model/${config?.id}`, {
-      method: 'GET',
-      headers: {
-        'accept': 'application/json',
-      }
-    });
-    const data = await response.json();
+    const data = await api.get<unknown>(`/config/model/${config?.id}`);
     return PartialModelConfigSchema.array().parse(data);
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
-    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/secrets`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      }
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-    }
-    const data = await response.json();
+    const data = await api.get<unknown>('/secrets');
     return z.array(SecretSchema).parse(data);
   };
 
   async function getCostConfig(): Promise<Config> {
-    const response = await fetch('https://rout3-backend.vercel.app/api/v1/config/', {
-      method: 'GET',
-      headers: {
-        'accept': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
+    return await api.get<Config>('/config/');
   }
 
   async function createConfig(newConfig: { timeout: number; route_type: string }): Promise<Config> {
-    const response = await fetch('https://rout3-backend.vercel.app/api/v1/config/', {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(newConfig)
-    });
-
-    if (!response.ok) {
-      if (response.status === 422) {
-        const errorData = await response.json();
-        throw new Error(`Validation Error: ${JSON.stringify(errorData.detail)}`);
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
+    return await api.post<Config>('/config/', newConfig);
   }
 
   const addModel = async () => {
@@ -153,23 +108,12 @@
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
     try {
-      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/config/model?secret_id=${selectedSecret?.id}`, {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
+      await api.post(`/config/model?secret_id=${selectedSecret?.id}`, {
           model: modelName,
           max_tokens: maxTokenCount,
           temperature: temperature[0],
-        })
       });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
+
       await queryClient.invalidateQueries({ queryKey: ['apiData'] });
       toast.success(`${modelName} has been added.`, {
         description: `${formatted_date}`,
@@ -188,18 +132,8 @@
     modelName = selectedModel?.model || '';
 
     try {
-      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/config/model/${selectedModel?.id}`, {
-        method: 'DELETE',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
+      await api.delete(`/config/model/${selectedModel?.id}`);
+
       await queryClient.invalidateQueries({ queryKey: ['apiData'] });
       toast.success(`${modelName} has been removed.`, {
         description: `${formatted_date}`,

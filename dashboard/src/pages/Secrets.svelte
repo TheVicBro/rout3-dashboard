@@ -10,13 +10,13 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import { cn } from "$lib/utils.js";
   import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
-  import { availableModelProviders, closeAndFocusTrigger } from "../utils/utils"; 
+  import { availableModelProviders, closeAndFocusTrigger } from "$lib/utils"; 
   import * as Dialog from "$lib/components/ui/dialog";
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import Skeleton from "../components/Skeleton.svelte"
+  import { api } from "$lib/api";
 
-  const token = localStorage.getItem("authToken");
   const queryClient = useQueryClient();
 
   const SecretSchema = z.object({
@@ -58,19 +58,8 @@
         key: newKey,
       });
 
-      const response = await fetch('https://rout3-backend.vercel.app/api/v1/secrets', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(newSecretData),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
-      const undoSecret = SecretSchema.parse(await response.json());
+      const undoSecret = await api.post<Secret>('/secrets', newSecretData);
+      
       await queryClient.invalidateQueries({ queryKey: ['secretData'] });
       toast.success(`${newName} has been added.`, {
         description: `${formatted_date}`,
@@ -98,17 +87,8 @@
       }
       const validatedSecret = SecretOptionSchema.parse(selectedSecret);
 
-      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/secrets/${validatedSecret.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
+      await api.delete(`/secrets/${validatedSecret.id}`);
+
       await queryClient.invalidateQueries({ queryKey: ['secretData'] });
       toast.success(`${selectedSecret.name} has been removed.`, {
         description: `${formatted_date}`,
@@ -120,18 +100,7 @@
   }
 
   const fetchSecrets = async (): Promise<Secret[]> => {
-    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/secrets`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      }
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-    }
-    const data = await response.json();
+    const data = await api.get<unknown>('/secrets');
     return z.array(SecretSchema).parse(data);
   };
 

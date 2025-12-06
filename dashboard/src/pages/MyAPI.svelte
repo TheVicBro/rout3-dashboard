@@ -10,15 +10,15 @@
   import { cn } from "$lib/utils.js";
   import { z } from 'zod';
   import { CirclePlus, Check, ChevronsUpDown } from "lucide-svelte";
-  import { closeAndFocusTrigger } from "../utils/utils"; 
+  import { closeAndFocusTrigger } from "$lib/utils"; 
   import { isAuthenticated } from '../stores/auth';
   import { navigate } from 'svelte-routing';
   import * as Dialog from "$lib/components/ui/dialog";
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import Skeleton from "../components/Skeleton.svelte"
+  import { api } from "$lib/api";
 
-  const token = localStorage.getItem("authToken");
   const queryClient = useQueryClient();
 
   const APISchema = z.object({
@@ -45,19 +45,7 @@
     const formatted_date = current_date.toFormat('yyyy-MM-dd HH:mm:ss');
 
     try {
-      const response = await fetch('https://rout3-backend.vercel.app/api/v1/myapi', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: newName }),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
-      const data = await response.json();
+      const data = await api.post<{ key: string }>('/myapi', { name: newName });
       newApiKey = data.key;
       await queryClient.invalidateQueries({ queryKey: ['apiData'] });
       toast.success(`${newName} has been added.`, {
@@ -87,17 +75,8 @@
 
     try {
       const validatedAPI = APIOptionSchema.parse(selectedAPItoDelete);
-      const response = await fetch(`https://rout3-backend.vercel.app/api/v1/myapi/${validatedAPI.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-      }
+      await api.delete(`/myapi/${validatedAPI.id}`);
+
       await queryClient.invalidateQueries({ queryKey: ['apiData'] });
       toast.success(`${selectedAPItoDelete.name} has been removed.`, {
         description: `${formatted_date}`,
@@ -111,22 +90,7 @@
   }
 
   const fetchAPI = async (): Promise<API[]> => {
-    const response = await fetch('https://rout3-backend.vercel.app/api/v1/myapi', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      }
-    });
-    if (!response.ok) {
-      if (response.status === 403) {
-        isAuthenticated.set(false);
-        navigate('/login');
-      }
-      const errorData = await response.json();
-      throw new Error(errorData.detail || `Network response was not ok: ${response.statusText}`);
-    }
-    const data = await response.json();
+    const data = await api.get<unknown>('/myapi');
     return z.array(APISchema).parse(data);
   };
 

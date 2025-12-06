@@ -5,6 +5,8 @@
   import { Button } from "$lib/components/ui/button";
   import { UserRound, Mail, Lock } from 'lucide-svelte';
   import Logo from "../components/Logo.svelte";
+  import { api } from "$lib/api";
+  import { auth } from "../stores/auth";
 
   const dispatch = createEventDispatcher();
 
@@ -67,20 +69,13 @@
     }
 
     const { usernameOrEmail, password } = result.data;
-    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/login/token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({ username: usernameOrEmail, password }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem("authToken", data.access_token);
+    
+    try {
+      const data = await api.postForm<{ access_token: string }>('/login/token', new URLSearchParams({ username: usernameOrEmail, password }));
+      auth.login(data.access_token);
       localStorage.setItem("username", usernameOrEmail);
       dispatch("loginSuccess");
-    } else {
+    } catch (e) {
       errors.form = "Login failed";
     }
     isLoading = false;
@@ -97,20 +92,14 @@
     }
 
     const { username, email, password } = result.data;
-    const response = await fetch(`https://rout3-backend.vercel.app/api/v1/user`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, email, password }),
-    });
-
-    if (response.ok) {
+    
+    try {
+      await api.post('/user', { username, email, password });
       alert("Registration successful");
       showRegister = false;
       form.usernameOrEmail = username;
       login();
-    } else {
+    } catch (e) {
       errors.form = "Registration failed";
     }
     isLoading = false;
