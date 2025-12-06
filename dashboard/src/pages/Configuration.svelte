@@ -120,7 +120,7 @@
 
     try {
       await api.post(`/config/model?secret_id=${selectedSecret?.id}`, {
-          model: modelName,
+          model: modelName.trim(),
           max_tokens: maxTokenCount,
           temperature: temperature[0],
       });
