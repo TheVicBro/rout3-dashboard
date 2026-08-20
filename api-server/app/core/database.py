@@ -22,7 +22,7 @@ engine = create_engine(
     # connect_args only needed for SQLite
     sqlite_url,
     connect_args={"check_same_thread": False, "auth_token": TURSO_AUTH_TOKEN},
-    echo=True,
+    echo=os.getenv("SQL_ECHO", "").lower() in ("1", "true", "yes"),
 )
 
 
